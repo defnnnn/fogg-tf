@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+function version {
+  local shome="$(cd -P -- "${BASH_SOURCE%/*}/.." && pwd -P)"
+  source "$shome/script/profile"
+
+  local ver_fogg_tf="0.0.1"
+  jq -n --arg fogg_tf "$ver_fogg_tf" '{fogg_tf: $fogg_tf}'
+}
+
+version "$@"

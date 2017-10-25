@@ -212,7 +212,7 @@ resource "aws_route53_zone_association" "associates" {
 }
 
 module "efs" {
-  source   = "./module/fogg-efs"
+  source   = "./module/fogg-tf/fogg-efs"
   efs_name = "${var.env_name}"
   vpc_id   = "${aws_vpc.env.id}"
   env_name = "${var.env_name}"

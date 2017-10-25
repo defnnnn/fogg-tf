@@ -71,7 +71,7 @@ resource "aws_lambda_function" "env" {
 }
 
 module "fn_hello" {
-  source           = "./module/fogg-api-gateway/module/fn"
+  source           = "./module/fogg-tf/fogg-api/fn"
   function_name    = "${aws_lambda_function.env.function_name}"
   function_arn     = "${aws_lambda_function.env.arn}"
   function_version = "${aws_lambda_function.env.version}"
@@ -80,7 +80,7 @@ module "fn_hello" {
 }
 
 module "resource_hello" {
-  source = "./module/fogg-api-gateway//module/resource"
+  source = "./module/fogg-tf/fogg-api/resource"
 
   api_name    = "hello"
   invoke_arn  = "${aws_lambda_function.env.invoke_arn}"
@@ -90,7 +90,7 @@ module "resource_hello" {
 }
 
 module "stage_rc" {
-  source = "./module/fogg-api-gateway//module/stage"
+  source = "./module/fogg-tf/fogg-api/stage"
 
   rest_api_id = "${aws_api_gateway_rest_api.env.id}"
   domain_name = "${signum(length(var.env_zone)) == 1 ? var.env_zone : var.env_name}.${signum(length(var.env_domain_name)) == 1 ? var.env_domain_name : data.terraform_remote_state.org.domain_name}"
@@ -100,7 +100,7 @@ module "stage_rc" {
 }
 
 module "stage_live" {
-  source = "./module/fogg-api-gateway//module/stage"
+  source = "./module/fogg-tf/fogg-api/stage"
 
   rest_api_id = "${aws_api_gateway_rest_api.env.id}"
   domain_name = "${signum(length(var.env_zone)) == 1 ? var.env_zone : var.env_name}.${signum(length(var.env_domain_name)) == 1 ? var.env_domain_name : data.terraform_remote_state.org.domain_name}"

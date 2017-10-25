@@ -6,7 +6,7 @@ locals {
 }
 
 module "instance" {
-  source = "module/imma/fogg-instance"
+  source = "./module/fogg-tf/fogg-instance"
 
   org_bucket = "${var.remote_bucket}"
   org_key    = "${local.org_key}"

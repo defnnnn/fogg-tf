@@ -99,7 +99,7 @@ variable "packet_operating_system" {
 }
 
 variable "user_data" {
-  default = "module/init/user-data.template"
+  default = "module/fogg-tf/init/user-data.template"
 }
 
 variable "service_bits" {}

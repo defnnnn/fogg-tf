@@ -684,7 +684,7 @@ resource "aws_autoscaling_notification" "service" {
 }
 
 module "efs" {
-  source   = "./module/fogg-efs"
+  source   = "./module/fogg-tf/fogg-efs"
   efs_name = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}"
   vpc_id   = "${data.terraform_remote_state.env.vpc_id}"
   env_name = "${data.terraform_remote_state.env.env_name}"
@@ -874,8 +874,8 @@ resource "aws_iam_role" "fn" {
 }
 
 locals {
-  deployment_zip  = ["${split("/","${path.module}/dist/deployment.zip")}"]
-  deployment_file = "${join("/",slice(local.deployment_zip,length(local.deployment_zip)-5,length(local.deployment_zip)))}"
+  deployment_zip  = ["${split("/","${path.module}/fn/dist/deployment.zip")}"]
+  deployment_file = "${join("/",slice(local.deployment_zip,length(local.deployment_zip)-6,length(local.deployment_zip)))}"
 }
 
 resource "aws_lambda_function" "service" {
@@ -893,7 +893,7 @@ resource "aws_lambda_function" "service" {
 }
 
 module "fn_service" {
-  source           = "./module/fogg-api-gateway//module/fn"
+  source           = "./module/fogg-tf/fogg-api/fn"
   function_name    = "${aws_lambda_function.service.function_name}"
   function_arn     = "${aws_lambda_function.service.arn}"
   function_version = "${aws_lambda_function.service.version}"
@@ -902,7 +902,7 @@ module "fn_service" {
 }
 
 module "resource_service" {
-  source = "./module/fogg-api-gateway//module/resource"
+  source = "./module/fogg-tf/fogg-api/resource"
 
   http_method = "POST"
   api_name    = "${var.service_name}"

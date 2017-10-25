@@ -55,19 +55,19 @@ data "aws_vpc" "prod" {
 }
 
 module "peer_stag_net" {
-  source      = "module/imma/fogg-peering_connection"
+  source      = "./module/fogg-tf/fogg-peering"
   this_vpc_id = "${data.terraform_remote_state.env_stag.vpc_id}"
   that_vpc_id = "${data.terraform_remote_state.env_net.vpc_id}"
 }
 
 module "peer_prod_net" {
-  source      = "module/imma/fogg-peering_connection"
+  source      = "./module/fogg-tf/fogg-peering"
   this_vpc_id = "${data.terraform_remote_state.env_prod.vpc_id}"
   that_vpc_id = "${data.terraform_remote_state.env_net.vpc_id}"
 }
 
 module "peer_prod_stag" {
-  source      = "module/imma/fogg-peering_connection"
+  source      = "./module/fogg-tf/fogg-peering"
   this_vpc_id = "${data.terraform_remote_state.env_prod.vpc_id}"
   that_vpc_id = "${data.terraform_remote_state.env_stag.vpc_id}"
 }

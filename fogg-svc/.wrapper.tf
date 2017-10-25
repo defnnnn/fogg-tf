@@ -1,4 +1,4 @@
-module "service" {
+module "svc" {
   source = "./module/fogg-tf/fogg-svc"
 
   global_bucket = "${var.remote_bucket}"

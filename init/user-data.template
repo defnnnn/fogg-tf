@@ -1,0 +1,36 @@
+From nobody Wed Aug 10 18:58:26 2016
+Content-Type: multipart/mixed; boundary="===============88888888888888888888888888=="
+MIME-Version: 1.0
+Number-Attachments: 1
+
+--===============88888888888888888888888888==
+MIME-Version: 1.0
+Content-Type: text/x-shellscript; charset="us-ascii"
+
+#!/bin/bash
+
+exec 1>~/stdout.log
+exec 2>~/stderr.log
+
+set -x
+
+if ! id ubuntu; then
+  if id ec2-user; then
+    groupadd -g 1000 ubuntu
+    useradd -m -s /bin/bash -g ubuntu -u 1000 ubuntu
+    mkdir ~ubuntu/.ssh
+    cp ~ec2-user/.ssh/authorized_keys ~ubuntu/.ssh/
+    chown -R ubuntu:ubuntu ~ubuntu
+    echo 'ubuntu ALL=(ALL) NOPASSWD:ALL' | sudo tee -a /etc/sudoers.d/cloud-init
+  fi
+fi
+
+sudo -H -u ubuntu bash -c 'cd; source .bashrc; deploy localhost; script/configure'
+sudo -H -u ubuntu bash -c 'cd; source .bashrc; git clean -ffd; git clean -ffd; git clean -ffd'
+
+mkdir -p /etc/ecs /var/lib/ecs /var/lib/ecs/data
+echo "ECS_CLUSTER=${env}-${app}-${service}" >> /etc/ecs/ecs.config
+
+docker run --name ecs-agent --net=host --detach=true --restart=on-failure:10 --volume=/var/run/docker.sock:/var/run/docker.sock --volume=/var/log/ecs:/log --volume=/var/lib/ecs/data:/data --env-file=/etc/ecs/ecs.config --env=ECS_LOGFILE=/log/ecs-agent.log --env=ECS_DATADIR=/data/ --env=ECS_ENABLE_TASK_IAM_ROLE=true --env=ECS_ENABLE_TASK_IAM_ROLE_NETWORK_HOST=true amazon/amazon-ecs-agent:latest &
+
+--===============88888888888888888888888888==

@@ -1072,7 +1072,7 @@ resource "aws_route53_record" "app" {
 }
 
 resource "aws_ssm_parameter" "fogg_svc" {
-  name  = "${var.service_name}.fogg_svc"
+  name  = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}.fogg_svc"
   type  = "String"
   value = "${var.service_name}"
 }

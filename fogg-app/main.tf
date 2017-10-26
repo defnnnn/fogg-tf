@@ -58,3 +58,9 @@ resource "aws_codecommit_repository" "app" {
   repository_name = "${data.terraform_remote_state.env.env_name}-${var.app_name}"
   description     = "Repo for ${data.terraform_remote_state.env.env_name}-${var.app_name} app"
 }
+
+resource "aws_ssm_parameter" "fogg_app" {
+  name  = "${var.app_name}.fogg_app"
+  type  = "String"
+  value = "${var.app_name}"
+}

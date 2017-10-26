@@ -468,3 +468,9 @@ data "aws_acm_certificate" "env" {
   domain   = "*.${data.terraform_remote_state.org.domain_name}"
   statuses = ["ISSUED", "PENDING_VALIDATION"]
 }
+
+resource "aws_ssm_parameter" "fogg_env" {
+  name  = "${var.env_name}.fogg_env"
+  type  = "String"
+  value = "${var.env_name}"
+}

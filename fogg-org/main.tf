@@ -945,3 +945,9 @@ resource "aws_iam_role_policy_attachment" "api_gateway" {
   role       = "${aws_iam_role.api_gateway.name}"
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs"
 }
+
+resource "aws_ssm_parameter" "fogg_org" {
+  name  = "org.fogg_org"
+  type  = "String"
+  value = "${var.account_name}"
+}

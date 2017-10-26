@@ -1070,3 +1070,9 @@ resource "aws_route53_record" "app" {
 
   count = "${var.asg_count*signum(var.want_alb)}"
 }
+
+resource "aws_ssm_parameter" "fogg_svc" {
+  name  = "${var.service_name}.fogg_svc"
+  type  = "String"
+  value = "${var.service_name}"
+}

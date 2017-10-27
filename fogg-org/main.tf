@@ -951,3 +951,43 @@ resource "aws_ssm_parameter" "fogg_org" {
   type  = "String"
   value = "${var.account_name}"
 }
+
+locals {
+  public_key = "${file("ssh-key-pair.pub")}"
+}
+
+resource "aws_key_pair" "org_us_east_1" {
+  provider   = "aws.us_east_1"
+  key_name   = "default"
+  public_key = "${local.public_key}"
+}
+
+resource "aws_key_pair" "org_us_east_2" {
+  provider   = "aws.us_east_2"
+  key_name   = "default"
+  public_key = "${local.public_key}"
+}
+
+resource "aws_key_pair" "org_us_west_2" {
+  provider   = "aws.us_west_2"
+  key_name   = "default"
+  public_key = "${local.public_key}"
+}
+
+resource "aws_key_pair" "org_eu_west_1" {
+  provider   = "aws.eu_west_1"
+  key_name   = "default"
+  public_key = "${local.public_key}"
+}
+
+resource "aws_key_pair" "org_eu_central_1" {
+  provider   = "aws.eu_central_1"
+  key_name   = "default"
+  public_key = "${local.public_key}"
+}
+
+resource "aws_key_pair" "org_ap_southeast_2" {
+  provider   = "aws.ap_southeast_2"
+  key_name   = "default"
+  public_key = "${local.public_key}"
+}

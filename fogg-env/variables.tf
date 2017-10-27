@@ -171,7 +171,7 @@ variable "want_nat" {
 }
 
 variable "want_nat_eip" {
-  default = "1"
+  default = "0"
 }
 
 variable "nat_count" {
@@ -199,7 +199,11 @@ variable "want_vpn" {
 }
 
 variable "want_vpn_eip" {
-  default = "1"
+  default = "0"
+}
+
+variable "vpn_cidr" {
+  default = "10.8.0.0/24"
 }
 
 variable "vpn_interface_count" {

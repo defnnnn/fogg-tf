@@ -357,7 +357,7 @@ data "aws_ami" "block" {
 
   filter {
     name   = "tag:Block"
-    values = ["${var.block}-*"]
+    values = ["golden"]
   }
 
   owners = ["self"]

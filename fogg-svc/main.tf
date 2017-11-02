@@ -559,6 +559,20 @@ resource "aws_ses_receipt_rule" "s3" {
   }
 }
 
+resource "aws_ses_domain_dkim" "service" {
+  provider = "aws.us_east_1"
+  domain   = "${aws_ses_domain_identity.service.domain}"
+}
+
+resource "aws_route53_record" "verify_dkim" {
+  zone_id = "${data.terraform_remote_state.org.public_zone_id}"
+  name    = "${element(aws_ses_domain_dkim.service.dkim_tokens, count.index)}._domainkey.${local.ses_domain}"
+  type    = "CNAME"
+  ttl     = "600"
+  records = ["${element(aws_ses_domain_dkim.service.dkim_tokens, count.index)}.dkim.amazonses.com"]
+  count   = 3
+}
+
 resource "aws_route53_record" "verify_ses" {
   zone_id = "${data.terraform_remote_state.org.public_zone_id}"
   name    = "_amazonses.${local.ses_domain}"

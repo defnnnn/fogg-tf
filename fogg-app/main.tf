@@ -64,3 +64,31 @@ resource "aws_ssm_parameter" "fogg_app" {
   type  = "String"
   value = "${var.app_name}"
 }
+
+resource "aws_ecr_repository" "app" {
+  name = "${data.terraform_remote_state.env.env_name}-${var.app_name}"
+}
+
+resource "aws_ecr_lifecycle_policy" "app" {
+  repository = "${aws_ecr_repository.app.name}"
+
+  policy = <<EOF
+{
+    "rules": [
+        {
+            "rulePriority": 1,
+            "description": "Expire images older than 10 days",
+            "selection": {
+                "tagStatus": "untagged",
+                "countType": "sinceImagePushed",
+                "countUnit": "days",
+                "countNumber": 10
+            },
+            "action": {
+                "type": "expire"
+            }
+        }
+    ]
+}
+EOF
+}

@@ -483,6 +483,14 @@ resource "aws_spot_fleet_request" "service" {
       volume_type = "gp2"
       volume_size = "${element(var.root_volume_size,0)}"
     }
+
+    tags {
+      "Name"      = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}"
+      "Env"       = "${data.terraform_remote_state.env.env_name}"
+      "App"       = "${data.terraform_remote_state.app.app_name}"
+      "Service"   = "${var.service_name}"
+      "ManagedBy" = "spot_fleet ${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}"
+    }
   }
 }
 
@@ -578,6 +586,14 @@ resource "aws_sqs_queue" "service" {
   count                       = "${var.asg_count}"
   fifo_queue                  = true
   content_based_deduplication = true
+
+  tags {
+    "Name"      = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}"
+    "Env"       = "${data.terraform_remote_state.env.env_name}"
+    "App"       = "${data.terraform_remote_state.app.app_name}"
+    "Service"   = "${var.service_name}"
+    "ManagedBy" = "terraform"
+  }
 }
 
 data "aws_iam_policy_document" "service-sns-sqs" {
@@ -655,7 +671,7 @@ resource "aws_autoscaling_group" "service" {
 
   tag {
     key                 = "ManagedBy"
-    value               = "asg ${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}-${element(var.asg_name,count.index)}"
+    value               = "autoscaling ${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}-${element(var.asg_name,count.index)}"
     propagate_at_launch = true
   }
 

@@ -269,6 +269,11 @@ resource "aws_sns_topic" "config" {
 resource "aws_sqs_queue" "config" {
   name   = "config"
   policy = "${data.aws_iam_policy_document.config_sns_sqs.json}"
+
+  tags {
+    "ManagedBy" = "terraform"
+    "Env"       = "global"
+  }
 }
 
 data "aws_iam_policy_document" "config_sns_sqs" {

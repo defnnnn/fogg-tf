@@ -398,6 +398,15 @@ locals {
   vendor_ami_id = "${var.amazon_linux ? data.aws_ami.amazon.image_id : data.aws_ami.block.image_id}"
 }
 
+resource "aws_route53_record" "instance_public" {
+  zone_id = "${data.terraform_remote_state.org.public_zone_id}"
+  name    = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}${count.index}.${data.terraform_remote_state.org.domain_name}"
+  type    = "A"
+  ttl     = "60"
+  records = ["${element(aws_instance.service.*.public_ip,count.index)}"]
+  count   = "${var.instance_count*var.public_network}"
+}
+
 resource "aws_instance" "service" {
   ami           = "${coalesce(element(var.ami_id,count.index),local.vendor_ami_id)}"
   instance_type = "${element(var.instance_type,count.index)}"

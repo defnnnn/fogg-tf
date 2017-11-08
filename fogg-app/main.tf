@@ -65,6 +65,12 @@ resource "aws_ssm_parameter" "fogg_app" {
   value = "${var.app_name}"
 }
 
+resource "aws_ssm_parameter" "fogg_app_sg" {
+  name  = "${data.terraform_remote_state.env.env_name}-${var.app_name}.fogg_app_sg"
+  type  = "String"
+  value = "${aws_security_group.app.id}"
+}
+
 resource "aws_ecr_repository" "app" {
   name = "${data.terraform_remote_state.env.env_name}-${var.app_name}"
 }

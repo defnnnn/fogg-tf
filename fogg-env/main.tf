@@ -474,3 +474,9 @@ resource "aws_ssm_parameter" "fogg_env" {
   type  = "String"
   value = "${var.env_name}"
 }
+
+resource "aws_ssm_parameter" "fogg_env_sg" {
+  name  = "${var.env_name}.fogg_env_sg"
+  type  = "String"
+  value = "${aws_security_group.env.id}"
+}

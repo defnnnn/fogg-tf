@@ -1115,3 +1115,15 @@ resource "aws_ssm_parameter" "fogg_svc" {
   type  = "String"
   value = "${var.service_name}"
 }
+
+resource "aws_ssm_parameter" "fogg_svc_sg" {
+  name  = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}.fogg_svc_sg"
+  type  = "String"
+  value = "${aws_security_group.service.id}"
+}
+
+resource "aws_ssm_parameter" "fogg_svc_subnets" {
+  name  = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}.fogg_svc_subnets"
+  type  = "String"
+  value = "${join(" ",compact(concat(aws_subnet.service.*.id,aws_subnet.service_v6.*.id)))}"
+}

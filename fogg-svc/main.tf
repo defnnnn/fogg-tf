@@ -1127,3 +1127,21 @@ resource "aws_ssm_parameter" "fogg_svc_subnets" {
   type  = "String"
   value = "${join(" ",compact(concat(aws_subnet.service.*.id,aws_subnet.service_v6.*.id)))}"
 }
+
+resource "aws_ssm_parameter" "fogg_svc_ssh_key" {
+  name  = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}.fogg_svc_ssh_key"
+  type  = "String"
+  value = "${var.key_name}"
+}
+
+resource "aws_ssm_parameter" "fogg_svc_ami" {
+  name  = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}.fogg_svc_ami"
+  type  = "String"
+  value = "${coalesce(element(var.ami_id,count.index),local.vendor_ami_id)}"
+}
+
+resource "aws_ssm_parameter" "fogg_svc_iam_profile" {
+  name  = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}.fogg_svc_iam_profile"
+  type  = "String"
+  value = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}"
+}

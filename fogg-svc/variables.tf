@@ -117,7 +117,7 @@ variable "asg_count" {
 }
 
 variable "sf_count" {
-  default = 0
+  default = 1
 }
 
 variable "asg_name" {

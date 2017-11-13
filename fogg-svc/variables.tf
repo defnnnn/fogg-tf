@@ -153,7 +153,7 @@ variable "min_size" {
 }
 
 variable "max_size" {
-  default = ["5"]
+  default = ["12"]
 }
 
 variable "termination_policies" {

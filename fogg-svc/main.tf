@@ -608,7 +608,7 @@ resource "aws_sqs_queue" "service" {
   policy                      = "${element(data.aws_iam_policy_document.service-sns-sqs.*.json,count.index)}"
   count                       = "${var.asg_count}"
   fifo_queue                  = "${var.want_fifo ? true : false}"
-  content_based_deduplication = true
+  content_based_deduplication = "${var.want_fifo ? true : false}"
 
   tags {
     "Name"      = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}"

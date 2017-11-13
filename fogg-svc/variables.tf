@@ -62,6 +62,10 @@ variable "want_subnets" {
   default = "1"
 }
 
+variable "want_fifo" {
+  default = "1"
+}
+
 variable "want_kms" {
   default = "0"
 }

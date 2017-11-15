@@ -25,7 +25,7 @@ variable "public_name" {
 }
 
 output "eip" {
-  value = "${aws_eip.this.public_ip}"
+  value = "${length(aws_eip.this.*.public_ip) > 0 ? join(" ",aws_eip.this.*.public_ip) : ""}"
 }
 
 output "private_ip" {

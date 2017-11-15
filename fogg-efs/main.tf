@@ -72,5 +72,5 @@ output "efs_dns_names" {
 }
 
 output "efs_sg" {
-  value = "${aws_security_group.fs.id}"
+  value = "${length(aws_security_group.fs.*.id) > 0 ? join(" ",aws_security_group.fs.*.id) : ""}"
 }

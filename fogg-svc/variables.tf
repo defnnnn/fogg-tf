@@ -244,12 +244,8 @@ output "instance_ids" {
   value = ["${aws_instance.service.*.id}"]
 }
 
-output "instance_azs" {
-  value = ["${aws_instance.service.*.availability_zones}"]
-}
-
 output "packet_project_id" {
-  value = "${packet_project.service.id}"
+  value = "${length(packet_project.service.*.id) > 0 ? join(" ",packet_project.service.*.id) : ""}"
 }
 
 output "packet_public_ips" {

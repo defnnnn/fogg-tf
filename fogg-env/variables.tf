@@ -221,3 +221,7 @@ output "vpn_sg" {
 output "vpn_interfaces" {
   value = ["${module.vpn.interfaces}"]
 }
+
+output "vpn_cidr" {
+  value = "${var.vpn_cidr}"
+}

@@ -379,7 +379,7 @@ data "aws_ami" "nat" {
 
   filter {
     name   = "name"
-    values = ["amzn-ami-vpc-nat-hvm.*"]
+    values = ["amzn-ami-vpc-nat-hvm-*"]
   }
 
   owners = ["amazon"]

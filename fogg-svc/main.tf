@@ -373,7 +373,7 @@ data "aws_ami" "amazon" {
 
   filter {
     name   = "name"
-    values = ["amzn-ami-hvm-2017.*"]
+    values = ["amzn-ami-2017.09.b-amazon-ecs-optimized"]
   }
 
   filter {

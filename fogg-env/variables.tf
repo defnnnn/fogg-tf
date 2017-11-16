@@ -203,7 +203,7 @@ variable "want_vpn_eip" {
 }
 
 variable "vpn_cidr" {
-  default = "10.8.0.0/24"
+  default = ""
 }
 
 variable "vpn_interface_count" {

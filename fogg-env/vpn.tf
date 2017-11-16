@@ -19,7 +19,6 @@ resource "aws_security_group_rule" "vpn_tcp" {
   protocol          = "tcp"
   cidr_blocks       = ["${var.vpn_cidr}"]
   security_group_id = "${aws_security_group.env.id}"
-  count             = "${var.want_vpn}"
 }
 
 resource "aws_security_group_rule" "vpn_udp" {
@@ -29,7 +28,6 @@ resource "aws_security_group_rule" "vpn_udp" {
   protocol          = "udp"
   cidr_blocks       = ["${var.vpn_cidr}"]
   security_group_id = "${aws_security_group.env.id}"
-  count             = "${var.want_vpn}"
 }
 
 resource "aws_security_group_rule" "vpn_ping" {
@@ -39,5 +37,4 @@ resource "aws_security_group_rule" "vpn_ping" {
   protocol          = "icmp"
   cidr_blocks       = ["${var.vpn_cidr}"]
   security_group_id = "${aws_security_group.env.id}"
-  count             = "${var.want_vpn}"
 }

@@ -367,35 +367,26 @@ data "aws_ami" "amazon" {
   most_recent = true
 
   filter {
-    name   = "state"
-    values = ["available"]
-  }
-
-  filter {
     name   = "name"
     values = ["amzn-ami-2017.09.b-amazon-ecs-optimized"]
   }
 
-  filter {
-    name   = "architecture"
-    values = ["x86_64"]
-  }
+  owners = ["amazon"]
+}
+
+data "aws_ami" "nat" {
+  most_recent = true
 
   filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
+    name   = "name"
+    values = ["amzn-ami-vpc-nat-hvm.*"]
   }
 
-  filter {
-    name   = "block-device-mapping.volume-type"
-    values = ["gp2"]
-  }
-
-  owners = ["137112412989"]
+  owners = ["amazon"]
 }
 
 locals {
-  vendor_ami_id = "${var.amazon_linux ? data.aws_ami.amazon.image_id : data.aws_ami.block.image_id}"
+  vendor_ami_id = "${var.amazon_linux ? data.aws_ami.amazon.image_id : (var.amazon_nat ? data.aws_ami.nat.image_id : data.aws_ami.block.image_id)}"
 }
 
 resource "aws_route53_record" "instance_public" {
@@ -1114,34 +1105,40 @@ resource "aws_ssm_parameter" "fogg_svc" {
   name  = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}.fogg_svc"
   type  = "String"
   value = "${var.service_name}"
+  overwrite = true
 }
 
 resource "aws_ssm_parameter" "fogg_svc_sg" {
   name  = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}.fogg_svc_sg"
   type  = "String"
   value = "${aws_security_group.service.id}"
+  overwrite = true
 }
 
 resource "aws_ssm_parameter" "fogg_svc_subnets" {
   name  = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}.fogg_svc_subnets"
   type  = "String"
   value = "${join(" ",compact(concat(aws_subnet.service.*.id,aws_subnet.service_v6.*.id)))}"
+  overwrite = true
 }
 
 resource "aws_ssm_parameter" "fogg_svc_ssh_key" {
   name  = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}.fogg_svc_ssh_key"
   type  = "String"
   value = "${var.key_name}"
+  overwrite = true
 }
 
 resource "aws_ssm_parameter" "fogg_svc_ami" {
   name  = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}.fogg_svc_ami"
   type  = "String"
   value = "${coalesce(element(var.ami_id,count.index),local.vendor_ami_id)}"
+  overwrite = true
 }
 
 resource "aws_ssm_parameter" "fogg_svc_iam_profile" {
   name  = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}.fogg_svc_iam_profile"
   type  = "String"
   value = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}"
+  overwrite = true
 }

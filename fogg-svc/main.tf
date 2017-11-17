@@ -1000,6 +1000,20 @@ resource "aws_lb" "net" {
   count = "${var.want_nlb*var.asg_count}"
 }
 
+resource "aws_security_group" "app" {
+  name        = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}-lb"
+  description = "Service ${data.terraform_remote_state.app.app_name}-${var.service_name}-lb"
+  vpc_id      = "${data.aws_vpc.current.id}"
+
+  tags {
+    "Name"      = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}-lb"
+    "Env"       = "${data.terraform_remote_state.env.env_name}"
+    "App"       = "${data.terraform_remote_state.app.app_name}"
+    "Service"   = "${var.service_name}-lb"
+    "ManagedBy" = "terraform"
+  }
+}
+
 resource "aws_lb" "app" {
   name               = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}-${element(var.asg_name,count.index)}"
   load_balancer_type = "application"
@@ -1015,8 +1029,8 @@ resource "aws_lb" "app" {
   }
 
   idle_timeout    = 400
-  security_groups = []
-  subnets         = []
+  security_groups = ["${data.terraform_remote_state.env.sg_env}", "${data.terraform_remote_state.app.app_sg}", "${aws_security_group.app.id}"]
+  subnets         = ["${compact(concat(formatlist(var.public_lb ? "%[1]s" : "%[2]s",data.terraform_remote_state.env.public_subnets,data.terraform_remote_state.env.private_subnets)))}"]
 
   access_logs {
     bucket  = ""

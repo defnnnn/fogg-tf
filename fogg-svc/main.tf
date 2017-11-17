@@ -1032,12 +1032,6 @@ resource "aws_lb" "app" {
   security_groups = ["${data.terraform_remote_state.env.sg_env}", "${data.terraform_remote_state.app.app_sg}", "${aws_security_group.app.id}"]
   subnets         = ["${compact(concat(formatlist(var.public_lb ? "%[1]s" : "%[2]s",data.terraform_remote_state.env.public_subnets,data.terraform_remote_state.env.private_subnets)))}"]
 
-  access_logs {
-    bucket  = ""
-    prefix  = ""
-    enabled = true
-  }
-
   count = "${var.want_alb*var.asg_count}"
 }
 
@@ -1051,10 +1045,6 @@ resource "aws_lb_listener" "net" {
     type             = "forward"
   }
 
-  certificate_arn = "${data.aws_acm_certificate.env.arn}"
-
-  ssl_policy = "ELBSecurityPolicy-2015-05"
-
   count = "${var.want_nlb*var.asg_count}"
 }
 
@@ -1067,6 +1057,10 @@ resource "aws_lb_listener" "app" {
     target_group_arn = "${element(aws_lb_target_group.app.*.arn,count.index)}"
     type             = "forward"
   }
+
+  certificate_arn = "${data.aws_acm_certificate.env.arn}"
+
+  ssl_policy = "ELBSecurityPolicy-TLS-1-2-2017-01"
 
   count = "${var.want_alb*var.asg_count}"
 }
@@ -1088,8 +1082,8 @@ resource "aws_lb_target_group" "app" {
 }
 
 resource "aws_route53_record" "net" {
-  zone_id = "${data.terraform_remote_state.env.private_zone_id}"
-  name    = "${data.terraform_remote_state.app.app_name}-${var.service_name}-${element(var.asg_name,count.index)}.${data.terraform_remote_state.env.private_zone_name}"
+  zone_id = "${var.public_lb ? data.terraform_remote_state.org.public_zone_id : data.terraform_remote_state.env.private_zone_id}"
+  name    = "${var.public_lb ? "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}-${element(var.asg_name,count.index)}.${data.terraform_remote_state.org.domain_name}" : "${data.terraform_remote_state.app.app_name}-${var.service_name}-${element(var.asg_name,count.index)}.${data.terraform_remote_state.env.private_zone_name}"}"
   type    = "A"
 
   alias {
@@ -1102,8 +1096,8 @@ resource "aws_route53_record" "net" {
 }
 
 resource "aws_route53_record" "app" {
-  zone_id = "${data.terraform_remote_state.env.private_zone_id}"
-  name    = "${data.terraform_remote_state.app.app_name}-${var.service_name}-${element(var.asg_name,count.index)}.${data.terraform_remote_state.env.private_zone_name}"
+  zone_id = "${var.public_lb ? data.terraform_remote_state.org.public_zone_id : data.terraform_remote_state.env.private_zone_id}"
+  name    = "${var.public_lb ? "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}-${element(var.asg_name,count.index)}.${data.terraform_remote_state.org.domain_name}" : "${data.terraform_remote_state.app.app_name}-${var.service_name}-${element(var.asg_name,count.index)}.${data.terraform_remote_state.env.private_zone_name}"}"
   type    = "A"
 
   alias {

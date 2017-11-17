@@ -988,6 +988,8 @@ resource "aws_lb" "net" {
   load_balancer_type = "network"
   internal           = "${var.public_lb == 0 ? true : false}"
 
+  subnets = ["${compact(concat(formatlist(var.public_lb ? "%[1]s" : "%[2]s",data.terraform_remote_state.env.public_subnets,data.terraform_remote_state.env.private_subnets)))}"]
+
   tags {
     Name      = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}-${element(var.asg_name,count.index)}"
     Env       = "${data.terraform_remote_state.env.env_name}"
@@ -998,22 +1000,6 @@ resource "aws_lb" "net" {
   }
 
   count = "${var.want_nlb*var.asg_count}"
-}
-
-resource "aws_security_group" "app" {
-  name        = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}-lb"
-  description = "Service ${data.terraform_remote_state.app.app_name}-${var.service_name}-lb"
-  vpc_id      = "${data.aws_vpc.current.id}"
-
-  subnets = ["${compact(concat(formatlist(var.public_lb ? "%[1]s" : "%[2]s",data.terraform_remote_state.env.public_subnets,data.terraform_remote_state.env.private_subnets)))}"]
-
-  tags {
-    "Name"      = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}-lb"
-    "Env"       = "${data.terraform_remote_state.env.env_name}"
-    "App"       = "${data.terraform_remote_state.app.app_name}"
-    "Service"   = "${var.service_name}-lb"
-    "ManagedBy" = "terraform"
-  }
 }
 
 resource "aws_lb" "app" {
@@ -1035,6 +1021,20 @@ resource "aws_lb" "app" {
   }
 
   count = "${var.want_alb*var.asg_count}"
+}
+
+resource "aws_security_group" "app" {
+  name        = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}-lb"
+  description = "Service ${data.terraform_remote_state.app.app_name}-${var.service_name}-lb"
+  vpc_id      = "${data.aws_vpc.current.id}"
+
+  tags {
+    "Name"      = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}-lb"
+    "Env"       = "${data.terraform_remote_state.env.env_name}"
+    "App"       = "${data.terraform_remote_state.app.app_name}"
+    "Service"   = "${var.service_name}-lb"
+    "ManagedBy" = "terraform"
+  }
 }
 
 resource "aws_lb_listener" "net" {

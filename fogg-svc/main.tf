@@ -1005,6 +1005,8 @@ resource "aws_security_group" "app" {
   description = "Service ${data.terraform_remote_state.app.app_name}-${var.service_name}-lb"
   vpc_id      = "${data.aws_vpc.current.id}"
 
+  subnets = ["${compact(concat(formatlist(var.public_lb ? "%[1]s" : "%[2]s",data.terraform_remote_state.env.public_subnets,data.terraform_remote_state.env.private_subnets)))}"]
+
   tags {
     "Name"      = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}-lb"
     "Env"       = "${data.terraform_remote_state.env.env_name}"
@@ -1019,6 +1021,10 @@ resource "aws_lb" "app" {
   load_balancer_type = "application"
   internal           = "${var.public_lb == 0 ? true : false}"
 
+  subnets = ["${compact(concat(formatlist(var.public_lb ? "%[1]s" : "%[2]s",data.terraform_remote_state.env.public_subnets,data.terraform_remote_state.env.private_subnets)))}"]
+
+  security_groups = ["${data.terraform_remote_state.env.sg_env}", "${data.terraform_remote_state.app.app_sg}", "${aws_security_group.app.id}"]
+
   tags {
     Name      = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}-${element(var.asg_name,count.index)}"
     Env       = "${data.terraform_remote_state.env.env_name}"
@@ -1027,10 +1033,6 @@ resource "aws_lb" "app" {
     ManagedBy = "terraform"
     Color     = "${element(var.asg_name,count.index)}"
   }
-
-  idle_timeout    = 400
-  security_groups = ["${data.terraform_remote_state.env.sg_env}", "${data.terraform_remote_state.app.app_sg}", "${aws_security_group.app.id}"]
-  subnets         = ["${compact(concat(formatlist(var.public_lb ? "%[1]s" : "%[2]s",data.terraform_remote_state.env.public_subnets,data.terraform_remote_state.env.private_subnets)))}"]
 
   count = "${var.want_alb*var.asg_count}"
 }

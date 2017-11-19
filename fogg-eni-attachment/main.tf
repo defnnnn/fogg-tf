@@ -1,5 +1,5 @@
 data "external" "network" {
-  program = ["../../imma-tf/bin/lookup-network-interface", "${var.instance_az}", "${var.eni_name}"]
+  program = [".//module/imma-tf/bin/lookup-network-interface", "${var.instance_az}", "${var.eni_name}"]
 }
 
 resource "aws_network_interface_attachment" "network" {

@@ -249,7 +249,7 @@ output "instance_ids" {
 }
 
 output "packet_project_id" {
-  value = "${length(packet_project.service.*.id) > 0 ? join(" ",packet_project.service.*.id) : ""}"
+  value = "${element(concat(packet_project.service.*.id, list("")), 0)}"
 }
 
 output "packet_public_ips" {

@@ -25,7 +25,7 @@ variable "public_name" {
 }
 
 output "eip" {
-  value = "${length(aws_eip.this.*.public_ip) > 0 ? join(" ",aws_eip.this.*.public_ip) : ""}"
+  value = "${element(concat(aws_eip.this.*.public_ip, list("")), 0)}"
 }
 
 output "private_ip" {

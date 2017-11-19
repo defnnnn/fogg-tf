@@ -50,6 +50,7 @@ data "terraform_remote_state" "app" {
     key            = "${var.app_key}"
     region         = "${var.app_region}"
     dynamodb_table = "terraform_state_lock"
+    environment    = "${terraform.workspace}"
   }
 }
 

@@ -6,11 +6,11 @@ module "svc" {
   global_region = "${var.remote_region}"
 
   env_bucket = "${var.remote_bucket}"
-  env_key    = "${join("_",slice(split("_",var.remote_path),0,2))}/terraform.tfstate"
+  env_key    = "${join("_",slice(split("_",var.remote_path),0,1))}_${terraform.workspace}/terraform.tfstate"
   env_region = "${var.remote_region}"
 
   app_bucket = "${var.remote_bucket}"
-  app_key    = "${join("_",slice(split("_",var.remote_path),0,3))}/terraform.tfstate"
+  app_key    = "${join("_",slice(split("_",var.remote_path),0,2))}/terraform.tfstate"
   app_region = "${var.remote_region}"
 }
 
@@ -19,7 +19,7 @@ data "terraform_remote_state" "env" {
 
   config {
     bucket         = "${var.remote_bucket}"
-    key            = "${join("_",slice(split("_",var.remote_path),0,2))}/terraform.tfstate"
+    key            = "${join("_",slice(split("_",var.remote_path),0,1))}_${terraform.workspace}/terraform.tfstate"
     region         = "${var.remote_region}"
     dynamodb_table = "terraform_state_lock"
   }
@@ -30,8 +30,9 @@ data "terraform_remote_state" "app" {
 
   config {
     bucket         = "${var.remote_bucket}"
-    key            = "${join("_",slice(split("_",var.remote_path),0,3))}/terraform.tfstate"
+    key            = "${join("_",slice(split("_",var.remote_path),0,2))}/terraform.tfstate"
     region         = "${var.remote_region}"
     dynamodb_table = "terraform_state_lock"
+    environment    = "${terraform.workspace}"
   }
 }

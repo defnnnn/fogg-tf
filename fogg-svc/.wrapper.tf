@@ -29,11 +29,9 @@ data "terraform_remote_state" "app" {
   backend = "s3"
 
   config {
-    bucket               = "${var.remote_bucket}"
-    key                  = "${join("_",slice(split("_",var.remote_path),0,2))}/terraform.tfstate"
-    region               = "${var.remote_region}"
-    dynamodb_table       = "terraform_state_lock"
-    workspace_key_prefix = "env:"
-    environment          = "${terraform.workspace}"
+    bucket         = "${var.remote_bucket}"
+    key            = "env:/${terraform.workspace}/${join("_",slice(split("_",var.remote_path),0,2))}/terraform.tfstate"
+    region         = "${var.remote_region}"
+    dynamodb_table = "terraform_state_lock"
   }
 }

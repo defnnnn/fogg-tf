@@ -46,12 +46,10 @@ data "terraform_remote_state" "app" {
   backend = "s3"
 
   config {
-    bucket               = "${var.app_bucket}"
-    key                  = "env:/${terraform.workspace}/${var.app_key}"
-    region               = "${var.app_region}"
-    dynamodb_table       = "terraform_state_lock"
-    workspace_key_prefix = "env:"
-    environment          = "${terraform.workspace}"
+    bucket         = "${var.app_bucket}"
+    key            = "env:/${terraform.workspace}/${var.app_key}"
+    region         = "${var.app_region}"
+    dynamodb_table = "terraform_state_lock"
   }
 }
 

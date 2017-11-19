@@ -692,148 +692,64 @@ resource "aws_codecommit_repository" "org" {
   description     = "Repo for ${var.account_name} org"
 }
 
-resource "aws_kms_key" "org_us_east_1" {
-  provider            = "aws.us_east_1"
-  description         = "Organization ${var.account_name}"
-  enable_key_rotation = true
+module "kms_us_east_1" {
+  source = "../fogg-kms"
 
-  tags {
-    "ManagedBy" = "terraform"
-    "Env"       = "global"
-    "Name"      = "${var.account_name}"
+  providers {
+    aws = "aws.us_east_1"
   }
+
+  account_name = "${var.account_name}"
 }
 
-resource "aws_kms_alias" "ssm_ps_us_east_1" {
-  provider      = "aws.us_east_1"
-  name          = "alias/parameter_store_key"
-  target_key_id = "${aws_kms_key.org_us_east_1.key_id}"
-}
+module "kms_us_east_2" {
+  source = "../fogg-kms"
 
-resource "aws_kms_alias" "credstash_us_east_1" {
-  provider      = "aws.us_east_1"
-  name          = "alias/credstash"
-  target_key_id = "${aws_kms_key.org_us_east_1.key_id}"
-}
-
-resource "aws_kms_key" "org_us_east_2" {
-  provider            = "aws.us_east_2"
-  description         = "Organization ${var.account_name}"
-  enable_key_rotation = true
-
-  tags {
-    "ManagedBy" = "terraform"
-    "Env"       = "global"
-    "Name"      = "${var.account_name}"
+  providers {
+    aws = "aws.us_east_2"
   }
+
+  account_name = "${var.account_name}"
 }
 
-resource "aws_kms_alias" "ssm_ps_us_east_2" {
-  provider      = "aws.us_east_2"
-  name          = "alias/parameter_store_key"
-  target_key_id = "${aws_kms_key.org_us_east_2.key_id}"
-}
+module "kms_us_west_2" {
+  source = "../fogg-kms"
 
-resource "aws_kms_alias" "credstash_us_east_2" {
-  provider      = "aws.us_east_2"
-  name          = "alias/credstash"
-  target_key_id = "${aws_kms_key.org_us_east_2.key_id}"
-}
-
-resource "aws_kms_key" "org_us_west_2" {
-  provider            = "aws.us_west_2"
-  description         = "Organization ${var.account_name}"
-  enable_key_rotation = true
-
-  tags {
-    "ManagedBy" = "terraform"
-    "Env"       = "global"
-    "Name"      = "${var.account_name}"
+  providers {
+    aws = "aws.us_west_2"
   }
+
+  account_name = "${var.account_name}"
 }
 
-resource "aws_kms_alias" "ssm_ps_us_west_2" {
-  provider      = "aws.us_west_2"
-  name          = "alias/parameter_store_key"
-  target_key_id = "${aws_kms_key.org_us_west_2.key_id}"
-}
+module "kms_eu_west_1" {
+  source = "../fogg-kms"
 
-resource "aws_kms_alias" "credstash_us_west_2" {
-  provider      = "aws.us_west_2"
-  name          = "alias/credstash"
-  target_key_id = "${aws_kms_key.org_us_west_2.key_id}"
-}
-
-resource "aws_kms_key" "org_eu_west_1" {
-  provider            = "aws.eu_west_1"
-  description         = "Organization ${var.account_name}"
-  enable_key_rotation = true
-
-  tags {
-    "ManagedBy" = "terraform"
-    "Env"       = "global"
-    "Name"      = "${var.account_name}"
+  providers {
+    aws = "aws.eu_west_1"
   }
+
+  account_name = "${var.account_name}"
 }
 
-resource "aws_kms_alias" "ssm_ps_eu_west_1" {
-  provider      = "aws.eu_west_1"
-  name          = "alias/parameter_store_key"
-  target_key_id = "${aws_kms_key.org_eu_west_1.key_id}"
-}
+module "kms_eu_central_1" {
+  source = "../fogg-kms"
 
-resource "aws_kms_alias" "credstash_eu_west_1" {
-  provider      = "aws.eu_west_1"
-  name          = "alias/credstash"
-  target_key_id = "${aws_kms_key.org_eu_west_1.key_id}"
-}
-
-resource "aws_kms_key" "org_eu_central_1" {
-  provider            = "aws.eu_central_1"
-  description         = "Organization ${var.account_name}"
-  enable_key_rotation = true
-
-  tags {
-    "ManagedBy" = "terraform"
-    "Env"       = "global"
-    "Name"      = "${var.account_name}"
+  providers {
+    aws = "aws.eu_central_1"
   }
+
+  account_name = "${var.account_name}"
 }
 
-resource "aws_kms_alias" "ssm_ps_eu_central_1" {
-  provider      = "aws.eu_central_1"
-  name          = "alias/parameter_store_key"
-  target_key_id = "${aws_kms_key.org_eu_central_1.key_id}"
-}
+module "kms_ap_southeast_2" {
+  source = "../fogg-kms"
 
-resource "aws_kms_alias" "credstash_eu_central_1" {
-  provider      = "aws.eu_central_1"
-  name          = "alias/credstash"
-  target_key_id = "${aws_kms_key.org_eu_central_1.key_id}"
-}
-
-resource "aws_kms_key" "org_ap_southeast_2" {
-  provider            = "aws.ap_southeast_2"
-  description         = "Organization ${var.account_name}"
-  enable_key_rotation = true
-
-  tags {
-    "ManagedBy" = "terraform"
-    "Env"       = "global"
-    "Name"      = "${var.account_name}"
+  providers {
+    aws = "aws.ap_southeast_2"
   }
-}
 
-resource "aws_kms_alias" "ssm_ps_ap_southeast_2" {
-  provider      = "aws.ap_southeast_2"
-  name          = "alias/parameter_store_key"
-  target_key_id = "${aws_kms_key.org_ap_southeast_2.key_id}"
-}
-
-resource "aws_kms_alias" "credstash_ap_southeast_2" {
-  provider      = "aws.ap_southeast_2"
-  name          = "alias/credstash"
-  target_key_id = "${aws_kms_key.org_ap_southeast_2.key_id}"
+  account_name = "${var.account_name}"
 }
 
 resource "aws_iam_role" "macie_service" {

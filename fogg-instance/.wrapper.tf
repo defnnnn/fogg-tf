@@ -1,8 +1,8 @@
 locals {
   org_key     = "${join("_",slice(split("_",var.remote_path),0,1))}/terraform.tfstate"
-  env_key     = "${join("_",slice(split("_",var.remote_path),0,2))}/terraform.tfstate"
-  app_key     = "${join("_",slice(split("_",var.remote_path),0,3))}/terraform.tfstate"
-  service_key = "${join("_",slice(split("_",var.remote_path),0,4))}/terraform.tfstate"
+  env_key     = "${join("_",slice(split("_",var.remote_path),0,1))}_${terraform.workspace}/terraform.tfstate"
+  app_key     = "${join("_",slice(split("_",var.remote_path),0,2))}/terraform.tfstate"
+  service_key = "${join("_",slice(split("_",var.remote_path),0,3))}/terraform.tfstate"
 }
 
 module "instance" {
@@ -52,7 +52,7 @@ data "terraform_remote_state" "app" {
 
   config {
     bucket         = "${var.remote_bucket}"
-    key            = "${local.app_key}"
+    key            = "env:/${terraform.workspace}/${local.app_key}"
     region         = "${var.remote_region}"
     dynamodb_table = "terraform_state_lock"
   }
@@ -63,7 +63,7 @@ data "terraform_remote_state" "service" {
 
   config {
     bucket         = "${var.remote_bucket}"
-    key            = "${local.service_key}"
+    key            = "ienv:/${terraform.workspace}/${local.service_key}"
     region         = "${var.remote_region}"
     dynamodb_table = "terraform_state_lock"
   }

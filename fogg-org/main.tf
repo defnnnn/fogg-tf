@@ -47,7 +47,7 @@ data "terraform_remote_state" "global" {
 
   config {
     bucket         = "${var.remote_bucket}"
-    key            = "global/terraform.tfstate"
+    key            = "${var.global_name}_global/terraform.tfstate"
     region         = "${var.remote_region}"
     dynamodb_table = "terraform_state_lock"
   }

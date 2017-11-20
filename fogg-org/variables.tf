@@ -1,6 +1,7 @@
 variable "domain_name" {}
 
 variable "account_name" {}
+variable "global_name" {}
 
 variable "remote_bucket" {}
 variable "remote_region" {}

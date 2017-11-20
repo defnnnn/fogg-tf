@@ -42,6 +42,17 @@ data "aws_acm_certificate" "website" {
   statuses = ["ISSUED", "PENDING_VALIDATION"]
 }
 
+data "terraform_remote_state" "global" {
+  backend = "s3"
+
+  config {
+    bucket         = "${var.remote_bucket}"
+    key            = "global/terraform.tfstate"
+    region         = "${var.remote_region}"
+    dynamodb_table = "terraform_state_lock"
+  }
+}
+
 resource "null_resource" "vars" {
   triggers {
     region_account_id = "${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}"
@@ -523,18 +534,8 @@ resource "aws_s3_bucket" "cloudtrail" {
   policy = "${data.aws_iam_policy_document.cloudtrail.json}"
 }
 
-resource "aws_route53_zone" "public" {
-  name = "${var.domain_name}"
-
-  tags {
-    "Name"      = "${var.domain_name}"
-    "Env"       = "global"
-    "ManagedBy" = "terraform"
-  }
-}
-
 resource "aws_route53_record" "website" {
-  zone_id = "${aws_route53_zone.public.zone_id}"
+  zone_id = "${lookup(lookup(data.terraform_remote_state.global.domains,var.domain_name),"zone_id")}"
   name    = "cdn.${var.domain_name}"
   type    = "A"
 

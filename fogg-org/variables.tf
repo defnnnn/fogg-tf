@@ -2,6 +2,9 @@ variable "domain_name" {}
 
 variable "account_name" {}
 
+variable "remote_bucket" {}
+variable "remote_region" {}
+
 variable "want_macie" {
   default = 1
 }
@@ -23,11 +26,11 @@ output "domain_name" {
 }
 
 output "public_zone_id" {
-  value = "${aws_route53_zone.public.zone_id}"
+  value = "${lookup(lookup(data.terraform_remote_state.global.domains,var.domain_name),"zone_id")}"
 }
 
 output "public_zone_servers" {
-  value = "${aws_route53_zone.public.name_servers}"
+  value = ["${lookup(lookup(data.terraform_remote_state.global.domains,var.domain_name),"zone_servers")}"]
 }
 
 output "config_sqs" {

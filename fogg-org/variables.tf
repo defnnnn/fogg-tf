@@ -26,11 +26,7 @@ output "domain_name" {
 }
 
 output "public_zone_id" {
-  value = "${lookup(lookup(data.terraform_remote_state.global.domains,var.domain_name),"zone_id")}"
-}
-
-output "public_zone_servers" {
-  value = ["${lookup(lookup(data.terraform_remote_state.global.domains,var.domain_name),"zone_servers")}"]
+  value = "${data.aws_route53_zone.public.zone_id}"
 }
 
 output "config_sqs" {

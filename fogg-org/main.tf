@@ -534,8 +534,13 @@ resource "aws_s3_bucket" "cloudtrail" {
   policy = "${data.aws_iam_policy_document.cloudtrail.json}"
 }
 
+data "aws_route53_zone" "public" {
+  name         = "${var.domain_name}"
+  private_zone = false
+}
+
 resource "aws_route53_record" "website" {
-  zone_id = "${lookup(lookup(data.terraform_remote_state.global.domains,var.domain_name),"zone_id")}"
+  zone_id = "${data.aws_route53_zone.public.zone_id}"
   name    = "cdn.${var.domain_name}"
   type    = "A"
 

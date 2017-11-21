@@ -25,15 +25,12 @@ if ! id ubuntu; then
   fi
 fi
 
-if type -P docker; then
-  mkdir -p /etc/ecs /var/lib/ecs /var/lib/ecs/data
-  echo "ECS_CLUSTER=${env}-${app}-${service}" >> /etc/ecs/ecs.config
+sudo -H -u ubuntu bash -c 'cd; source .bashrc; deploy localhost; script/configure'
+sudo -H -u ubuntu bash -c 'cd; source .bashrc; git clean -ffd; git clean -ffd; git clean -ffd'
 
-  docker run --name ecs-agent --net=host --detach=true --restart=on-failure:10 --volume=/var/run/docker.sock:/var/run/docker.sock --volume=/var/log/ecs:/log --volume=/var/lib/ecs/data:/data --env-file=/etc/ecs/ecs.config --env=ECS_LOGFILE=/log/ecs-agent.log --env=ECS_DATADIR=/data/ --env=ECS_ENABLE_TASK_IAM_ROLE=true --env=ECS_ENABLE_TASK_IAM_ROLE_NETWORK_HOST=true amazon/amazon-ecs-agent:latest &
-fi
+mkdir -p /etc/ecs /var/lib/ecs /var/lib/ecs/data
+echo "ECS_CLUSTER=${env}-${app}-${service}" >> /etc/ecs/ecs.config
 
-mkdir -p /data
-apt-get install -y nfs-common
-mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2 efs.${env}.immanent.io:/ /data
+docker run --name ecs-agent --net=host --detach=true --restart=on-failure:10 --volume=/var/run/docker.sock:/var/run/docker.sock --volume=/var/log/ecs:/log --volume=/var/lib/ecs/data:/data --env-file=/etc/ecs/ecs.config --env=ECS_LOGFILE=/log/ecs-agent.log --env=ECS_DATADIR=/data/ --env=ECS_ENABLE_TASK_IAM_ROLE=true --env=ECS_ENABLE_TASK_IAM_ROLE_NETWORK_HOST=true amazon/amazon-ecs-agent:latest &
 
 --===============88888888888888888888888888==

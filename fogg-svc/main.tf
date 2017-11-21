@@ -363,7 +363,18 @@ data "aws_ami" "block" {
   owners = ["self"]
 }
 
-data "aws_ami" "amazon" {
+data "aws_ami" "ubuntu" {
+  most_recent = true
+
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-*"]
+  }
+
+  owners = ["099720109477"] # Canonical
+}
+
+data "aws_ami" "ecs" {
   most_recent = true
 
   filter {
@@ -386,7 +397,7 @@ data "aws_ami" "nat" {
 }
 
 locals {
-  vendor_ami_id = "${var.amazon_linux ? data.aws_ami.amazon.image_id : (var.amazon_nat ? data.aws_ami.nat.image_id : data.aws_ami.block.image_id)}"
+  vendor_ami_id = "${var.amazon_linux ? data.aws_ami.ecs.image_id : (var.amazon_nat ? data.aws_ami.nat.image_id : data.aws_ami.block.image_id)}"
 }
 
 resource "aws_route53_record" "instance_public" {

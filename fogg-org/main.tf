@@ -36,12 +36,6 @@ data "aws_region" "current" {
   current = true
 }
 
-data "aws_acm_certificate" "website" {
-  provider = "aws.us_east_1"
-  domain   = "*.${var.domain_name}"
-  statuses = ["ISSUED", "PENDING_VALIDATION"]
-}
-
 data "terraform_remote_state" "global" {
   backend = "s3"
 
@@ -687,7 +681,7 @@ resource "aws_cloudfront_distribution" "website" {
   }
 
   viewer_certificate {
-    acm_certificate_arn      = "${data.aws_acm_certificate.website.arn}"
+    acm_certificate_arn      = "${var.acm_arn}"
     minimum_protocol_version = "TLSv1.2_2018"
     ssl_support_method       = "sni-only"
   }

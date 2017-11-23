@@ -464,11 +464,6 @@ resource "aws_codecommit_repository" "env" {
   description     = "Repo for ${var.env_name} env"
 }
 
-data "aws_acm_certificate" "env" {
-  domain   = "*.${data.terraform_remote_state.org.domain_name}"
-  statuses = ["ISSUED", "PENDING_VALIDATION"]
-}
-
 resource "aws_ssm_parameter" "fogg_env" {
   name  = "${var.env_name}.fogg_env"
   type  = "String"

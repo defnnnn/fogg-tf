@@ -60,11 +60,6 @@ data "aws_vpc" "current" {
   id = "${data.terraform_remote_state.env.vpc_id}"
 }
 
-data "aws_acm_certificate" "env" {
-  domain   = "*.${data.terraform_remote_state.org.domain_name}"
-  statuses = ["ISSUED", "PENDING_VALIDATION"]
-}
-
 resource "aws_security_group" "service" {
   name        = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}"
   description = "Service ${data.terraform_remote_state.app.app_name}-${var.service_name}"
@@ -1071,7 +1066,7 @@ resource "aws_lb_listener" "app" {
     type             = "forward"
   }
 
-  certificate_arn = "${data.aws_acm_certificate.env.arn}"
+  certificate_arn = "${data.terraform_remote_state.env.env_cert}"
 
   ssl_policy = "ELBSecurityPolicy-TLS-1-2-2017-01"
 

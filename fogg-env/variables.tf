@@ -155,7 +155,7 @@ output "kms_key_id" {
 }
 
 output "env_cert" {
-  value = "${data.aws_acm_certificate.env.arn}"
+  value = "${data.terraform_remote_state.org.acm[var.region]}"
 }
 
 output "api_gateway" {

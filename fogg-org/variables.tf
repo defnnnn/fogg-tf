@@ -6,6 +6,12 @@ variable "global_name" {}
 variable "remote_bucket" {}
 variable "remote_region" {}
 
+variable "acm_arn" {}
+
+variable "acm" {
+  default = {}
+}
+
 variable "want_macie" {
   default = 1
 }
@@ -61,5 +67,13 @@ output "kms_key_id" {
 }
 
 output "wildcard_cert" {
-  value = "${data.aws_acm_certificate.website.arn}"
+  value = "${var.acm_arn}"
+}
+
+output "acm_arn" {
+  value = "${var.acm_arn}"
+}
+
+output "acm" {
+  value = "${var.acm}"
 }

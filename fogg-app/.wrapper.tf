@@ -5,7 +5,7 @@ module "app" {
   global_bucket = "${var.remote_bucket}"
 
   global_key = "${var.remote_org_path}"
-  env_key    = "${var.remote_env_path}"
+  env_key    = "env:/${terraform.workspace}/${var.remote_env_path}"
 }
 
 data "terraform_remote_state" "env" {
@@ -13,7 +13,7 @@ data "terraform_remote_state" "env" {
 
   config {
     bucket         = "${var.remote_bucket}"
-    key            = "${var.remote_env_path}"
+    key            = "env:/${terraform.workspace}/${var.remote_env_path}"
     region         = "${var.remote_region}"
     dynamodb_table = "terraform_state_lock"
   }

@@ -41,7 +41,7 @@ data "terraform_remote_state" "app" {
 
   config {
     bucket         = "${var.app_bucket}"
-    key            = "env:/${terraform.workspace}/${var.app_key}"
+    key            = "${terraform.workspace}/${var.app_key}"
     region         = "${var.app_region}"
     dynamodb_table = "terraform_state_lock"
   }
@@ -52,7 +52,7 @@ data "terraform_remote_state" "service" {
 
   config {
     bucket         = "${var.service_bucket}"
-    key            = "env:/${terraform.workspace}/${var.service_key}"
+    key            = "${terraform.workspace}/${var.service_key}"
     region         = "${var.service_region}"
     dynamodb_table = "terraform_state_lock"
   }

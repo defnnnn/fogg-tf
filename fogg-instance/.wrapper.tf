@@ -63,7 +63,7 @@ data "terraform_remote_state" "service" {
 
   config {
     bucket         = "${var.remote_bucket}"
-    key            = "ienv:/${terraform.workspace}/${local.service_key}"
+    key            = "env:/${terraform.workspace}/${local.service_key}"
     region         = "${var.remote_region}"
     dynamodb_table = "terraform_state_lock"
   }

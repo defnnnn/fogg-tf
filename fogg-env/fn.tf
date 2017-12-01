@@ -48,31 +48,38 @@ resource "null_resource" "aws_api_gateway_domain_name_env" {
 }
 
 data "external" "apig_domain_name" {
-  depends_on = ["null_resource.aws_api_gateway_domain_name_env"]
-
   program = ["./module/imma-tf/bin/lookup-apig-domain-name", "${var.region}", "${aws_api_gateway_domain_name.env.domain_name}"]
 }
 
 resource "aws_route53_record" "env_api_gateway" {
+  depends_on = ["null_resource.aws_api_gateway_domain_name_env"]
+
   zone_id = "${data.terraform_remote_state.org.public_zone_id}"
   name    = "${aws_route53_zone.private.name}"
   type    = "A"
 
   alias {
-    zone_id                = "${lookup(data.external.apig_domain_name.result,"regionalHostedZoneId")}"
-    name                   = "${lookup(data.external.apig_domain_name.result,"regionalDomainName")}"
+    zone_id                = "${local.apig_domain_zone_id}"
+    name                   = "${local.apig_domain_name}"
     evaluate_target_health = "true"
   }
 }
 
+locals {
+  apig_domain_zone_id = "${lookup(data.external.apig_domain_name.result,"regionalHostedZoneId")}"
+  apig_domain_name = "${lookup(data.external.apig_domain_name.result,"regionalDomainName")}"
+}
+
 resource "aws_route53_record" "env_api_gateway_private" {
+  depends_on = ["null_resource.aws_api_gateway_domain_name_env"]
+
   zone_id = "${aws_route53_zone.private.zone_id}"
   name    = "${aws_route53_zone.private.name}"
   type    = "A"
 
   alias {
-    zone_id                = "${lookup(data.external.apig_domain_name.result,"regionalHostedZoneId")}"
-    name                   = "${lookup(data.external.apig_domain_name.result,"regionalDomainName")}"
+    zone_id                = "${local.apig_domain_zone_id}"
+    name                   = "${local.apig_domain_name}"
     evaluate_target_health = "true"
   }
 }

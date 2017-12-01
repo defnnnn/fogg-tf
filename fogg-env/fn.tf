@@ -67,7 +67,7 @@ resource "aws_route53_record" "env_api_gateway" {
 
 locals {
   apig_domain_zone_id = "${lookup(data.external.apig_domain_name.result,"regionalHostedZoneId")}"
-  apig_domain_name = "${lookup(data.external.apig_domain_name.result,"regionalDomainName")}"
+  apig_domain_name    = "${lookup(data.external.apig_domain_name.result,"regionalDomainName")}"
 }
 
 resource "aws_route53_record" "env_api_gateway_private" {

@@ -158,6 +158,10 @@ locals {
   env_cert = "${data.terraform_remote_state.org.acm[var.region]}"
 }
 
+output "env_region" {
+  value = "${var.region}"
+}
+
 output "env_cert" {
   value = "${local.env_cert}"
 }

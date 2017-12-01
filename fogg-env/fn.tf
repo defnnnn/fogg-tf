@@ -32,7 +32,7 @@ resource "null_resource" "aws_api_gateway_rest_api_env" {
 
 resource "aws_api_gateway_domain_name" "env" {
   domain_name     = "${aws_route53_zone.private.name}"
-  certificate_arn = "${data.terraform_remote_state.org.wildcard_cert}"
+  certificate_arn = "${data.terraform_remote_state.org.acm["us-east-1"]}"
 }
 
 resource "null_resource" "aws_api_gateway_domain_name_env" {

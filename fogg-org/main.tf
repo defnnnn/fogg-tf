@@ -681,7 +681,7 @@ resource "aws_cloudfront_distribution" "website" {
   }
 
   viewer_certificate {
-    acm_certificate_arn      = "${var.acm_arn}"
+    acm_certificate_arn      = "${var.acm["us-east-1"]}"
     minimum_protocol_version = "TLSv1.2_2018"
     ssl_support_method       = "sni-only"
   }

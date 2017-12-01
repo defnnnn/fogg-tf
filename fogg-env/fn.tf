@@ -22,9 +22,25 @@ resource "aws_api_gateway_rest_api" "env" {
   name = "${var.env_name}"
 }
 
+resource "null_resource" "aws_api_gateway_rest_api_env" {
+  depends_on = ["aws_api_gateway_rest_api.env"]
+
+  provisioner "local-exec" {
+    command = "aws apigateway update-rest-api --region ${var.region} --rest-api-id ${aws_api_gateway_rest_api.env.id} --patch-operations op=replace,path=/endpointConfiguration/types/EDGE,value=REGIONAL"
+  }
+}
+
 resource "aws_api_gateway_domain_name" "env" {
   domain_name     = "${aws_route53_zone.private.name}"
   certificate_arn = "${data.terraform_remote_state.org.wildcard_cert}"
+}
+
+resource "null_resource" "aws_api_gateway_domain_name_env" {
+  depends_on = ["aws_api_gateway_domain_name.env"]
+
+  provisioner "local-exec" {
+    command = "aws apigateway update-domain-name --region ${var.region} --domain-name ${aws_api_gateway_domain_name.env.domain_name} --patch-operations op='add',path='/endpointConfiguration/types',value='REGIONAL' op='add',path='/regionalCertificateArn',value='${data.terraform_remote_state.org.wildcard_cert}'"
+  }
 }
 
 resource "aws_route53_record" "env_api_gateway" {

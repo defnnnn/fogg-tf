@@ -59,20 +59,20 @@ resource "aws_route53_record" "env_api_gateway" {
   type    = "A"
 
   alias {
-    name                   = "${aws_api_gateway_domain_name.env.cloudfront_domain_name}"
-    zone_id                = "${aws_api_gateway_domain_name.env.cloudfront_zone_id}"
+    zone_id                = "${lookup(data.external.apig_domain_name.result,"regionalHostedZoneId")}"
+    name                   = "${lookup(data.external.apig_domain_name.result,"regionalDomainName")}"
     evaluate_target_health = "true"
   }
 }
 
 resource "aws_route53_record" "env_api_gateway_private" {
-  zone_id = "${lookup(data.external.apig_domain_name.result,"regionalHostedZoneId")}"
-  name    = "${lookup(data.external.apig_domain_name.result,"regionalDomainName")}"
+  zone_id = "${aws_route53_zone.private.zone_id}"
+  name    = "${aws_route53_zone.private.name}"
   type    = "A"
 
   alias {
-    name                   = "${aws_api_gateway_domain_name.env.cloudfront_domain_name}"
-    zone_id                = "${aws_api_gateway_domain_name.env.cloudfront_zone_id}"
+    zone_id                = "${lookup(data.external.apig_domain_name.result,"regionalHostedZoneId")}"
+    name                   = "${lookup(data.external.apig_domain_name.result,"regionalDomainName")}"
     evaluate_target_health = "true"
   }
 }

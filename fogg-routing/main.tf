@@ -1,3 +1,5 @@
+provider "aws" {}
+
 variable "cidr_block" {}
 variable "peer_id" {}
 variable "route_table_id" {}

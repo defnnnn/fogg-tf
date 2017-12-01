@@ -166,6 +166,10 @@ output "env_cert" {
   value = "${local.env_cert}"
 }
 
+output "env_cidr" {
+  value = "${var.cidr}"
+}
+
 output "api_gateway" {
   value = "${aws_api_gateway_rest_api.env.id}"
 }

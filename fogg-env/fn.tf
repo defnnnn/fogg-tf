@@ -39,7 +39,7 @@ resource "null_resource" "aws_api_gateway_domain_name_env" {
   depends_on = ["aws_api_gateway_domain_name.env"]
 
   provisioner "local-exec" {
-    command = "aws apigateway update-domain-name --region ${var.region} --domain-name ${aws_api_gateway_domain_name.env.domain_name} --patch-operations op='add',path='/endpointConfiguration/types',value='REGIONAL' op='add',path='/regionalCertificateArn',value='${data.terraform_remote_state.org.wildcard_cert}'"
+    command = "aws apigateway update-domain-name --region ${var.region} --domain-name ${aws_api_gateway_domain_name.env.domain_name} --patch-operations op='add',path='/endpointConfiguration/types',value='REGIONAL' op='add',path='/regionalCertificateArn',value='${data.terraform_remote_state.org.wildcard_cert}'; aws apigateway update-domain-name --region ${var.region} --domain-name ${aws_api_gateway_domain_name.env.domain_name} --patch-operations op='remove',path='/endpointConfiguration/types',value='EDGE'"
   }
 }
 
@@ -53,6 +53,8 @@ resource "aws_route53_record" "env_api_gateway" {
     zone_id                = "${aws_api_gateway_domain_name.env.cloudfront_zone_id}"
     evaluate_target_health = "true"
   }
+
+  count = 0
 }
 
 resource "aws_route53_record" "env_api_gateway_private" {
@@ -65,6 +67,8 @@ resource "aws_route53_record" "env_api_gateway_private" {
     zone_id                = "${aws_api_gateway_domain_name.env.cloudfront_zone_id}"
     evaluate_target_health = "true"
   }
+
+  count = 0
 }
 
 locals {

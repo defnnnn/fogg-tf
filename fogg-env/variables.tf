@@ -154,8 +154,12 @@ output "kms_key_id" {
   value = "${element(coalescelist(aws_kms_key.env.*.key_id,list(lookup(data.terraform_remote_state.org.kms_key_id,var.region))),0)}"
 }
 
+locals {
+  env_cert = "${data.terraform_remote_state.org.acm[var.region]}"
+}
+
 output "env_cert" {
-  value = "${data.terraform_remote_state.org.acm[var.region]}"
+  value = "${local.env_cert}"
 }
 
 output "api_gateway" {

@@ -1,3 +1,5 @@
+provider "aws" {}
+
 resource "aws_kms_key" "region" {
   description         = "Organization ${var.account_name}"
   enable_key_rotation = true

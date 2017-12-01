@@ -695,7 +695,7 @@ resource "aws_codecommit_repository" "org" {
 module "kms_us_east_1" {
   source = "../fogg-kms"
 
-  providers {
+  providers = {
     aws = "aws.us_east_1"
   }
 
@@ -705,7 +705,7 @@ module "kms_us_east_1" {
 module "kms_us_east_2" {
   source = "../fogg-kms"
 
-  providers {
+  providers = {
     aws = "aws.us_east_2"
   }
 
@@ -715,7 +715,7 @@ module "kms_us_east_2" {
 module "kms_us_west_2" {
   source = "../fogg-kms"
 
-  providers {
+  providers = {
     aws = "aws.us_west_2"
   }
 
@@ -725,7 +725,7 @@ module "kms_us_west_2" {
 module "kms_eu_west_1" {
   source = "../fogg-kms"
 
-  providers {
+  providers = {
     aws = "aws.eu_west_1"
   }
 
@@ -735,7 +735,7 @@ module "kms_eu_west_1" {
 module "kms_eu_central_1" {
   source = "../fogg-kms"
 
-  providers {
+  providers = {
     aws = "aws.eu_central_1"
   }
 
@@ -745,7 +745,7 @@ module "kms_eu_central_1" {
 module "kms_ap_southeast_2" {
   source = "../fogg-kms"
 
-  providers {
+  providers = {
     aws = "aws.ap_southeast_2"
   }
 

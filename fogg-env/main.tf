@@ -475,3 +475,20 @@ resource "aws_ssm_parameter" "fogg_env_sg" {
   type  = "String"
   value = "${aws_security_group.env.id}"
 }
+
+data "aws_route53_zone" "public" {
+  name         = "${data.terraform_remote_state.org.domain_name}"
+  private_zone = false
+}
+
+data "external" "acm_cert" {
+  program = ["./module/imma-tf/bin/lookup-acm-cert", "${var.region}", "${data.terraform_remote_state.org.acm[var.region]}"]
+}
+
+resource "aws_route53_record" "acm_validation" {
+  zone_id = "${data.aws_route53_zone.public.zone_id}"
+  name    = "${lookup(data.external.acm_cert.result,"validation_name")}"
+  type    = "CNAME"
+  ttl     = "60"
+  records = ["${lookup(data.external.acm_cert.result,"validation_value")}"]
+}

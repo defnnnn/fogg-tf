@@ -688,10 +688,16 @@ resource "aws_cloudfront_distribution" "website" {
   }
 
   viewer_certificate {
-    acm_certificate_arn      = "${var.acm["us-east-1"]}"
+    acm_certificate_arn      = "${data.aws_acm_certificate.us_east_1.arn}"
     minimum_protocol_version = "TLSv1.2_2018"
     ssl_support_method       = "sni-only"
   }
+}
+
+data "aws_acm_certificate" "us_east_1" {
+  provider = "aws.us_east_1"
+  domain   = "${var.domain_name}"
+  statuses = ["ISSUED"]
 }
 
 resource "aws_codecommit_repository" "org" {

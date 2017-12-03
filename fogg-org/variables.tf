@@ -6,10 +6,6 @@ variable "global_name" {}
 variable "remote_bucket" {}
 variable "remote_region" {}
 
-variable "acm" {
-  default = {}
-}
-
 variable "want_macie" {
   default = 1
 }
@@ -86,8 +82,4 @@ output "kms_key_id" {
     eu-central-1   = "${module.kms_eu_central_1.kms_key_id}"
     ap-southeast-2 = "${module.kms_ap_southeast_2.kms_key_id}"
   }
-}
-
-output "acm" {
-  value = "${var.acm}"
 }

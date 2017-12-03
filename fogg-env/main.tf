@@ -481,8 +481,13 @@ data "aws_route53_zone" "public" {
   private_zone = false
 }
 
+data "aws_acm_certificate" "env" {
+  domain   = "${data.terraform_remote_state.org.domain_name}"
+  statuses = ["ISSUED"]
+}
+
 data "external" "acm_cert" {
-  program = ["./module/imma-tf/bin/lookup-acm-cert", "${var.region}", "${data.terraform_remote_state.org.acm[var.region]}"]
+  program = ["./module/imma-tf/bin/lookup-acm-cert", "${var.region}", "${data.aws_acm_certificate.env.arn}"]
 }
 
 resource "aws_route53_record" "acm_validation" {

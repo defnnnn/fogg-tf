@@ -155,7 +155,7 @@ output "kms_key_id" {
 }
 
 locals {
-  env_cert = "${data.terraform_remote_state.org.acm[var.region]}"
+  env_cert = "${data.aws_acm_certificate.env.arn}"
 }
 
 output "env_region" {

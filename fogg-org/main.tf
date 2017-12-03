@@ -632,7 +632,7 @@ resource "aws_cloudfront_origin_access_identity" "website" {
 }
 
 resource "aws_cloudfront_distribution" "website" {
-  depends_on = ["aws.s3_bucket.website"]
+  depends_on = ["aws_s3_bucket.website"]
 
   origin {
     domain_name = "b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-cdn.s3-website-${data.aws_region.current.name}.amazonaws.com"

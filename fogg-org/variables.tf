@@ -42,6 +42,30 @@ output "cloudfront" {
   value = "${aws_cloudfront_distribution.website.domain_name}"
 }
 
+variable "want_us_east_1" {
+  default = 0
+}
+
+variable "want_us_east_2" {
+  default = 0
+}
+
+variable "want_us_west_2" {
+  default = 0
+}
+
+variable "want_eu_west_1" {
+  default = 0
+}
+
+variable "want_eu_central_1" {
+  default = 0
+}
+
+variable "want_ap_southeast_2" {
+  default = 0
+}
+
 output "kms_arn" {
   value = {
     us-east-1      = "${module.kms_us_east_1.kms_arn}"

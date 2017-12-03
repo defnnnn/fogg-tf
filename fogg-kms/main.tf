@@ -9,14 +9,20 @@ resource "aws_kms_key" "region" {
     "Env"       = "global"
     "Name"      = "${var.account_name}"
   }
+
+  count = "${var.mcount}"
 }
 
 resource "aws_kms_alias" "ssm_ps" {
   name          = "alias/parameter_store_key"
   target_key_id = "${aws_kms_key.region.key_id}"
+
+  count = "${var.mcount}"
 }
 
 resource "aws_kms_alias" "credstash" {
   name          = "alias/credstash"
   target_key_id = "${aws_kms_key.region.key_id}"
+
+  count = "${var.mcount}"
 }

@@ -1,4 +1,9 @@
 provider "aws" {
+  alias  = "us_west_1"
+  region = "us-west-1"
+}
+
+provider "aws" {
   alias  = "us_west_2"
   region = "us-west-2"
 }
@@ -700,6 +705,7 @@ module "kms_us_east_1" {
   }
 
   account_name = "${var.account_name}"
+  mcount       = "${var.want_us_east_1}"
 }
 
 module "kms_us_east_2" {
@@ -710,6 +716,7 @@ module "kms_us_east_2" {
   }
 
   account_name = "${var.account_name}"
+  mcount       = "${var.want_us_east_2}"
 }
 
 module "kms_us_west_2" {
@@ -720,6 +727,7 @@ module "kms_us_west_2" {
   }
 
   account_name = "${var.account_name}"
+  mcount       = "${var.want_us_west_2}"
 }
 
 module "kms_eu_west_1" {
@@ -730,6 +738,7 @@ module "kms_eu_west_1" {
   }
 
   account_name = "${var.account_name}"
+  mcount       = "${var.want_eu_west_1}"
 }
 
 module "kms_eu_central_1" {
@@ -740,6 +749,7 @@ module "kms_eu_central_1" {
   }
 
   account_name = "${var.account_name}"
+  mcount       = "${var.want_eu_central_1}"
 }
 
 module "kms_ap_southeast_2" {
@@ -750,6 +760,7 @@ module "kms_ap_southeast_2" {
   }
 
   account_name = "${var.account_name}"
+  mcount       = "${var.want_ap_southeast_2}"
 }
 
 resource "aws_iam_role" "macie_service" {

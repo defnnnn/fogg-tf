@@ -2,17 +2,9 @@ variable "org_bucket" {}
 variable "org_key" {}
 variable "org_region" {}
 
-variable "env_bucket" {}
 variable "env_key" {}
-variable "env_region" {}
-
-variable "app_bucket" {}
 variable "app_key" {}
-variable "app_region" {}
-
-variable "service_bucket" {}
 variable "service_key" {}
-variable "service_region" {}
 
 data "terraform_remote_state" "org" {
   backend = "s3"
@@ -29,9 +21,9 @@ data "terraform_remote_state" "env" {
   backend = "s3"
 
   config {
-    bucket         = "${var.env_bucket}"
+    bucket         = "${var.org_bucket}"
     key            = "${var.env_key}"
-    region         = "${var.env_region}"
+    region         = "${var.org_region}"
     dynamodb_table = "terraform_state_lock"
   }
 }
@@ -40,9 +32,9 @@ data "terraform_remote_state" "app" {
   backend = "s3"
 
   config {
-    bucket         = "${var.app_bucket}"
-    key            = "${terraform.workspace}/${var.app_key}"
-    region         = "${var.app_region}"
+    bucket         = "${var.org_bucket}"
+    key            = "${var.app_key}"
+    region         = "${var.org_region}"
     dynamodb_table = "terraform_state_lock"
   }
 }
@@ -51,9 +43,9 @@ data "terraform_remote_state" "service" {
   backend = "s3"
 
   config {
-    bucket         = "${var.service_bucket}"
-    key            = "${terraform.workspace}/${var.service_key}"
-    region         = "${var.service_region}"
+    bucket         = "${var.org_bucket}"
+    key            = "${var.service_key}"
+    region         = "${var.org_region}"
     dynamodb_table = "terraform_state_lock"
   }
 }

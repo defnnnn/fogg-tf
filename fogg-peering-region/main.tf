@@ -3,6 +3,7 @@ provider "aws" {}
 variable "this_vpc_sg" {}
 variable "this_vpc_id" {}
 variable "this_vpc_region" {}
+
 variable "this_vpc_cidrs" {
   default = []
 }
@@ -10,6 +11,7 @@ variable "this_vpc_cidrs" {
 variable "that_vpc_sg" {}
 variable "that_vpc_id" {}
 variable "that_vpc_region" {}
+
 variable "that_vpc_cidrs" {
   default = []
 }
@@ -34,7 +36,7 @@ resource "aws_security_group_rule" "ping_everything" {
   protocol          = "icmp"
   cidr_blocks       = ["${var.that_vpc_cidrs}"]
   security_group_id = "${var.this_vpc_sg}"
-  count = "${var.allow_access}"
+  count             = "${var.allow_access}"
 }
 
 resource "aws_security_group_rule" "ssh_into_everything" {
@@ -44,5 +46,5 @@ resource "aws_security_group_rule" "ssh_into_everything" {
   protocol          = "tcp"
   cidr_blocks       = ["${var.that_vpc_cidrs}"]
   security_group_id = "${var.this_vpc_sg}"
-  count = "${var.allow_access}"
+  count             = "${var.allow_access}"
 }

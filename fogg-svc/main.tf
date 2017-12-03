@@ -1,14 +1,9 @@
-variable "global_bucket" {}
-variable "global_key" {}
-variable "global_region" {}
+variable "org_bucket" {}
+variable "org_key" {}
+variable "org_region" {}
 
-variable "env_bucket" {}
 variable "env_key" {}
-variable "env_region" {}
-
-variable "app_bucket" {}
 variable "app_key" {}
-variable "app_region" {}
 
 provider "aws" {
   alias  = "us_west_2"
@@ -24,9 +19,9 @@ data "terraform_remote_state" "org" {
   backend = "s3"
 
   config {
-    bucket         = "${var.global_bucket}"
-    key            = "${var.global_key}"
-    region         = "${var.global_region}"
+    bucket         = "${var.org_bucket}"
+    key            = "${var.org_key}"
+    region         = "${var.org_region}"
     dynamodb_table = "terraform_state_lock"
   }
 }
@@ -35,9 +30,9 @@ data "terraform_remote_state" "env" {
   backend = "s3"
 
   config {
-    bucket         = "${var.env_bucket}"
+    bucket         = "${var.org_bucket}"
     key            = "${var.env_key}"
-    region         = "${var.env_region}"
+    region         = "${var.org_region}"
     dynamodb_table = "terraform_state_lock"
   }
 }
@@ -46,9 +41,9 @@ data "terraform_remote_state" "app" {
   backend = "s3"
 
   config {
-    bucket         = "${var.app_bucket}"
+    bucket         = "${var.org_bucket}"
     key            = "${var.app_key}"
-    region         = "${var.app_region}"
+    region         = "${var.org_region}"
     dynamodb_table = "terraform_state_lock"
   }
 }
@@ -592,7 +587,7 @@ resource "aws_route53_record" "mx" {
   name    = "${local.ses_domain}"
   type    = "MX"
   ttl     = "60"
-  records = ["10 inbound-smtp.${var.env_region}.amazonaws.com"]
+  records = ["10 inbound-smtp.us-east-1.amazonaws.com"]
 }
 
 resource "aws_sns_topic" "service" {
@@ -628,7 +623,7 @@ data "aws_iam_policy_document" "service-sns-sqs" {
     }
 
     resources = [
-      "arn:aws:sqs:${var.env_region}:${data.terraform_remote_state.org.aws_account_id}:${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}-${element(var.asg_name,count.index)}.fifo",
+      "arn:aws:sqs:${var.region}:${data.terraform_remote_state.org.aws_account_id}:${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}-${element(var.asg_name,count.index)}.fifo",
     ]
 
     condition {
@@ -933,7 +928,7 @@ module "fn_service" {
   function_name    = "${aws_lambda_function.service.function_name}"
   function_arn     = "${aws_lambda_function.service.arn}"
   function_version = "${aws_lambda_function.service.version}"
-  source_arn       = "arn:aws:execute-api:${var.env_region}:${data.aws_caller_identity.current.account_id}:${data.terraform_remote_state.env.api_gateway}/*/*/*"
+  source_arn       = "arn:aws:execute-api:${var.region}:${data.aws_caller_identity.current.account_id}:${data.terraform_remote_state.env.api_gateway}/*/*/*"
   unique_prefix    = "${data.terraform_remote_state.env.api_gateway}-${data.terraform_remote_state.env.api_gateway_resource}"
 }
 

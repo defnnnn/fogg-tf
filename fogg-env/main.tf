@@ -1,6 +1,6 @@
-variable "global_bucket" {}
-variable "global_key" {}
-variable "global_region" {}
+variable "org_bucket" {}
+variable "org_key" {}
+variable "org_region" {}
 
 provider "aws" {
   alias  = "us_west_2"
@@ -16,9 +16,9 @@ data "terraform_remote_state" "org" {
   backend = "s3"
 
   config {
-    bucket         = "${var.global_bucket}"
-    key            = "${var.global_key}"
-    region         = "${var.global_region}"
+    bucket         = "${var.org_bucket}"
+    key            = "${var.org_key}"
+    region         = "${var.org_region}"
     dynamodb_table = "terraform_state_lock"
   }
 }

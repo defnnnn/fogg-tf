@@ -1,9 +1,14 @@
+locals {
+  org_key = "${join("_",slice(split("_",var.remote_path),0,1))}/terraform.tfstate"
+  env_key = "${join("_",slice(split("_",var.remote_path),0,2))}/terraform.tfstate"
+}
+
 module "env" {
   source = "./module/fogg-tf/fogg-env"
 
-  global_bucket = "${var.remote_bucket}"
-  global_key    = "${var.remote_org_path}"
-  global_region = "${var.remote_region}"
+  org_bucket = "${var.remote_bucket}"
+  org_key    = "${local.org_key}"
+  org_region = "${var.remote_region}"
 }
 
 data "terraform_remote_state" "org" {
@@ -11,7 +16,7 @@ data "terraform_remote_state" "org" {
 
   config {
     bucket         = "${var.remote_bucket}"
-    key            = "${var.remote_org_path}"
+    key            = "env:/${terraform.workspace}/${local.org_key}"
     region         = "${var.remote_region}"
     dynamodb_table = "terraform_state_lock"
   }

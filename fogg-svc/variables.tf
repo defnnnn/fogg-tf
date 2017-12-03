@@ -6,6 +6,8 @@ variable "service" {
   default = {}
 }
 
+variable "region" {}
+
 variable "az_count" {}
 
 variable "service_name" {}
@@ -229,7 +231,7 @@ output "route_tables" {
 }
 
 output "region" {
-  value = "${var.env_region}"
+  value = "${var.region}"
 }
 
 output "role" {

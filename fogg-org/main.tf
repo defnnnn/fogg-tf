@@ -137,8 +137,10 @@ resource "aws_s3_bucket" "s3" {
   bucket = "b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-s3"
   acl    = "log-delivery-write"
 
+  depends_on = ["aws_s3_bucket.meta"]
+
   logging {
-    target_bucket = "${aws_s3_bucket.meta.id}"
+    target_bucket = "b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-meta"
     target_prefix = "log/"
   }
 
@@ -156,8 +158,10 @@ resource "aws_s3_bucket" "tf_remote_state" {
   bucket = "b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-tf-remote-state"
   acl    = "private"
 
+  depends_on = ["aws_s3_bucket.s3"]
+
   logging {
-    target_bucket = "${aws_s3_bucket.s3.id}"
+    target_bucket = "b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-s3"
     target_prefix = "log/"
   }
 
@@ -175,8 +179,10 @@ resource "aws_s3_bucket" "cache" {
   bucket = "b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-cache"
   acl    = "private"
 
+  depends_on = ["aws_s3_bucket.s3"]
+
   logging {
-    target_bucket = "${aws_s3_bucket.s3.id}"
+    target_bucket = "b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-s3"
     target_prefix = "log/"
   }
 
@@ -195,8 +201,10 @@ resource "aws_s3_bucket" "config" {
   acl    = "private"
   policy = "${data.aws_iam_policy_document.config_s3.json}"
 
+  depends_on = ["aws_s3_bucket.s3"]
+
   logging {
-    target_bucket = "${aws_s3_bucket.s3.id}"
+    target_bucket = "b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-s3"
     target_prefix = "log/"
   }
 
@@ -389,7 +397,7 @@ data "aws_iam_policy_document" "billing" {
     ]
 
     resources = [
-      "${aws_s3_bucket.billing.arn}",
+      "arn:${data.aws_partition.current.partition}:s3:::b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-billing",
     ]
 
     principals {
@@ -404,7 +412,7 @@ data "aws_iam_policy_document" "billing" {
     ]
 
     resources = [
-      "${aws_s3_bucket.billing.arn}/AWSLogs/*",
+      "arn:${data.aws_partition.current.partition}:s3:::b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-billing/AWSLogs/*",
     ]
 
     principals {
@@ -421,7 +429,7 @@ data "aws_iam_policy_document" "config_s3" {
     ]
 
     resources = [
-      "${aws_s3_bucket.config.arn}",
+      "arn:${data.aws_partition.current.partition}:s3:::b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-config",
     ]
 
     principals {
@@ -436,7 +444,7 @@ data "aws_iam_policy_document" "config_s3" {
     ]
 
     resources = [
-      "${aws_s3_bucket.config.arn}/AWSLogs/*",
+      "arn:${data.aws_partition.current.partition}:s3:::b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-config/AWSLogs/*",
     ]
 
     principals {
@@ -457,8 +465,10 @@ resource "aws_s3_bucket" "billing" {
   acl    = "private"
   policy = "${data.aws_iam_policy_document.billing.json}"
 
+  depends_on = ["aws_s3_bucket.s3"]
+
   logging {
-    target_bucket = "${aws_s3_bucket.s3.id}"
+    target_bucket = "b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-s3"
     target_prefix = "log/"
   }
 
@@ -474,7 +484,7 @@ resource "aws_s3_bucket" "billing" {
 
 resource "aws_cloudtrail" "global" {
   name                          = "global-cloudtrail"
-  s3_bucket_name                = "${aws_s3_bucket.cloudtrail.id}"
+  s3_bucket_name                = "b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-cloudtrail"
   include_global_service_events = true
   is_multi_region_trail         = true
 }
@@ -487,7 +497,7 @@ data "aws_iam_policy_document" "cloudtrail" {
     ]
 
     resources = [
-      "${aws_s3_bucket.cloudtrail.arn}",
+      "arn:${data.aws_partition.current.partition}:s3:::b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-cloudtrail",
     ]
 
     principals {
@@ -502,7 +512,7 @@ data "aws_iam_policy_document" "cloudtrail" {
     ]
 
     resources = [
-      "${aws_s3_bucket.cloudtrail.arn}/*",
+      "arn:${data.aws_partition.current.partition}:s3:::b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-cloudtrail/*",
     ]
 
     principals {
@@ -618,13 +628,13 @@ EOF
 }
 
 resource "aws_cloudfront_origin_access_identity" "website" {
-  comment = "${aws_s3_bucket.website.id}"
+  comment = "b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-cdn"
 }
 
 resource "aws_cloudfront_distribution" "website" {
   origin {
-    domain_name = "${aws_s3_bucket.website.id}.s3-website-${data.aws_region.current.name}.amazonaws.com"
-    origin_id   = "${aws_s3_bucket.website.id}"
+    domain_name = "b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-cdn.s3-website-${data.aws_region.current.name}.amazonaws.com"
+    origin_id   = "b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-cdn"
 
     #s3_origin_config {
     #  origin_access_identity = "${aws_cloudfront_origin_access_identity.website.cloudfront_access_identity_path}"
@@ -652,7 +662,7 @@ resource "aws_cloudfront_distribution" "website" {
     allowed_methods  = ["GET", "HEAD"]
     cached_methods   = ["GET", "HEAD"]
     compress         = true
-    target_origin_id = "${aws_s3_bucket.website.id}"
+    target_origin_id = "b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-cdn"
 
     forwarded_values {
       query_string = false

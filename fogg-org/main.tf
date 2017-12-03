@@ -696,7 +696,7 @@ resource "aws_cloudfront_distribution" "website" {
 
 data "aws_acm_certificate" "us_east_1" {
   provider = "aws.us_east_1"
-  domain   = "${var.domain_name}"
+  domain   = "*.${var.domain_name}"
   statuses = ["ISSUED"]
 }
 

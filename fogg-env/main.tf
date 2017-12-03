@@ -482,7 +482,7 @@ data "aws_route53_zone" "public" {
 }
 
 data "aws_acm_certificate" "env" {
-  domain   = "${data.terraform_remote_state.org.domain_name}"
+  domain   = "*.${data.terraform_remote_state.org.domain_name}"
   statuses = ["ISSUED"]
 }
 

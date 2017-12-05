@@ -195,7 +195,7 @@ resource "aws_route_table_association" "service" {
 resource "aws_route_table_association" "service_env" {
   subnet_id      = "${element(concat(aws_subnet.service.*.id,aws_subnet.service_v6.*.id),count.index)}"
   route_table_id = "${element(data.terraform_remote_state.env.route_table_private,count.index)}"
-  count          = "${(signum(var.want_routes)-1)*-1*var.az_count}"
+  count          = "${(signum(var.want_routes)-1)*-1*var.az_count*(signum(var.public_network)-1)*-1}"
 }
 
 resource "aws_vpc_endpoint_route_table_association" "s3_service" {

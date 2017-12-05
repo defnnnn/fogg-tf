@@ -147,7 +147,7 @@ resource "aws_network_interface" "service" {
 
 resource "aws_route_table" "service" {
   vpc_id = "${data.aws_vpc.current.id}"
-  count  = "${var.want_subnets*var.az_count*(signum(var.public_network)-1)*-1}"
+  count  = "${var.want_routes*var.want_subnets*var.az_count*(signum(var.public_network)-1)*-1}"
 
   tags {
     "Name"      = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}"
@@ -162,51 +162,57 @@ resource "aws_route" "service" {
   route_table_id         = "${element(aws_route_table.service.*.id,count.index)}"
   destination_cidr_block = "0.0.0.0/0"
   nat_gateway_id         = "${element(data.terraform_remote_state.env.nat_gateways,count.index)}"
-  count                  = "${var.want_subnets*var.want_nat*var.az_count*(signum(var.public_network)-1)*-1}"
+  count                  = "${var.want_routes*var.want_subnets*var.want_nat*var.az_count*(signum(var.public_network)-1)*-1}"
 }
 
 resource "aws_route" "service_interface_nat" {
   route_table_id         = "${element(aws_route_table.service.*.id,count.index)}"
   destination_cidr_block = "0.0.0.0/0"
   network_interface_id   = "${element(data.terraform_remote_state.env.nat_interfaces,count.index)}"
-  count                  = "${var.want_subnets*var.want_nat_interface*var.az_count*(signum(var.public_network)-1)*-1}"
+  count                  = "${var.want_routes*var.want_subnets*var.want_nat_interface*var.az_count*(signum(var.public_network)-1)*-1}"
 }
 
 resource "aws_route" "service_interface_vpn" {
   route_table_id         = "${element(aws_route_table.service.*.id,count.index)}"
   destination_cidr_block = "${data.terraform_remote_state.env.vpn_cidr}"
   network_interface_id   = "${element(data.terraform_remote_state.env.vpn_interfaces,count.index)}"
-  count                  = "${var.want_subnets*var.want_vpn*var.az_count*(signum(var.public_network)-1)*-1}"
+  count                  = "${var.want_routes*var.want_subnets*var.want_vpn*var.az_count*(signum(var.public_network)-1)*-1}"
 }
 
 resource "aws_route" "service_v6" {
   route_table_id              = "${element(aws_route_table.service.*.id,count.index)}"
   destination_ipv6_cidr_block = "::/0"
   egress_only_gateway_id      = "${data.terraform_remote_state.env.egw_gateway}"
-  count                       = "${var.want_subnets*var.az_count*(signum(var.public_network)-1)*-1}"
+  count                       = "${var.want_routes*var.want_subnets*var.az_count*(signum(var.public_network)-1)*-1}"
 }
 
 resource "aws_route_table_association" "service" {
   subnet_id      = "${element(concat(aws_subnet.service.*.id,aws_subnet.service_v6.*.id),count.index)}"
   route_table_id = "${element(aws_route_table.service.*.id,count.index)}"
-  count          = "${var.want_subnets*var.az_count*(signum(var.public_network)-1)*-1}"
+  count          = "${var.want_routes*var.want_subnets*var.az_count*(signum(var.public_network)-1)*-1}"
+}
+
+resource "aws_route_table_association" "service_env" {
+  subnet_id      = "${element(concat(aws_subnet.service.*.id,aws_subnet.service_v6.*.id),count.index)}"
+  route_table_id = "${element(data.terraform_remote_state.env.route_table_private,count.index)}"
+  count          = "${(signum(var.want_routes)-1)*-1*var.az_count}"
 }
 
 resource "aws_vpc_endpoint_route_table_association" "s3_service" {
   vpc_endpoint_id = "${data.terraform_remote_state.env.s3_endpoint_id}"
   route_table_id  = "${element(aws_route_table.service.*.id,count.index)}"
-  count           = "${var.want_subnets*var.az_count*(signum(var.public_network)-1)*-1}"
+  count           = "${var.want_routes*var.want_subnets*var.az_count*(signum(var.public_network)-1)*-1}"
 }
 
 resource "aws_vpc_endpoint_route_table_association" "dynamodb_service" {
   vpc_endpoint_id = "${data.terraform_remote_state.env.dynamodb_endpoint_id}"
   route_table_id  = "${element(aws_route_table.service.*.id,count.index)}"
-  count           = "${var.want_subnets*var.az_count*(signum(var.public_network)-1)*-1}"
+  count           = "${var.want_routes*var.want_subnets*var.az_count*(signum(var.public_network)-1)*-1}"
 }
 
 resource "aws_route_table" "service_public" {
   vpc_id = "${data.aws_vpc.current.id}"
-  count  = "${var.want_subnets*var.az_count*signum(var.public_network)}"
+  count  = "${var.want_routes*var.want_subnets*var.az_count*signum(var.public_network)}"
 
   tags {
     "Name"      = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}"
@@ -222,39 +228,45 @@ resource "aws_route" "service_public" {
   route_table_id         = "${element(aws_route_table.service_public.*.id,count.index)}"
   destination_cidr_block = "0.0.0.0/0"
   gateway_id             = "${data.terraform_remote_state.env.igw_id}"
-  count                  = "${var.want_subnets*var.az_count*signum(var.public_network)}"
+  count                  = "${var.want_routes*var.want_subnets*var.az_count*signum(var.public_network)}"
 }
 
 resource "aws_route" "service_public_interface_vpn" {
   route_table_id         = "${element(aws_route_table.service_public.*.id,count.index)}"
   destination_cidr_block = "${data.terraform_remote_state.env.vpn_cidr}"
   network_interface_id   = "${element(data.terraform_remote_state.env.vpn_interfaces,count.index)}"
-  count                  = "${var.want_subnets*var.az_count*signum(var.public_network)*var.want_vpn}"
+  count                  = "${var.want_routes*var.want_subnets*var.az_count*signum(var.public_network)*var.want_vpn}"
 }
 
 resource "aws_route" "service_public_v6" {
   route_table_id              = "${element(aws_route_table.service_public.*.id,count.index)}"
   destination_ipv6_cidr_block = "::/0"
   egress_only_gateway_id      = "${data.terraform_remote_state.env.egw_gateway}"
-  count                       = "${var.want_subnets*var.az_count*signum(var.public_network)}"
+  count                       = "${var.want_routes*var.want_subnets*var.az_count*signum(var.public_network)}"
 }
 
 resource "aws_route_table_association" "service_public" {
   subnet_id      = "${element(concat(aws_subnet.service.*.id,aws_subnet.service_v6.*.id),count.index)}"
   route_table_id = "${element(aws_route_table.service_public.*.id,count.index)}"
-  count          = "${var.want_subnets*var.az_count*signum(var.public_network)}"
+  count          = "${var.want_routes*var.want_subnets*var.az_count*signum(var.public_network)}"
+}
+
+resource "aws_route_table_association" "service_public_env" {
+  subnet_id      = "${element(concat(aws_subnet.service.*.id,aws_subnet.service_v6.*.id),count.index)}"
+  route_table_id = "${element(data.terraform_remote_state.env.route_table_public,count.index)}"
+  count          = "${(signum(var.want_routes)-1)*-1*var.az_count}"
 }
 
 resource "aws_vpc_endpoint_route_table_association" "s3_service_public" {
   vpc_endpoint_id = "${data.terraform_remote_state.env.s3_endpoint_id}"
   route_table_id  = "${element(aws_route_table.service_public.*.id,count.index)}"
-  count           = "${var.want_subnets*var.az_count*signum(var.public_network)}"
+  count           = "${var.want_routes*var.want_subnets*var.az_count*signum(var.public_network)}"
 }
 
 resource "aws_vpc_endpoint_route_table_association" "dynamodb_service_public" {
   vpc_endpoint_id = "${data.terraform_remote_state.env.dynamodb_endpoint_id}"
   route_table_id  = "${element(aws_route_table.service_public.*.id,count.index)}"
-  count           = "${var.want_subnets*var.az_count*signum(var.public_network)}"
+  count           = "${var.want_routes*var.want_subnets*var.az_count*signum(var.public_network)}"
 }
 
 data "aws_iam_policy_document" "service" {

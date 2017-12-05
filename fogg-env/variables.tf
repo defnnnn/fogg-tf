@@ -134,6 +134,14 @@ output "route_tables" {
   value = ["${concat(aws_route_table.private.*.id,aws_route_table.public.*.id)}"]
 }
 
+output "route_table_public" {
+  value = ["${aws_route_table.public.*.id}"]
+}
+
+output "route_table_private" {
+  value = ["${aws_route_table.private.*.id}"]
+}
+
 output "s3_endpoint_id" {
   value = "${aws_vpc_endpoint.s3.id}"
 }

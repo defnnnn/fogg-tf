@@ -60,6 +60,10 @@ variable "want_ipv6" {
   default = "0"
 }
 
+variable "want_routes" {
+  default = "0"
+}
+
 variable "want_subnets" {
   default = "1"
 }

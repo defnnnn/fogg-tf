@@ -104,9 +104,10 @@ resource "aws_subnet" "public" {
 }
 
 resource "aws_route" "public" {
-  route_table_id         = "${aws_route_table.public.id}"
+  route_table_id         = "${element(aws_route_table.public.*.id,count.index)}"
   destination_cidr_block = "0.0.0.0/0"
   gateway_id             = "${aws_internet_gateway.env.id}"
+  count                  = "${var.az_count}"
 }
 
 resource "aws_route_table_association" "public" {
@@ -115,20 +116,9 @@ resource "aws_route_table_association" "public" {
   count          = "${var.az_count}"
 }
 
-resource "aws_vpc_endpoint_route_table_association" "s3_public" {
-  vpc_endpoint_id = "${aws_vpc_endpoint.s3.id}"
-  route_table_id  = "${element(aws_route_table.public.*.id,count.index)}"
-  count           = "${var.az_count}"
-}
-
-resource "aws_vpc_endpoint_route_table_association" "dynamodb_public" {
-  vpc_endpoint_id = "${aws_vpc_endpoint.dynamodb.id}"
-  route_table_id  = "${element(aws_route_table.public.*.id,count.index)}"
-  count           = "${var.az_count}"
-}
-
 resource "aws_route_table" "public" {
   vpc_id = "${aws_vpc.env.id}"
+  count  = "${var.az_count}"
 
   tags {
     "Name"      = "${var.env_name}-public"
@@ -157,6 +147,20 @@ resource "aws_route" "private" {
   destination_cidr_block = "0.0.0.0/0"
   nat_gateway_id         = "${element(aws_nat_gateway.env.*.id,count.index%(var.az_count*(signum(var.nat_count)-1)*-1+var.nat_count))}"
   count                  = "${var.want_nat*var.az_count}"
+}
+
+resource "aws_route" "private_nat_eni" {
+  route_table_id         = "${element(aws_route_table.private.*.id,count.index)}"
+  destination_cidr_block = "0.0.0.0/0"
+  network_interface_id   = "${element(module.nat.interfaces,count.index)}"
+  count                  = "${var.az_count*(signum(var.want_nat)-1)*-1}"
+}
+
+resource "aws_route" "private_vpn_eni" {
+  route_table_id         = "${element(aws_route_table.private.*.id,count.index)}"
+  destination_cidr_block = "${var.vpn_cidr}"
+  network_interface_id   = "${element(module.vpn.interfaces,count.index)}"
+  count                  = "${var.az_count}"
 }
 
 resource "aws_route_table_association" "private" {

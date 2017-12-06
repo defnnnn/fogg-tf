@@ -12,6 +12,10 @@ provider "aws" {
   region = "us-east-1"
 }
 
+locals {
+  private_zone_name = "${signum(length(var.env_zone)) == 1 ? var.env_zone : var.env_name}.${signum(length(var.env_domain_name)) == 1 ? var.env_domain_name : data.terraform_remote_state.org.domain_name}"
+}
+
 data "terraform_remote_state" "org" {
   backend = "s3"
 
@@ -199,7 +203,7 @@ resource "aws_nat_gateway" "env" {
 }
 
 resource "aws_route53_zone" "private" {
-  name   = "${signum(length(var.env_zone)) == 1 ? var.env_zone : var.env_name}.${var.env_domain_name == 1 ? var.env_domain_name : data.terraform_remote_state.org.domain_name}"
+  name   = "${local.private_zone_name}"
   vpc_id = "${aws_vpc.env.id}"
 
   tags {
@@ -227,7 +231,7 @@ module "efs" {
 
 resource "aws_route53_record" "efs" {
   zone_id = "${aws_route53_zone.private.zone_id}"
-  name    = "efs.${signum(length(var.env_zone)) == 1 ? var.env_zone : var.env_name}.${signum(length(var.env_domain_name)) == 1 ? var.env_domain_name : data.terraform_remote_state.org.domain_name}"
+  name    = "efs.${local.private_zone_name}"
   type    = "CNAME"
   ttl     = "60"
   records = ["${element(module.efs.efs_dns_names,count.index)}"]

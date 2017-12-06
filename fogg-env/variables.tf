@@ -83,7 +83,7 @@ output "private_zone_servers" {
 }
 
 output "private_zone_name" {
-  value = "${signum(length(var.env_zone)) == 1 ? var.env_zone : var.env_name}.${signum(length(var.env_domain_name)) == 1 ? var.env_domain_name : data.terraform_remote_state.org.domain_name}"
+  value = "${local.private_zone_name}"
 }
 
 output "sg_efs" {

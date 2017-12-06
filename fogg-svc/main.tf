@@ -935,26 +935,6 @@ resource "aws_lambda_function" "service" {
   }
 }
 
-module "fn_service" {
-  source           = "./module/fogg-tf/fogg-api/fn"
-  function_name    = "${aws_lambda_function.service.function_name}"
-  function_arn     = "${aws_lambda_function.service.arn}"
-  function_version = "${aws_lambda_function.service.version}"
-  source_arn       = "arn:aws:execute-api:${var.region}:${data.aws_caller_identity.current.account_id}:${data.terraform_remote_state.env.api_gateway}/*/*/*"
-  unique_prefix    = "${data.terraform_remote_state.env.api_gateway}-${data.terraform_remote_state.env.api_gateway_resource}"
-}
-
-module "resource_service" {
-  source = "./module/fogg-tf/fogg-api/resource"
-
-  http_method = "POST"
-  api_name    = "${var.service_name}"
-  invoke_arn  = "${aws_lambda_function.service.invoke_arn}"
-
-  rest_api_id = "${data.terraform_remote_state.env.api_gateway}"
-  resource_id = "${data.terraform_remote_state.env.api_gateway_resource}"
-}
-
 resource "aws_elasticache_cluster" "service" {
   cluster_id           = "${local.service_name}"
   engine               = "redis"

@@ -898,43 +898,6 @@ resource "aws_route53_record" "do_instance" {
   count   = "${var.want_digitalocean*var.do_instance_count}"
 }
 
-data "aws_iam_policy_document" "fn" {
-  statement {
-    actions = [
-      "sts:AssumeRole",
-    ]
-
-    principals {
-      type        = "Service"
-      identifiers = ["lambda.amazonaws.com"]
-    }
-  }
-}
-
-resource "aws_iam_role" "fn" {
-  name               = "${local.service_name}-fn"
-  assume_role_policy = "${data.aws_iam_policy_document.fn.json}"
-}
-
-locals {
-  deployment_zip  = ["${split("/","${path.module}/fn/dist/deployment.zip")}"]
-  deployment_file = "${join("/",slice(local.deployment_zip,length(local.deployment_zip)-6,length(local.deployment_zip)))}"
-}
-
-resource "aws_lambda_function" "service" {
-  filename         = "${local.deployment_file}"
-  function_name    = "${local.service_name}"
-  role             = "${aws_iam_role.fn.arn}"
-  handler          = "app.app"
-  runtime          = "python3.6"
-  source_code_hash = "${base64sha256(file("${local.deployment_file}"))}"
-  publish          = true
-
-  lifecycle {
-    ignore_changes = ["source_code_hash", "filename"]
-  }
-}
-
 resource "aws_elasticache_cluster" "service" {
   cluster_id           = "${local.service_name}"
   engine               = "redis"

@@ -2,6 +2,7 @@ variable "api_name" {}
 variable "rest_api_id" {}
 variable "resource_id" {}
 variable "invoke_arn" {}
+
 variable "want_vpc_link" {
   default = 0
 }
@@ -47,7 +48,7 @@ resource "aws_api_gateway_integration" "fn" {
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
   content_handling        = "CONVERT_TO_TEXT"
-  count = "${(var.want_vpc_link - 1)* -1}"
+  count                   = "${(var.want_vpc_link - 1)* -1}"
 }
 
 resource "aws_api_gateway_integration" "fn_catch_all" {
@@ -58,10 +59,9 @@ resource "aws_api_gateway_integration" "fn_catch_all" {
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
   content_handling        = "CONVERT_TO_TEXT"
-  count = "${(var.want_vpc_link - 1)* -1}"
+  count                   = "${(var.want_vpc_link - 1)* -1}"
 }
 
 output "resource" {
   value = "${aws_api_gateway_resource.fn.id}"
 }
-

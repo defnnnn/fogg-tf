@@ -28,7 +28,6 @@ resource "aws_api_gateway_integration" "fn" {
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
   content_handling        = "CONVERT_TO_TEXT"
-  count                   = "${(var.want_vpc_link - 1)* -1}"
 }
 
 output "resource" {

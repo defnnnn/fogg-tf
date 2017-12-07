@@ -974,7 +974,7 @@ module "apig-vpc-link-integration" {
   arg1              = "${local.apig_rest_id}"
   arg2              = "${local.apig_resource_id}"
   arg3              = "https://${local.apig_domain_name}"
-  arg4              = "${aws_api_gateway_method.apig-vpc-link.id}"
+  arg4              = "${element(concat(aws_api_gateway_method.apig-vpc-link.*.id,list("")),0)}"
   mcount            = "${var.want_vpc_link*var.want_nlb}"
 }
 

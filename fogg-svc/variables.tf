@@ -76,6 +76,10 @@ variable "want_kms" {
   default = "0"
 }
 
+variable "want_vpc_link" {
+  default = "0"
+}
+
 variable "want_digitalocean" {
   default = "0"
 }

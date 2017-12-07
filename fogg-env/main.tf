@@ -517,7 +517,7 @@ resource "null_resource" "servicediscovery_create_private_dns_namespace" {
 }
 
 data "external" "servicediscovery_namespace_lookup" {
-  program = ["./module/imma-tf/bin/lookup-sd-namespace", "${var.region}", "sd.${local.private_zone_name}" ]
+  program = ["./module/imma-tf/bin/lookup-sd-namespace", "${var.region}", "sd.${local.private_zone_name}"]
 }
 
 resource "null_resource" "servicediscovery_create_private_dns_namespace_lookup" {

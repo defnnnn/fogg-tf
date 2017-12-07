@@ -940,49 +940,61 @@ resource "aws_elasticache_subnet_group" "service" {
 }
 
 locals {
-  service_name = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}"
+  service_name     = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}"
+  apig_rest_id     = "${data.terraform_remote_state.env.api_gateway}"
+  apig_resource_id = "${data.terraform_remote_state.env.api_gateway_resource}"
+  apig_domain_name = "${data.terraform_remote_state.env.private_zone_name}"
+  apig_vpc_link_id = "${module.apig-vpc-link.out1}"
 }
 
-resource "null_resource" "apigateway_create_vpc_link_aws_lb_net" {
-  depends_on = ["aws_lb.net"]
+module "apig-vpc-link" {
+  source            = "./module/fogg-tf/fogg-shell-r"
+  region            = "${var.region}"
+  command           = "./module/imma-tf/bin/tf-aws-apig-vpc-link"
+  resource_previous = "${local.service_name}-live"
+  resource_name     = "${local.service_name}-live"
+  arg1              = "${element(concat(aws_lb.net.*.arn,list("")),0)}"
+  mcount            = "${var.want_vpc_link*var.want_nlb}"
+}
 
-  provisioner "local-exec" {
-    command = "aws apigateway create-vpc-link --name ${local.service_name}-${element(var.asg_name,count.index)} --target-arns ${aws_lb.net.arn} --endpoint-url https://apigateway.${var.region}.amazonaws.com --region ${var.region}"
+resource "aws_api_gateway_method" "apig-vpc-link" {
+  rest_api_id   = "${local.apig_rest_id}"
+  resource_id   = "${local.apig_resource_id}"
+  http_method   = "POST"
+  authorization = "NONE"
+  count         = "${var.want_vpc_link*var.want_nlb}"
+}
+
+module "apig-vpc-link-integration" {
+  source            = "./module/fogg-tf/fogg-shell"
+  region            = "${var.region}"
+  command           = "./module/imma-tf/bin/tf-aws-apig-vpc-link-integration"
+  resource_previous = "${local.service_name}-live"
+  resource_name     = "${local.service_name}-live"
+  arg1              = "${local.apig_rest_id}"
+  arg2              = "${local.apig_resource_id}"
+  arg3              = "https://${local.apig_domain_name}"
+  arg4              = "${aws_api_gateway_method.apig-vpc-link.id}"
+  mcount            = "${var.want_vpc_link*var.want_nlb}"
+}
+
+resource "null_resource" "apig-vpc-link-integration-deployment" {
+  triggers {
+    integration_id = "${module.apig-vpc-link-integration.id}"
   }
-
-  count = "${var.want_nlb}"
 }
 
-#locals {
-#  apig_rest_id = "data.terraform_remote_state.org.api_gateway"
-#  apig_root_resource_id = "data.terraform_remote_state.org.api_gateway_resource"
-#  apig_domain_name = ""
-#  apig_vpc_link_id = ""
-#}
-
-#aws apigateway get-resources --rest-api-id ${local.apig_rest_id}
-
-#aws apigateway put-method 
-#       --rest-api-id ${local.apig_rest_id} 
-#       --resource-id ${local.apig_root_resource_id} 
-#       --http-method POST 
-#       --authorization-type "NONE" 
-
-#aws apigateway put-integration 
-#    --rest-api-id ${local.apig_rest_id} 
-#    --resource-id ${local.apig_root_resource_id} 
-#    --uri 'https://${api_domain_name}' 
-#    --http-method POST 
-#    --type HTTP_PROXY 
-#    --integration-http-method POST 
-#    --connection-type VPC_LINK 
-#    --connection-id '${stageVariables.vpcLinkId}'
-
-#aws apigateway create-deployment 
-#    --rest-api-id ${local.apig_rest_id} 
-#    --stage-name live 
-#    --variables alias=live
-#    --variables vpcLinkId=${local.apig_vpc_link_id}
+module "apig-vpc-link-deployment" {
+  source            = "./module/fogg-tf/fogg-shell"
+  region            = "${var.region}"
+  command           = "./module/imma-tf/bin/tf-aws-apig-vpc-link-deployment"
+  resource_previous = "${lookup(null_resource.apig-vpc-link-integration-deployment.triggers,"integration_id")}"
+  resource_name     = "${lookup(null_resource.apig-vpc-link-integration-deployment.triggers,"integration_id")}"
+  arg1              = "${local.apig_rest_id}"
+  arg2              = "live"
+  arg3              = "${local.apig_vpc_link_id}"
+  mcount            = "${var.want_vpc_link*var.want_nlb}"
+}
 
 resource "aws_lb" "net" {
   name               = "${local.service_name}-${element(var.asg_name,count.index)}"

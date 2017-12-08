@@ -5,7 +5,7 @@ module "vpn" {
   env_name = "${var.env_name}"
 
   env_sg  = "${aws_security_group.env.id}"
-  subnets = ["${aws_subnet.private.*.id}"]
+  subnets = ["${aws_subnet.public.*.id}"]
 
   network_name    = "vpn"
   interface_count = "${var.vpn_interface_count}"

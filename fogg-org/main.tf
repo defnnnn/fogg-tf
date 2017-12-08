@@ -893,7 +893,7 @@ resource "aws_ssm_parameter" "fogg_org" {
 }
 
 locals {
-  public_key = "${file("ssh-key-pair.pub")}"
+  public_key = "${file("etc/ssh-key-pair.pub")}"
 }
 
 resource "aws_key_pair" "org_us_east_1" {

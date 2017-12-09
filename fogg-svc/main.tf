@@ -402,6 +402,15 @@ locals {
   vendor_ami_id = "${var.amazon_linux ? data.aws_ami.ecs.image_id : (var.amazon_nat ? data.aws_ami.nat.image_id : data.aws_ami.block.image_id)}"
 }
 
+module "ec2-modify-unlimited" {
+  source            = "./module/fogg-tf/fogg-shell"
+  region            = "${var.region}"
+  command           = "./module/imma-tf/bin/tf-aws-ec2-modify-unlimited"
+  resource_previous = "${join(" ",aws_instance.service.*.id)}"
+  resource_name     = "${join(" ",aws_instance.service.*.id)}"
+  mcount            = "${signum(var.instance_count)}"
+}
+
 resource "aws_route53_record" "instance_public" {
   zone_id = "${data.terraform_remote_state.org.public_zone_id}"
   name    = "${local.service_name}${count.index}.${data.terraform_remote_state.org.domain_name}"

@@ -962,6 +962,22 @@ resource "aws_rds_cluster_parameter_group" "service" {
   description = "${local.service_name}"
 
   tags {
+    "Name"      = "${local.service_name}-db-cluster-parameter"
+    "Env"       = "${data.terraform_remote_state.env.env_name}"
+    "App"       = "${data.terraform_remote_state.app.app_name}"
+    "Service"   = "${var.service_name}-db"
+    "ManagedBy" = "terraform"
+  }
+
+  count = "${var.want_aurora}"
+}
+
+resource "aws_db_parameter_group" "service" {
+  name        = "${local.service_name}"
+  family      = "mysql5.6"
+  description = "${local.service_name}"
+
+  tags {
     "Name"      = "${local.service_name}-db-parameter"
     "Env"       = "${data.terraform_remote_state.env.env_name}"
     "App"       = "${data.terraform_remote_state.app.app_name}"
@@ -977,7 +993,7 @@ resource "aws_rds_cluster_instance" "service" {
   cluster_identifier      = "${aws_rds_cluster.service.id}"
   instance_class          = "db.t2.small"
   db_subnet_group_name    = "${aws_db_subnet_group.service.name}"
-  db_parameter_group_name = "${aws_rds_cluster_parameter_group.service.name}"
+  db_parameter_group_name = "${aws_db_parameter_group.service.name}"
 
   tags {
     "Name"      = "${local.service_name}-db-${count.index}"
@@ -996,6 +1012,7 @@ resource "aws_rds_cluster" "service" {
   master_username                     = "${local.service_name}"
   master_password                     = "${local.service_name}"
   vpc_security_group_ids              = ["${data.terraform_remote_state.env.sg_env}", "${data.terraform_remote_state.app.app_sg}", "${aws_security_group.db.id}"]
+  db_subnet_group_name                = "${aws_db_subnet_group.service.name}"
   db_cluster_parameter_group_name     = "${aws_rds_cluster_parameter_group.service.name}"
   iam_database_authentication_enabled = true
 

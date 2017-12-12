@@ -24,6 +24,14 @@ variable "want_elasticache" {
   default = "0"
 }
 
+variable "want_aurora" {
+  default = "0"
+}
+
+variable "aurora_instances" {
+  default = "1"
+}
+
 variable "public_lb" {
   default = "0"
 }

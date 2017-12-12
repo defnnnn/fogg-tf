@@ -85,6 +85,22 @@ resource "aws_security_group" "cache" {
   count = "${var.want_elasticache}"
 }
 
+resource "aws_security_group" "db" {
+  name        = "${local.service_name}-db"
+  description = "Database ${data.terraform_remote_state.app.app_name}-${var.service_name}"
+  vpc_id      = "${data.aws_vpc.current.id}"
+
+  tags {
+    "Name"      = "${local.service_name}-cache"
+    "Env"       = "${data.terraform_remote_state.env.env_name}"
+    "App"       = "${data.terraform_remote_state.app.app_name}"
+    "Service"   = "${var.service_name}-cache"
+    "ManagedBy" = "terraform"
+  }
+
+  count = "${var.want_aurora}"
+}
+
 resource "aws_subnet" "service" {
   vpc_id = "${data.aws_vpc.current.id}"
 
@@ -783,6 +799,24 @@ resource "aws_route53_record" "cache" {
   count   = "${var.want_elasticache}"
 }
 
+resource "aws_route53_record" "db" {
+  zone_id = "${data.terraform_remote_state.env.private_zone_id}"
+  name    = "${data.terraform_remote_state.app.app_name}-${var.service_name}-db.${data.terraform_remote_state.env.private_zone_name}"
+  type    = "CNAME"
+  ttl     = "60"
+  records = ["${aws_rds_cluster.service.endpoint}"]
+  count   = "${var.want_aurora}"
+}
+
+resource "aws_route53_record" "db_ro" {
+  zone_id = "${data.terraform_remote_state.env.private_zone_id}"
+  name    = "${data.terraform_remote_state.app.app_name}-${var.service_name}-db-ro.${data.terraform_remote_state.env.private_zone_name}"
+  type    = "CNAME"
+  ttl     = "60"
+  records = ["${aws_rds_cluster.service.reader_endpoint}"]
+  count   = "${var.want_aurora}"
+}
+
 resource "aws_kms_key" "service" {
   description         = "Service ${var.service_name}"
   enable_key_rotation = true
@@ -905,6 +939,68 @@ resource "aws_route53_record" "do_instance" {
   ttl     = "60"
   records = ["${digitalocean_droplet.service.*.ipv4_address[count.index]}"]
   count   = "${var.want_digitalocean*var.do_instance_count}"
+}
+
+resource "aws_db_subnet_group" "service" {
+  name       = "${local.service_name}"
+  subnet_ids = ["${compact(concat(aws_subnet.service.*.id,aws_subnet.service_v6.*.id,formatlist(var.want_subnets ? "%[3]s" : (var.public_network ? "%[1]s" : "%[2]s"),data.terraform_remote_state.env.public_subnets,data.terraform_remote_state.env.private_subnets,data.terraform_remote_state.env.fake_subnets)))}"]
+
+  tags {
+    "Name"      = "${local.service_name}-db-subnet"
+    "Env"       = "${data.terraform_remote_state.env.env_name}"
+    "App"       = "${data.terraform_remote_state.app.app_name}"
+    "Service"   = "${var.service_name}-db"
+    "ManagedBy" = "terraform"
+  }
+
+  count = "${var.want_aurora}"
+}
+
+resource "aws_rds_cluster_parameter_group" "service" {
+  name        = "${local.service_name}"
+  family      = "aurora5.6"
+  description = "${local.service_name}"
+
+  tags {
+    "Name"      = "${local.service_name}-db-parameter"
+    "Env"       = "${data.terraform_remote_state.env.env_name}"
+    "App"       = "${data.terraform_remote_state.app.app_name}"
+    "Service"   = "${var.service_name}-db"
+    "ManagedBy" = "terraform"
+  }
+
+  count = "${var.want_aurora}"
+}
+
+resource "aws_rds_cluster_instance" "service" {
+  identifier              = "${local.service_name}-${count.index}"
+  cluster_identifier      = "${aws_rds_cluster.service.id}"
+  instance_class          = "db.t2.small"
+  engine_version          = "5.6.10a"
+  db_subnet_group_name    = "${aws_db_subnet_group.service.name}"
+  db_parameter_group_name = "${aws_rds_cluster_parameter_group.service.name}"
+
+  tags {
+    "Name"      = "${local.service_name}-db-${count.index}"
+    "Env"       = "${data.terraform_remote_state.env.env_name}"
+    "App"       = "${data.terraform_remote_state.app.app_name}"
+    "Service"   = "${var.service_name}-db"
+    "ManagedBy" = "terraform"
+  }
+
+  count = "${var.want_aurora*var.aurora_instances}"
+}
+
+resource "aws_rds_cluster" "service" {
+  cluster_identifier                  = "${local.service_name}"
+  database_name                       = "${local.service_name}"
+  master_username                     = "${local.service_name}"
+  master_password                     = "${local.service_name}"
+  vpc_security_group_ids              = ["${data.terraform_remote_state.env.sg_env}", "${data.terraform_remote_state.app.app_sg}", "${aws_security_group.db.id}"]
+  db_cluster_parameter_group_name     = ""
+  iam_database_authentication_enabled = true
+
+  count = "${var.want_aurora}"
 }
 
 resource "aws_elasticache_replication_group" "service" {

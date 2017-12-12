@@ -974,7 +974,7 @@ resource "aws_rds_cluster_parameter_group" "service" {
 
 resource "aws_db_parameter_group" "service" {
   name        = "${local.service_name}"
-  family      = "mysql5.6"
+  family      = "oscar5.6"
   description = "${local.service_name}"
 
   tags {
@@ -1007,13 +1007,13 @@ resource "aws_rds_cluster_instance" "service" {
 }
 
 resource "aws_rds_cluster" "service" {
-  cluster_identifier                  = "${local.service_name}"
-  database_name                       = "meh"
-  master_username                     = "meh"
-  master_password                     = "${local.service_name}"
-  vpc_security_group_ids              = ["${data.terraform_remote_state.env.sg_env}", "${data.terraform_remote_state.app.app_sg}", "${aws_security_group.db.id}"]
-  db_subnet_group_name                = "${aws_db_subnet_group.service.name}"
-  db_cluster_parameter_group_name     = "${aws_rds_cluster_parameter_group.service.name}"
+  cluster_identifier              = "${local.service_name}"
+  database_name                   = "meh"
+  master_username                 = "meh"
+  master_password                 = "${local.service_name}"
+  vpc_security_group_ids          = ["${data.terraform_remote_state.env.sg_env}", "${data.terraform_remote_state.app.app_sg}", "${aws_security_group.db.id}"]
+  db_subnet_group_name            = "${aws_db_subnet_group.service.name}"
+  db_cluster_parameter_group_name = "${aws_rds_cluster_parameter_group.service.name}"
 
   count = "${var.want_aurora}"
 }

@@ -1008,7 +1008,7 @@ resource "aws_rds_cluster_instance" "service" {
 
 resource "aws_rds_cluster" "service" {
   cluster_identifier                  = "${local.service_name}"
-  database_name                       = "${local.service_name}"
+  database_name                       = "meh"
   master_username                     = "${local.service_name}"
   master_password                     = "${local.service_name}"
   vpc_security_group_ids              = ["${data.terraform_remote_state.env.sg_env}", "${data.terraform_remote_state.app.app_sg}", "${aws_security_group.db.id}"]

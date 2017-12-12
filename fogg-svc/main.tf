@@ -406,8 +406,8 @@ module "ec2-modify-unlimited" {
   source            = "./module/fogg-tf/fogg-shell"
   region            = "${var.region}"
   command           = "./module/imma-tf/bin/tf-aws-ec2-modify-unlimited"
-  resource_previous = "${join(" ",aws_instance.service.*.id)}"
-  resource_name     = "${join(" ",aws_instance.service.*.id)}"
+  resource_previous = "${join(" ",concat(aws_instance.service.*.id,list(" ")))}"
+  resource_name     = "${join(" ",concat(aws_instance.service.*.id,list(" ")))}"
   mcount            = "${signum(var.instance_count)}"
 }
 
@@ -779,7 +779,7 @@ resource "aws_route53_record" "cache" {
   name    = "${data.terraform_remote_state.app.app_name}-${var.service_name}-cache.${data.terraform_remote_state.env.private_zone_name}"
   type    = "CNAME"
   ttl     = "60"
-  records = ["${aws_elasticache_cluster.service.cache_nodes.0.address}"]
+  records = ["${aws_elasticache_replication_group.service.configuration_endpoint_address}"]
   count   = "${var.want_elasticache}"
 }
 
@@ -907,16 +907,24 @@ resource "aws_route53_record" "do_instance" {
   count   = "${var.want_digitalocean*var.do_instance_count}"
 }
 
-resource "aws_elasticache_cluster" "service" {
-  cluster_id           = "${local.service_name}"
-  engine               = "redis"
-  engine_version       = "3.2.4"
-  node_type            = "cache.t2.micro"
-  port                 = 6379
-  num_cache_nodes      = 1
-  parameter_group_name = "${aws_elasticache_parameter_group.service.name}"
-  subnet_group_name    = "${aws_elasticache_subnet_group.service.name}"
-  security_group_ids   = ["${aws_security_group.cache.id}"]
+resource "aws_elasticache_replication_group" "service" {
+  replication_group_id          = "${local.service_name}"
+  replication_group_description = "${local.service_name}"
+  engine                        = "redis"
+  engine_version                = "3.2.10"
+  node_type                     = "cache.t2.micro"
+  port                          = 6379
+  parameter_group_name          = "default.redis3.2.cluster.on"
+  automatic_failover_enabled    = true
+  subnet_group_name             = "${aws_elasticache_subnet_group.service.name}"
+  security_group_ids            = ["${aws_security_group.cache.id}"]
+
+  automatic_failover_enabled = true
+
+  cluster_mode {
+    replicas_per_node_group = 0
+    num_node_groups         = 1
+  }
 
   tags {
     "Name"      = "${local.service_name}-cache"
@@ -925,14 +933,6 @@ resource "aws_elasticache_cluster" "service" {
     "Service"   = "${var.service_name}-cache"
     "ManagedBy" = "terraform"
   }
-
-  count = "${var.want_elasticache}"
-}
-
-resource "aws_elasticache_parameter_group" "service" {
-  name = "${local.service_name}-${uuid()}"
-
-  family = "redis3.2"
 
   lifecycle {
     ignore_changes = ["name"]

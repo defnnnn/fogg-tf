@@ -91,10 +91,10 @@ resource "aws_security_group" "db" {
   vpc_id      = "${data.aws_vpc.current.id}"
 
   tags {
-    "Name"      = "${local.service_name}-cache"
+    "Name"      = "${local.service_name}-db"
     "Env"       = "${data.terraform_remote_state.env.env_name}"
     "App"       = "${data.terraform_remote_state.app.app_name}"
-    "Service"   = "${var.service_name}-cache"
+    "Service"   = "${var.service_name}-db"
     "ManagedBy" = "terraform"
   }
 

@@ -1014,7 +1014,6 @@ resource "aws_rds_cluster" "service" {
   vpc_security_group_ids              = ["${data.terraform_remote_state.env.sg_env}", "${data.terraform_remote_state.app.app_sg}", "${aws_security_group.db.id}"]
   db_subnet_group_name                = "${aws_db_subnet_group.service.name}"
   db_cluster_parameter_group_name     = "${aws_rds_cluster_parameter_group.service.name}"
-  iam_database_authentication_enabled = true
 
   count = "${var.want_aurora}"
 }

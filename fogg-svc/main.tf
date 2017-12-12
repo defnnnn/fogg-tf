@@ -917,7 +917,7 @@ resource "aws_elasticache_replication_group" "service" {
   parameter_group_name          = "default.redis3.2.cluster.on"
   automatic_failover_enabled    = true
   subnet_group_name             = "${aws_elasticache_subnet_group.service.name}"
-  security_group_ids            = ["${aws_security_group.cache.id}"]
+  security_group_ids            = ["${data.terraform_remote_state.env.sg_env}", "${data.terraform_remote_state.app.app_sg}", "${aws_security_group.cache.id}"]
 
   automatic_failover_enabled = true
 

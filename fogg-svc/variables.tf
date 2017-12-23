@@ -97,7 +97,11 @@ variable "do_instance_count" {
 }
 
 variable "do_region" {
-  default = "sfo1"
+  default = "sfo2"
+}
+
+variable "do_ssh_key" {
+  default = ""
 }
 
 variable "want_packet" {

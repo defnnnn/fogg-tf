@@ -879,25 +879,17 @@ resource "aws_route53_record" "packet_instance" {
   count   = "${var.want_packet*var.packet_instance_count}"
 }
 
-resource "digitalocean_volume" "service" {
-  name    = "${local.service_name}${count.index}-do.${data.terraform_remote_state.org.domain_name}"
-  region = "${var.do_region}"
-  size   = 40
-  count  = "${var.want_digitalocean}"
-}
-
 resource "digitalocean_droplet" "service" {
-  name    = "${local.service_name}${count.index}-do.${data.terraform_remote_state.org.domain_name}"
-  ssh_keys   = ["default"]
-  region     = "${var.do_region}"
-  image      = "ubuntu-16-04-x64"
-  size       = "512mb"
-  volume_ids = ["${compact(list(count.index == 0 ? digitalocean_volume.service.id : ""))}"]
-  count      = "${var.want_digitalocean*var.do_instance_count}"
+  name     = "${local.service_name}${count.index}-do.${data.terraform_remote_state.org.domain_name}"
+  ssh_keys = ["default"]
+  region   = "${var.do_region}"
+  image    = "ubuntu-16-04-x64"
+  size     = "512mb"
+  count    = "${var.want_digitalocean*var.do_instance_count}"
 }
 
 resource "digitalocean_firewall" "service" {
-  name    = "${local.service_name}.${data.terraform_remote_state.org.domain_name}"
+  name  = "${local.service_name}.${data.terraform_remote_state.org.domain_name}"
   count = "${signum(var.want_digitalocean*var.do_instance_count)}"
 
   droplet_ids = ["${digitalocean_droplet.service.*.id}"]

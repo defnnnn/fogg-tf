@@ -881,7 +881,7 @@ resource "aws_route53_record" "packet_instance" {
 
 resource "digitalocean_droplet" "service" {
   name     = "${local.service_name}${count.index}-do.${data.terraform_remote_state.org.domain_name}"
-  ssh_keys = ["default"]
+  ssh_keys = ["${var.do_ssh_key}"]
   region   = "${var.do_region}"
   image    = "ubuntu-16-04-x64"
   size     = "512mb"

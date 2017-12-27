@@ -84,6 +84,10 @@ variable "want_kms" {
   default = "0"
 }
 
+variable "want_sd" {
+  default = "0"
+}
+
 variable "want_vpc_link" {
   default = "0"
 }

@@ -1289,12 +1289,12 @@ resource "aws_ssm_parameter" "fogg_svc_iam_profile" {
 }
 
 resource "aws_service_discovery_private_dns_namespace" "env" {
-  name  = "sd.${data.terraform_remote_state.app.app_name}-${var.service_name}-${data.terraform_remote_state.env.private_zone_name}"
+  name  = "sd-${local.service_name}.${data.terraform_remote_state.org.domain_name}"
   vpc   = "${data.terraform_remote_state.env.vpc_id}"
   count = "${var.want_sd}"
 }
 
 resource "aws_service_discovery_public_dns_namespace" "env" {
-  name  = "${local.service_name}-${data.terraform_remote_state.org.domain_name}"
+  name  = "${local.service_name}.${data.terraform_remote_state.org.domain_name}"
   count = "${var.want_sd*var.public_network}"
 }

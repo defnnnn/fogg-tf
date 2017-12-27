@@ -365,22 +365,6 @@ data "template_file" "user_data_service" {
   }
 }
 
-data "aws_ami" "block" {
-  most_recent = true
-
-  filter {
-    name   = "state"
-    values = ["available"]
-  }
-
-  filter {
-    name   = "tag:Block"
-    values = ["golden"]
-  }
-
-  owners = ["self"]
-}
-
 data "aws_ami" "ubuntu" {
   most_recent = true
 
@@ -397,7 +381,7 @@ data "aws_ami" "ecs" {
 
   filter {
     name   = "name"
-    values = ["amzn-ami-2017.09.b-amazon-ecs-optimized"]
+    values = ["amzn-ami-2017.09.*-amazon-ecs-optimized"]
   }
 
   owners = ["amazon"]
@@ -415,7 +399,7 @@ data "aws_ami" "nat" {
 }
 
 locals {
-  vendor_ami_id = "${var.amazon_linux ? data.aws_ami.ecs.image_id : (var.amazon_nat ? data.aws_ami.nat.image_id : data.aws_ami.block.image_id)}"
+  vendor_ami_id = "${var.amazon_linux ? data.aws_ami.ecs.image_id : (var.amazon_nat ? data.aws_ami.nat.image_id : data.aws_ami.ubuntu.image_id)}"
 }
 
 module "ec2-modify-unlimited" {

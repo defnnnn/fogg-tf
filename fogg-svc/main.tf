@@ -687,6 +687,91 @@ resource "aws_ecs_cluster" "service" {
   name = "${local.service_name}"
 }
 
+resource "aws_ecs_task_definition" "hello" {
+  family       = "${local.service_name}-hello"
+  network_mode = "bridge"
+
+  container_definitions = <<DEFINITION
+[
+  {
+    "cpu": 64,
+    "essential": true,
+    "image": "crccheck/hello-world",
+    "memory": 64,
+    "name": "httpd-a",
+    "portMappings": [
+      {
+        "containerPort": 8000,
+        "hostPort": 0
+      }
+    ],
+    "placementConstraints": [
+      {
+        "type": "distinctInstance"
+      }
+    ]
+  },
+  {
+    "cpu": 64,
+    "essential": true,
+    "image": "crccheck/hello-world",
+    "memory": 64,
+    "name": "httpd-b",
+    "portMappings": [
+      {
+        "containerPort": 8000,
+        "hostPort": 0
+      }
+    ],
+    "placementConstraints": [
+      {
+        "type": "distinctInstance"
+      }
+  }
+]
+DEFINITION
+}
+
+resource "aws_ecs_service" "hello" {
+  name            = "${local.service_name}-hello"
+  cluster         = "${aws_ecs_cluster.service.id}"
+  task_definition = "${aws_ecs_task_definition.hello.arn}"
+  desired_count   = "${var.instance_count}"
+}
+
+resource "aws_ecs_task_definition" "goodbye" {
+  family       = "${local.service_name}-goodbye"
+  network_mode = "host"
+
+  container_definitions = <<DEFINITION
+[
+  {
+    "cpu": 64,
+    "essential": true,
+    "image": "crccheck/hello-world",
+    "memory": 64,
+    "name": "httpd",
+    "portMappings": [
+      {
+        "containerPort": 8000
+      }
+    ],
+    "placementConstraints": [
+      {
+        "type": "distinctInstance"
+      }
+  }
+]
+DEFINITION
+}
+
+resource "aws_ecs_service" "goodbye" {
+  name            = "${local.service_name}-goodbye"
+  cluster         = "${aws_ecs_cluster.service.id}"
+  task_definition = "${aws_ecs_task_definition.goodbye.arn}"
+  desired_count   = "${var.instance_count}"
+}
+
 resource "aws_autoscaling_group" "service" {
   name                 = "${local.service_name}-${element(var.asg_name,count.index)}"
   launch_configuration = "${element(aws_launch_configuration.service.*.name,count.index)}"

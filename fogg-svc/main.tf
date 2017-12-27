@@ -691,6 +691,10 @@ resource "aws_ecs_task_definition" "hello" {
   family       = "${local.service_name}-hello"
   network_mode = "bridge"
 
+  placement_constraints {
+    type = "distinctInstance"
+  }
+
   container_definitions = <<DEFINITION
 [
   {
@@ -704,11 +708,6 @@ resource "aws_ecs_task_definition" "hello" {
         "containerPort": 8000,
         "hostPort": 0
       }
-    ],
-    "placementConstraints": [
-      {
-        "type": "distinctInstance"
-      }
     ]
   },
   {
@@ -721,11 +720,6 @@ resource "aws_ecs_task_definition" "hello" {
       {
         "containerPort": 8000,
         "hostPort": 0
-      }
-    ],
-    "placementConstraints": [
-      {
-        "type": "distinctInstance"
       }
     ]
   }
@@ -748,6 +742,10 @@ resource "aws_ecs_task_definition" "goodbye" {
   family       = "${local.service_name}-goodbye"
   network_mode = "host"
 
+  placement_constraints {
+    type = "distinctInstance"
+  }
+
   container_definitions = <<DEFINITION
 [
   {
@@ -765,12 +763,7 @@ resource "aws_ecs_task_definition" "goodbye" {
         "protocol": "tcp"
       }
     ],
-    "volumesFrom": [],
-    "placementConstraints": [
-      {
-        "type": "distinctInstance"
-      }
-    ]
+    "volumesFrom": []
   }
 ]
 DEFINITION

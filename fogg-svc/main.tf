@@ -1071,7 +1071,7 @@ resource "aws_rds_cluster_parameter_group" "service" {
 
 resource "aws_db_parameter_group" "service" {
   name_prefix = "${local.service_name}-"
-  family      = "oscar5.6"
+  family      = "aurora5.6"
   description = "${local.service_name}"
 
   tags {

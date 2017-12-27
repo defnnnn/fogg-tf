@@ -737,7 +737,9 @@ resource "aws_ecs_service" "hello" {
   name            = "${local.service_name}-hello"
   cluster         = "${aws_ecs_cluster.service.id}"
   task_definition = "${aws_ecs_task_definition.hello.arn}"
-  desired_count   = "${var.instance_count}"
+  desired_count   = "1"
+
+  ignore_changes = ["desired_count"]
 }
 
 resource "aws_ecs_task_definition" "goodbye" {
@@ -771,7 +773,9 @@ resource "aws_ecs_service" "goodbye" {
   name            = "${local.service_name}-goodbye"
   cluster         = "${aws_ecs_cluster.service.id}"
   task_definition = "${aws_ecs_task_definition.goodbye.arn}"
-  desired_count   = "${var.instance_count}"
+  desired_count   = "1"
+
+  ignore_changes = ["desired_count"]
 }
 
 resource "aws_autoscaling_group" "service" {

@@ -739,7 +739,9 @@ resource "aws_ecs_service" "hello" {
   task_definition = "${aws_ecs_task_definition.hello.arn}"
   desired_count   = "1"
 
-  ignore_changes = ["desired_count"]
+  lifecycle {
+    ignore_changes = ["desired_count"]
+  }
 }
 
 resource "aws_ecs_task_definition" "goodbye" {
@@ -775,7 +777,9 @@ resource "aws_ecs_service" "goodbye" {
   task_definition = "${aws_ecs_task_definition.goodbye.arn}"
   desired_count   = "1"
 
-  ignore_changes = ["desired_count"]
+  lifecycle {
+    ignore_changes = ["desired_count"]
+  }
 }
 
 resource "aws_autoscaling_group" "service" {

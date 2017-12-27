@@ -691,10 +691,6 @@ resource "aws_ecs_task_definition" "hello" {
   family       = "${local.service_name}-hello"
   network_mode = "bridge"
 
-  placement_constraints {
-    type = "distinctInstance"
-  }
-
   container_definitions = <<DEFINITION
 [
   {
@@ -733,6 +729,25 @@ resource "aws_ecs_service" "hello" {
   task_definition = "${aws_ecs_task_definition.hello.arn}"
   desired_count   = "1"
 
+  placement_strategy {
+    type  = "spread"
+    field = "attribute:ecs.availability-zone"
+  }
+
+  placement_strategy {
+    type  = "spread"
+    field = "instanceId"
+  }
+
+  placement_strategy {
+    type  = "binpack"
+    field = "memory"
+  }
+
+  placement_constraints {
+    type = "distinctInstance"
+  }
+
   lifecycle {
     ignore_changes = ["desired_count"]
   }
@@ -741,10 +756,6 @@ resource "aws_ecs_service" "hello" {
 resource "aws_ecs_task_definition" "goodbye" {
   family       = "${local.service_name}-goodbye"
   network_mode = "host"
-
-  placement_constraints {
-    type = "distinctInstance"
-  }
 
   container_definitions = <<DEFINITION
 [
@@ -774,6 +785,25 @@ resource "aws_ecs_service" "goodbye" {
   cluster         = "${aws_ecs_cluster.service.id}"
   task_definition = "${aws_ecs_task_definition.goodbye.arn}"
   desired_count   = "1"
+
+  placement_strategy {
+    type  = "spread"
+    field = "attribute:ecs.availability-zone"
+  }
+
+  placement_strategy {
+    type  = "spread"
+    field = "instanceId"
+  }
+
+  placement_strategy {
+    type  = "binpack"
+    field = "memory"
+  }
+
+  placement_constraints {
+    type = "distinctInstance"
+  }
 
   lifecycle {
     ignore_changes = ["desired_count"]

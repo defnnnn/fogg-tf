@@ -710,7 +710,6 @@ resource "aws_ecs_task_definition" "hello" {
         "type": "distinctInstance"
       }
     ]
-    ]
   },
   {
     "cpu": 64,

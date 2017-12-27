@@ -710,6 +710,7 @@ resource "aws_ecs_task_definition" "hello" {
         "type": "distinctInstance"
       }
     ]
+    ]
   },
   {
     "cpu": 64,
@@ -727,6 +728,7 @@ resource "aws_ecs_task_definition" "hello" {
       {
         "type": "distinctInstance"
       }
+    ]
   }
 ]
 DEFINITION
@@ -760,6 +762,7 @@ resource "aws_ecs_task_definition" "goodbye" {
       {
         "type": "distinctInstance"
       }
+    ]
   }
 ]
 DEFINITION

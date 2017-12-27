@@ -752,15 +752,20 @@ resource "aws_ecs_task_definition" "goodbye" {
 [
   {
     "cpu": 64,
+    "environment": [],
     "essential": true,
     "image": "crccheck/hello-world",
     "memory": 64,
+    "mountPoints": [],
     "name": "httpd",
     "portMappings": [
       {
-        "containerPort": 8000
+        "containerPort": 8000,
+        "hostPort": 8000,
+        "protocol": "tcp"
       }
     ],
+    "volumesFrom": [],
     "placementConstraints": [
       {
         "type": "distinctInstance"

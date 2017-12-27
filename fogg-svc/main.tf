@@ -1062,7 +1062,7 @@ resource "aws_rds_cluster_parameter_group" "service" {
 }
 
 resource "aws_db_parameter_group" "service" {
-  name        = "${local.service_name}"
+  name_prefix = "${local.service_name}-"
   family      = "oscar5.6"
   description = "${local.service_name}"
 
@@ -1072,6 +1072,10 @@ resource "aws_db_parameter_group" "service" {
     "App"       = "${data.terraform_remote_state.app.app_name}"
     "Service"   = "${var.service_name}-db"
     "ManagedBy" = "terraform"
+  }
+
+  lifecycle {
+    create_before_destroy = true
   }
 
   count = "${var.want_aurora}"

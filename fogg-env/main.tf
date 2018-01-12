@@ -505,27 +505,3 @@ resource "aws_route53_record" "acm_validation" {
   ttl     = "60"
   records = ["${lookup(data.external.acm_cert.result,"validation_value")}"]
 }
-
-resource "null_resource" "servicediscovery_create_private_dns_namespace" {
-  depends_on = ["aws_vpc.env"]
-
-  provisioner "local-exec" {
-    command = "aws ${var.region} servicediscovery create-private-dns-namespace --name sd.${local.private_zone_name} --vpc ${aws_vpc.env.id}"
-  }
-
-  count = "${var.want_sd}"
-}
-
-data "external" "servicediscovery_namespace_lookup" {
-  program = ["./module/imma-tf/bin/lookup-sd-namespace", "${var.region}", "sd.${local.private_zone_name}"]
-}
-
-resource "null_resource" "servicediscovery_create_private_dns_namespace_lookup" {
-  depends_on = ["null_resource.servicediscovery_create_private_dns_namespace"]
-
-  triggers {
-    namespace_id = "${lookup(data.external.servicediscovery_namespace_lookup.result,"namespace_id")}"
-  }
-
-  count = "${var.want_sd}"
-}

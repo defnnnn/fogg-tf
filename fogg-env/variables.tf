@@ -249,7 +249,3 @@ output "vpn_interfaces" {
 output "vpn_cidr" {
   value = "${var.vpn_cidr}"
 }
-
-output "namespace_id" {
-  value = "${element(concat(null_resource.servicediscovery_create_private_dns_namespace_lookup.*.triggers.namespace_id,list("")),0)}"
-}

@@ -29,4 +29,21 @@ cat >> /etc/ecs/ecs.config <<EOF
 ECS_CLUSTER=${env}-${app}-${service}
 EOF
 
+yum update
+yum install -y jq ruby wget
+
+nm_region="$(curl --silent http://169.254.169.254/latest/dynamic/instance-identity/document | jq -r .region)"
+
+wget "https://aws-codedeploy-$${nm_region}.s3.amazonaws.com/latest/install"
+chmod 755 install
+./install auto
+rm -f install
+
+yum install -y https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/linux_amd64/amazon-ssm-agent.rpm
+start amazon-ssm-agent
+
+yum install -y awslogs
+service awslogs start || true
+chkconfig awslogs on
+
 --===============88888888888888888888888888==

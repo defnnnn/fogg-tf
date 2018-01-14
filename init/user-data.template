@@ -32,7 +32,10 @@ ECS_CLUSTER=${env}-${app}-${service}
 EOF
 
 yum update
-yum install -y jq ruby wget
+yum install -y jq ruby wget nfs-utils
+
+mkdir -p /data
+mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2 efs.${env}.immanent.io:/ /data
 
 nm_region="$(curl --silent http://169.254.169.254/latest/dynamic/instance-identity/document | jq -r .region)"
 

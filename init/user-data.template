@@ -19,11 +19,13 @@ if ! id ubuntu; then
     groupadd -g 1000 ubuntu
     useradd -m -s /bin/bash -g ubuntu -u 1000 ubuntu
     mkdir ~ubuntu/.ssh
-    cp ~ec2-user/.ssh/authorized_keys ~ubuntu/.ssh/
+    mv ~ec2-user/.ssh/authorized_keys ~ubuntu/.ssh/
     chown -R ubuntu:ubuntu ~ubuntu
     echo 'ubuntu ALL=(ALL) NOPASSWD:ALL' | tee -a /etc/sudoers.d/cloud-init
   fi
 fi
+
+usermod -G docker ubuntu
 
 cat >> /etc/ecs/ecs.config <<EOF
 ECS_CLUSTER=${env}-${app}-${service}

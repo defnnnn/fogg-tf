@@ -100,6 +100,10 @@ variable "do_instance_count" {
   default = "0"
 }
 
+variable "do_data_size" {
+  default = "40"
+}
+
 variable "do_region" {
   default = "sfo2"
 }

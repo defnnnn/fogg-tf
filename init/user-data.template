@@ -50,7 +50,7 @@ yum install -y https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/li
 
 yum install -y awslogs
 
-cat > /etc/rc.d/rc.local EOF
+cat > /etc/rc.d/rc.local <<EOF
 #!/bin/bash
 
 swapon /root/swap0

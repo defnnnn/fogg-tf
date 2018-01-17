@@ -818,6 +818,12 @@ resource "aws_autoscaling_group" "service" {
   }
 
   tag {
+    key                 = "Patch Group"
+    value               = "${local.service_name}"
+    propagate_at_launch = true
+  }
+
+  tag {
     key                 = "ManagedBy"
     value               = "autoscaling ${local.service_name}-${element(var.asg_name,count.index)}"
     propagate_at_launch = true

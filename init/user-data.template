@@ -14,7 +14,7 @@ exec 2>~/stderr.log
 
 set -x
 
-dd if=/dev/zero of=/root/swap0 bs=1m count=1000
+dd if=/dev/zero of=/root/swap0 bs=1M count=1000
 chmod 0600 /root/swap0
 mkswap /root/swap0
 swapon /root/swap0

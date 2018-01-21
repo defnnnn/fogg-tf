@@ -15,9 +15,15 @@ exec 2>~/stderr.log
 set -x
 
 dd if=/dev/zero of=/root/swap0 bs=1M count=1000
+dd if=/dev/zero of=/root/swap1 bs=1M count=1000
 chmod 0600 /root/swap0
+chmod 0600 /root/swap1
 mkswap /root/swap0
+mkswap /root/swap1
 swapon /root/swap0
+swapon /root/swap1
+
+groupadd -g 497 docker || true
 
 if ! id ubuntu; then
   if id ec2-user; then

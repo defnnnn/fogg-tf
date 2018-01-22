@@ -238,6 +238,10 @@ output "instance_ids" {
   value = ["${aws_instance.service.*.id}"]
 }
 
+output "instance_azs" {
+  value = ["${aws_instance.service.*.availability_zone}"]
+}
+
 output "kms_arn" {
   value = "${element(coalescelist(aws_kms_key.service.*.arn,list(data.terraform_remote_state.env.kms_arn)),0)}"
 }

@@ -9,7 +9,7 @@ module "instance" {
   source = "./module/fogg-tf/fogg-instance"
 
   org_bucket = "${var.remote_bucket}"
-  org_key    = "${local.org_key}"
+  org_key    = "env:/${element(split("_",var.remote_path),0)}/${local.org_key}"
   org_region = "${var.remote_region}"
 
   env_key     = "${local.env_key}"
@@ -22,7 +22,7 @@ data "terraform_remote_state" "org" {
 
   config {
     bucket         = "${var.remote_bucket}"
-    key            = "env:/${var.global_name}/${local.org_key}"
+    key            = "env:/${element(split("_",var.remote_path),0)}/${local.org_key}"
     region         = "${var.remote_region}"
     dynamodb_table = "terraform_state_lock"
   }

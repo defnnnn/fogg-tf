@@ -14,6 +14,11 @@ data "template_file" "user_data_service" {
   }
 }
 
+resource "digitalocean_floating_ip" "service" {
+  droplet_id = "${element(digitalocean_droplet.service.*.id,count.index)}"
+  count      = "${var.want_digitalocean*var.do_instance_count}"
+}
+
 resource "digitalocean_droplet" "service" {
   name       = "${element(var.do_regions,count.index)}${count.index}.${var.domain_name}"
   ssh_keys   = ["${var.do_ssh_key}"]
@@ -22,6 +27,7 @@ resource "digitalocean_droplet" "service" {
   size       = "1gb"
   volume_ids = ["${element(digitalocean_volume.service.*.id,count.index)}"]
   user_data  = "${data.template_file.user_data_service.rendered}"
+  private_networking = true
   count      = "${var.want_digitalocean*var.do_instance_count}"
 }
 
@@ -56,12 +62,12 @@ resource "digitalocean_firewall" "service" {
       destination_addresses = ["0.0.0.0/0", "::/0"]
     },
     {
-      protocol              = "tcp"
+      protocol              = "udp"
       port_range            = "all"
       destination_addresses = ["0.0.0.0/0", "::/0"]
     },
     {
-      protocol              = "udp"
+      protocol              = "tcp"
       port_range            = "all"
       destination_addresses = ["0.0.0.0/0", "::/0"]
     },
@@ -76,6 +82,6 @@ resource "aws_route53_record" "do_instance" {
 
   type    = "A"
   ttl     = "60"
-  records = ["${digitalocean_droplet.service.*.ipv4_address[count.index]}"]
+  records = ["${digitalocean_floating_ip.service.*.ip_address[count.index]}"]
   count   = "${var.want_digitalocean*var.do_instance_count}"
 }

@@ -127,3 +127,7 @@ variable "packet_operating_system" {
 variable "user_data" {
   default = "./module/fogg-tf/init/user-data-digitalocean.template"
 }
+
+output "do_bastions" {
+  value = [ "${digitalocean_droplet.service.*.ipv4_address}" ]
+}

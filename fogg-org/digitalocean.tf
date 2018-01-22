@@ -1,15 +1,15 @@
 resource "digitalocean_volume" "service" {
-  region      = "${var.do_region}"
-  name        = "${var.account_name}-${var.do_region}${count.index}"
+  region      = "${element(var.do_regions,count.index)}"
+  name        = "${var.account_name}-${element(var.do_regions,count.index)}${count.index}"
   size        = "${var.do_data_size}"
-  description = "${var.account_name}-${var.do_region}${count.index}"
+  description = "${var.account_name}-${element(var.do_regions,count.index)}${count.index}"
   count       = "${var.want_digitalocean*var.do_instance_count}"
 }
 
 resource "digitalocean_droplet" "service" {
-  name       = "${var.do_region}${count.index}.${var.domain_name}"
+  name       = "${element(var.do_regions,count.index)}${count.index}.${var.domain_name}"
   ssh_keys   = ["${var.do_ssh_key}"]
-  region     = "${var.do_region}"
+  region     = "${element(var.do_regions,count.index)}"
   image      = "ubuntu-16-04-x64"
   size       = "1gb"
   volume_ids = ["${element(digitalocean_volume.service.*.id,count.index)}"]
@@ -17,7 +17,7 @@ resource "digitalocean_droplet" "service" {
 }
 
 resource "digitalocean_firewall" "service" {
-  name  = "${var.account_name}-${var.do_region}"
+  name  = "${var.account_name}"
   count = "${signum(var.want_digitalocean*var.do_instance_count)}"
 
   droplet_ids = ["${digitalocean_droplet.service.*.id}"]
@@ -61,7 +61,7 @@ resource "digitalocean_firewall" "service" {
 
 resource "aws_route53_record" "do_instance" {
   zone_id = "${data.aws_route53_zone.public.zone_id}"
-  name    = "${var.do_region}${count.index}.${var.domain_name}"
+  name    = "${element(var.do_regions,count.index)}${count.index}.${var.domain_name}"
 
   /*"*/
 

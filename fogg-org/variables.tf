@@ -96,8 +96,8 @@ variable "do_data_size" {
   default = "40"
 }
 
-variable "do_region" {
-  default = "sfo2"
+variable "do_regions" {
+  default = ["sfo2"]
 }
 
 variable "do_ssh_key" {

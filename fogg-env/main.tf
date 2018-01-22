@@ -61,7 +61,7 @@ resource "aws_security_group" "env" {
 }
 
 resource "aws_security_group_rule" "env_do_ingress" {
-  type              = "egress"
+  type              = "ingress"
   from_port         = 0
   to_port           = 0
   protocol          = "-1"

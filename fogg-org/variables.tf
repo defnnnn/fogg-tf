@@ -123,3 +123,7 @@ variable "packet_plan" {
 variable "packet_operating_system" {
   default = "ubuntu_16_04"
 }
+
+variable "user_data" {
+  default = "./module/fogg-tf/init/user-data-digitalocean.template"
+}

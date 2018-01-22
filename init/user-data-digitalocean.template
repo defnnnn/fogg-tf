@@ -1,0 +1,39 @@
+From nobody Wed Aug 10 18:58:26 2016
+Content-Type: multipart/mixed; boundary="===============88888888888888888888888888=="
+MIME-Version: 1.0
+Number-Attachments: 1
+
+--===============88888888888888888888888888==
+MIME-Version: 1.0
+Content-Type: text/x-shellscript; charset="us-ascii"
+
+#!/bin/bash
+
+exec 1>~/stdout.log
+exec 2>~/stderr.log
+
+set -x
+
+dd if=/dev/zero of=/root/swap0 bs=1M count=1000
+dd if=/dev/zero of=/root/swap1 bs=1M count=1000
+chmod 0600 /root/swap0
+chmod 0600 /root/swap1
+mkswap /root/swap0
+mkswap /root/swap1
+swapon /root/swap0
+swapon /root/swap1
+
+groupadd -g 497 docker || true
+
+if ! id ubuntu; then
+  groupadd -g 1000 ubuntu
+  useradd -m -s /bin/bash -g ubuntu -u 1000 ubuntu
+  mkdir ~ubuntu/.ssh
+  mv ~root/.ssh/authorized_keys ~ubuntu/.ssh/
+  chown -R ubuntu:ubuntu ~ubuntu
+  echo 'ubuntu ALL=(ALL) NOPASSWD:ALL' | tee -a /etc/sudoers.d/cloud-init
+fi
+
+usermod -G docker ubuntu
+
+--===============88888888888888888888888888==

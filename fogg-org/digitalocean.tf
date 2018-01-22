@@ -6,6 +6,14 @@ resource "digitalocean_volume" "service" {
   count       = "${var.want_digitalocean*var.do_instance_count}"
 }
 
+data "template_file" "user_data_service" {
+  template = "${file(var.user_data)}"
+
+  vars {
+    org = "${var.account_name}"
+  }
+}
+
 resource "digitalocean_droplet" "service" {
   name       = "${element(var.do_regions,count.index)}${count.index}.${var.domain_name}"
   ssh_keys   = ["${var.do_ssh_key}"]
@@ -13,6 +21,7 @@ resource "digitalocean_droplet" "service" {
   image      = "ubuntu-16-04-x64"
   size       = "1gb"
   volume_ids = ["${element(digitalocean_volume.service.*.id,count.index)}"]
+  user_data  = "${data.template_file.user_data_service.rendered}"
   count      = "${var.want_digitalocean*var.do_instance_count}"
 }
 

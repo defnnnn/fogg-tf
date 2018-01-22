@@ -503,6 +503,12 @@ data "aws_acm_certificate" "env" {
   statuses = ["ISSUED"]
 }
 
+data "aws_acm_certificate" "us_east_1" {
+  provider = "aws.us_east_1"
+  domain   = "*.${data.terraform_remote_state.org.domain_name}"
+  statuses = ["ISSUED"]
+}
+
 data "external" "acm_cert" {
   program = ["./module/imma-tf/bin/lookup-acm-cert", "${var.region}", "${data.aws_acm_certificate.env.arn}"]
 }

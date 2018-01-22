@@ -73,11 +73,6 @@ resource "digitalocean_firewall" "service" {
 
   outbound_rule = [
     {
-      protocol              = "icmp"
-      port_range            = "1-65535"
-      destination_addresses = ["0.0.0.0/0", "::/0"]
-    },
-    {
       protocol              = "udp"
       port_range            = "all"
       destination_addresses = ["0.0.0.0/0", "::/0"]

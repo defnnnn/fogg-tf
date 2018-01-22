@@ -15,20 +15,21 @@ data "template_file" "user_data_service" {
 }
 
 resource "digitalocean_floating_ip" "service" {
+  region     = "${element(var.do_regions,count.index)}"
   droplet_id = "${element(digitalocean_droplet.service.*.id,count.index)}"
   count      = "${var.want_digitalocean*var.do_instance_count}"
 }
 
 resource "digitalocean_droplet" "service" {
-  name       = "${element(var.do_regions,count.index)}${count.index}.${var.domain_name}"
-  ssh_keys   = ["${var.do_ssh_key}"]
-  region     = "${element(var.do_regions,count.index)}"
-  image      = "ubuntu-16-04-x64"
-  size       = "1gb"
-  volume_ids = ["${element(digitalocean_volume.service.*.id,count.index)}"]
-  user_data  = "${data.template_file.user_data_service.rendered}"
+  name               = "${element(var.do_regions,count.index)}${count.index}.${var.domain_name}"
+  ssh_keys           = ["${var.do_ssh_key}"]
+  region             = "${element(var.do_regions,count.index)}"
+  image              = "ubuntu-16-04-x64"
+  size               = "1gb"
+  volume_ids         = ["${element(digitalocean_volume.service.*.id,count.index)}"]
+  user_data          = "${data.template_file.user_data_service.rendered}"
   private_networking = true
-  count      = "${var.want_digitalocean*var.do_instance_count}"
+  count              = "${var.want_digitalocean*var.do_instance_count}"
 }
 
 resource "digitalocean_firewall" "service" {

@@ -93,7 +93,7 @@ variable "want_vpc_link" {
 }
 
 variable "user_data" {
-  default = "./module/fogg-tf/init/user-data.template"
+  default = "./module/fogg-tf/init/user-data-ecs.template"
 }
 
 variable "service_bits" {}

@@ -21,7 +21,11 @@ resource "digitalocean_floating_ip" "service" {
 }
 
 resource "digitalocean_tag" "org" {
-  name  = "${var.account_name}"
+  name = "${var.account_name}"
+}
+
+resource "digitalocean_tag" "region" {
+  name = "${element(var.do_regions,count.index)}"
 }
 
 resource "digitalocean_tag" "service" {
@@ -37,7 +41,7 @@ resource "digitalocean_droplet" "service" {
   size       = "1gb"
   volume_ids = ["${element(digitalocean_volume.service.*.id,count.index)}"]
   user_data  = "${data.template_file.user_data_service.rendered}"
-  tags       = ["${digitalocean_tag.org.id}", "${digitalocean_tag.service.*.id[count.index]}"]
+  tags       = ["${digitalocean_tag.org.id}", "${digitalocean_tag.region.id}", "${digitalocean_tag.service.*.id[count.index]}"]
   count      = "${var.want_digitalocean*var.do_instance_count}"
 }
 

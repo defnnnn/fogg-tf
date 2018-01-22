@@ -92,46 +92,6 @@ variable "want_vpc_link" {
   default = "0"
 }
 
-variable "want_digitalocean" {
-  default = "0"
-}
-
-variable "do_instance_count" {
-  default = "0"
-}
-
-variable "do_data_size" {
-  default = "40"
-}
-
-variable "do_region" {
-  default = "sfo2"
-}
-
-variable "do_ssh_key" {
-  default = ""
-}
-
-variable "want_packet" {
-  default = "0"
-}
-
-variable "packet_instance_count" {
-  default = "0"
-}
-
-variable "packet_facility" {
-  default = "sjc1"
-}
-
-variable "packet_plan" {
-  default = "baremetal_0"
-}
-
-variable "packet_operating_system" {
-  default = "ubuntu_16_04"
-}
-
 variable "user_data" {
   default = "./module/fogg-tf/init/user-data.template"
 }
@@ -276,14 +236,6 @@ output "public_ips" {
 
 output "instance_ids" {
   value = ["${aws_instance.service.*.id}"]
-}
-
-output "packet_project_id" {
-  value = "${element(concat(packet_project.service.*.id, list("")), 0)}"
-}
-
-output "packet_public_ips" {
-  value = "${packet_device.service.*.network.0.address}"
 }
 
 output "kms_arn" {

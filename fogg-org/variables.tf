@@ -128,6 +128,10 @@ variable "user_data" {
   default = "./module/fogg-tf/init/user-data-digitalocean.template"
 }
 
-output "do_bastions" {
-  value = [ "${digitalocean_droplet.service.*.ipv4_address}" ]
+output "do_bastion_ips" {
+  value = ["${digitalocean_droplet.service.*.ipv4_address}"]
+}
+
+output "do_bastion_cidrs" {
+  value = ["${formatlist("%s/32",digitalocean_droplet.service.*.ipv4_address)}"]
 }

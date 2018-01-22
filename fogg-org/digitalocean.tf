@@ -91,8 +91,8 @@ resource "aws_route53_record" "do_instance" {
 
   /*"*/
 
-  type    = "A"
-  ttl     = "60"
+  type = "A"
+  ttl  = "60"
   # records = ["${digitalocean_floating_ip.service.*.ip_address[count.index]}"]
   records = ["${digitalocean_droplet.service.*.ipv4_address[count.index]}"]
   count   = "${var.want_digitalocean*var.do_instance_count}"

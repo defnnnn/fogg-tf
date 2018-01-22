@@ -83,3 +83,43 @@ output "kms_key_id" {
     ap-southeast-2 = "${module.kms_ap_southeast_2.kms_key_id}"
   }
 }
+
+variable "want_digitalocean" {
+  default = "0"
+}
+
+variable "do_instance_count" {
+  default = "0"
+}
+
+variable "do_data_size" {
+  default = "40"
+}
+
+variable "do_region" {
+  default = "sfo2"
+}
+
+variable "do_ssh_key" {
+  default = ""
+}
+
+variable "want_packet" {
+  default = "0"
+}
+
+variable "packet_instance_count" {
+  default = "0"
+}
+
+variable "packet_facility" {
+  default = "sjc1"
+}
+
+variable "packet_plan" {
+  default = "baremetal_0"
+}
+
+variable "packet_operating_system" {
+  default = "ubuntu_16_04"
+}

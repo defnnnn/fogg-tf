@@ -76,7 +76,7 @@ if [[ ! -d /var/lib/docker/overlay/.done ]]; then
 
   rm -rf /var/lib/docker/*
   mkdir -p /var/lib/docker/overlay
-  mount /dev/docker/overlay /var/lib/docker/overlay
+  mount /dev/docker/overlay /var/lib/docker
 
   echo 'DOCKER_STORAGE_OPTIONS="--storage-driver overlay2"' > /etc/sysconfig/docker-storage
 

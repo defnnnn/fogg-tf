@@ -78,6 +78,8 @@ if [[ ! -d /var/lib/docker/overlay/.done ]]; then
   mkdir -p /var/lib/docker/overlay
   mount /dev/docker/overlay /var/lib/docker/overlay
 
+  echo 'DOCKER_STORAGE_OPTIONS="--storage-driver overlay2"' > /etc/sysconfig/docker-storage
+
   touch /var/lib/docker/overlay/.done
 
   service docker start

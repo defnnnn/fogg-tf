@@ -86,8 +86,8 @@ resource "digitalocean_firewall" "service" {
 }
 
 resource "aws_route53_record" "do_instance" {
-  zone_id = "${data.aws_route53_zone.public.zone_id}"
-  name    = "${element(var.do_regions,count.index)}${count.index}.${var.domain_name}"
+  zone_id = "${element(var.do_zones,count.index)}"
+  name    = "${element(var.do_hostnames,count.index)}"
 
   /*"*/
 

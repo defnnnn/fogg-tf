@@ -100,6 +100,14 @@ variable "do_regions" {
   default = ["sfo2"]
 }
 
+variable "do_hostnames" {
+  default = []
+}
+
+variable "do_zones" {
+  default = []
+}
+
 variable "do_ssh_key" {
   default = ""
 }

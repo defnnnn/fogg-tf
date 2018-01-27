@@ -34,7 +34,7 @@ resource "digitalocean_tag" "service" {
 }
 
 resource "digitalocean_droplet" "service" {
-  name               = "${element(var.do_regions,count.index)}${count.index}.${var.domain_name}"
+  name               = "${element(var.do_hostnames,count.index)}"
   ssh_keys           = ["${var.do_ssh_key}"]
   region             = "${element(var.do_regions,count.index)}"
   image              = "ubuntu-16-04-x64"
@@ -91,9 +91,20 @@ resource "aws_route53_record" "do_instance" {
 
   /*"*/
 
-  type = "A"
-  ttl  = "60"
-  # records = ["${digitalocean_floating_ip.service.*.ip_address[count.index]}"]
+  type    = "A"
+  ttl     = "60"
   records = ["${digitalocean_droplet.service.*.ipv4_address[count.index]}"]
+  count   = "${var.want_digitalocean*var.do_instance_count}"
+}
+
+resource "aws_route53_record" "do_eip" {
+  zone_id = "${element(var.do_zones,count.index)}"
+  name    = "${element(var.do_regions,count.index)}${count.index}.${var.domain_name}"
+
+  /*"*/
+
+  type    = "A"
+  ttl     = "60"
+  records = ["${digitalocean_floating_ip.service.*.ip_address[count.index]}"]
   count   = "${var.want_digitalocean*var.do_instance_count}"
 }

@@ -89,8 +89,6 @@ resource "aws_route53_record" "do_instance" {
   zone_id = "${element(var.do_zones,count.index)}"
   name    = "${element(var.do_hostnames,count.index)}"
 
-  /*"*/
-
   type    = "A"
   ttl     = "60"
   records = ["${digitalocean_droplet.service.*.ipv4_address[count.index]}"]
@@ -98,10 +96,8 @@ resource "aws_route53_record" "do_instance" {
 }
 
 resource "aws_route53_record" "do_eip" {
-  zone_id = "${element(var.do_zones,count.index)}"
+  zone_id = "${data.aws_route53_zone.public.zone_id}"
   name    = "${element(var.do_regions,count.index)}${count.index}.${var.domain_name}"
-
-  /*"*/
 
   type    = "A"
   ttl     = "60"

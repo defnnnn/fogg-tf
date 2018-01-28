@@ -800,7 +800,7 @@ resource "aws_ecs_task_definition" "ex_vpc" {
     "portMappings": [
       {
         "containerPort": 8000,
-        "hostPort": 80,
+        "hostPort": 8000,
         "protocol": "tcp"
       }
     ],
@@ -866,7 +866,7 @@ resource "aws_ecs_task_definition" "ex_fargate" {
     "portMappings": [
       {
         "containerPort": 8000,
-        "hostPort": 80,
+        "hostPort": 8000,
         "protocol": "tcp"
       }
     ],

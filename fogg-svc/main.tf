@@ -293,7 +293,7 @@ data "aws_iam_policy_document" "service" {
 
     principals {
       type        = "Service"
-      identifiers = ["ec2.amazonaws.com", "ecs.amazonaws.com", "lambda.amazonaws.com", "apigateway.amazonaws.com"]
+      identifiers = ["ec2.amazonaws.com", "ecs.amazonaws.com", "ecs-tasks.amazonaws.com", "lambda.amazonaws.com", "apigateway.amazonaws.com"]
     }
   }
 
@@ -314,37 +314,37 @@ resource "aws_iam_role" "service" {
   assume_role_policy = "${data.aws_iam_policy_document.service.json}"
 }
 
-resource "aws_iam_role_policy_attachment" "lambda_exec" {
-  role       = "${aws_iam_role.service.name}"
-  policy_arn = "arn:aws:iam::aws:policy/AWSLambdaExecute"
-}
-
-resource "aws_iam_role_policy_attachment" "ecr_ro" {
-  role       = "${aws_iam_role.service.name}"
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
-}
-
-resource "aws_iam_role_policy_attachment" "ecs" {
+resource "aws_iam_role_policy_attachment" "AmazonEC2ContainerServiceforEC2Role" {
   role       = "${aws_iam_role.service.name}"
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role"
 }
 
-resource "aws_iam_role_policy_attachment" "ecs-container" {
+resource "aws_iam_role_policy_attachment" "AmazonEC2ContainerServiceRole" {
   role       = "${aws_iam_role.service.name}"
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceRole"
 }
 
-resource "aws_iam_role_policy_attachment" "cc_ro" {
-  role       = "${aws_iam_role.service.name}"
-  policy_arn = "arn:aws:iam::aws:policy/AWSCodeCommitReadOnly"
-}
-
-resource "aws_iam_role_policy_attachment" "ssm-agent" {
+resource "aws_iam_role_policy_attachment" "AmazonEC2RoleforSSM" {
   role       = "${aws_iam_role.service.name}"
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM"
 }
 
-resource "aws_iam_role_policy_attachment" "ssm-ro" {
+resource "aws_iam_role_policy_attachment" "AWSLambdaExecute" {
+  role       = "${aws_iam_role.service.name}"
+  policy_arn = "arn:aws:iam::aws:policy/AWSLambdaExecute"
+}
+
+resource "aws_iam_role_policy_attachment" "AmazonEC2ContainerRegistryReadOnly" {
+  role       = "${aws_iam_role.service.name}"
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+}
+
+resource "aws_iam_role_policy_attachment" "AWSCodeCommitReadOnly" {
+  role       = "${aws_iam_role.service.name}"
+  policy_arn = "arn:aws:iam::aws:policy/AWSCodeCommitReadOnly"
+}
+
+resource "aws_iam_role_policy_attachment" "AmazonSSMReadOnlyAccess" {
   role       = "${aws_iam_role.service.name}"
   policy_arn = "arn:aws:iam::aws:policy/AmazonSSMReadOnlyAccess"
 }
@@ -660,8 +660,8 @@ resource "aws_ecs_cluster" "service" {
   name = "${local.service_name}"
 }
 
-resource "aws_ecs_task_definition" "hello" {
-  family       = "${local.service_name}-hello"
+resource "aws_ecs_task_definition" "ex_dynamic" {
+  family       = "${local.service_name}-ex_dynamic"
   network_mode = "bridge"
 
   container_definitions = <<DEFINITION
@@ -696,10 +696,10 @@ resource "aws_ecs_task_definition" "hello" {
 DEFINITION
 }
 
-resource "aws_ecs_service" "hello" {
-  name            = "${local.service_name}-hello"
+resource "aws_ecs_service" "ex_dynamic" {
+  name            = "${local.service_name}-ex_dynamic"
   cluster         = "${aws_ecs_cluster.service.id}"
-  task_definition = "${aws_ecs_task_definition.hello.arn}"
+  task_definition = "${aws_ecs_task_definition.ex_dynamic.arn}"
   desired_count   = "1"
 
   placement_strategy {
@@ -726,8 +726,8 @@ resource "aws_ecs_service" "hello" {
   }
 }
 
-resource "aws_ecs_task_definition" "goodbye" {
-  family       = "${local.service_name}-goodbye"
+resource "aws_ecs_task_definition" "ex_host" {
+  family       = "${local.service_name}-ex_host"
   network_mode = "host"
 
   container_definitions = <<DEFINITION
@@ -753,11 +753,139 @@ resource "aws_ecs_task_definition" "goodbye" {
 DEFINITION
 }
 
-resource "aws_ecs_service" "goodbye" {
-  name            = "${local.service_name}-goodbye"
+resource "aws_ecs_service" "ex_host" {
+  name            = "${local.service_name}-ex_host"
   cluster         = "${aws_ecs_cluster.service.id}"
-  task_definition = "${aws_ecs_task_definition.goodbye.arn}"
+  task_definition = "${aws_ecs_task_definition.ex_host.arn}"
   desired_count   = "1"
+
+  placement_strategy {
+    type  = "spread"
+    field = "attribute:ecs.availability-zone"
+  }
+
+  placement_strategy {
+    type  = "spread"
+    field = "instanceId"
+  }
+
+  placement_strategy {
+    type  = "binpack"
+    field = "memory"
+  }
+
+  placement_constraints {
+    type = "distinctInstance"
+  }
+
+  lifecycle {
+    ignore_changes = ["desired_count"]
+  }
+}
+
+resource "aws_ecs_task_definition" "ex_vpc" {
+  family       = "${local.service_name}-ex_vpc"
+  network_mode = "awsvpc"
+
+  container_definitions = <<DEFINITION
+[
+  {
+    "cpu": 64,
+    "environment": [],
+    "essential": true,
+    "image": "crccheck/hello-world",
+    "memory": 64,
+    "mountPoints": [],
+    "name": "httpd",
+    "portMappings": [
+      {
+        "containerPort": 8000,
+        "hostPort": 80,
+        "protocol": "tcp"
+      }
+    ],
+    "volumesFrom": []
+  }
+]
+DEFINITION
+}
+
+resource "aws_ecs_service" "ex_vpc" {
+  name            = "${local.service_name}-ex_vpc"
+  cluster         = "${aws_ecs_cluster.service.id}"
+  task_definition = "${aws_ecs_task_definition.ex_vpc.arn}"
+  desired_count   = "1"
+
+  network_configuration {
+    subnets         = ["${compact(concat(formatlist(var.public_lb ? "%[1]s" : "%[2]s",data.terraform_remote_state.env.public_subnets,data.terraform_remote_state.env.private_subnets)))}"]
+    security_groups = ["${data.terraform_remote_state.env.sg_env}", "${data.terraform_remote_state.app.app_sg}", "${aws_security_group.app.id}"]
+  }
+
+  placement_strategy {
+    type  = "spread"
+    field = "attribute:ecs.availability-zone"
+  }
+
+  placement_strategy {
+    type  = "spread"
+    field = "instanceId"
+  }
+
+  placement_strategy {
+    type  = "binpack"
+    field = "memory"
+  }
+
+  placement_constraints {
+    type = "distinctInstance"
+  }
+
+  lifecycle {
+    ignore_changes = ["desired_count"]
+  }
+}
+
+resource "aws_ecs_task_definition" "ex_fargate" {
+  family                   = "${local.service_name}-ex_fargate"
+  network_mode             = "awsvpc"
+  requires_compatibilities = ["FARGATE"]
+  cpu                      = "256"
+  memory                   = "512"
+  execution_role_arn       = "TODO"
+
+  container_definitions = <<DEFINITION
+[
+  {
+    "cpu": 64,
+    "environment": [],
+    "essential": true,
+    "image": "crccheck/hello-world",
+    "memory": 64,
+    "mountPoints": [],
+    "name": "httpd",
+    "portMappings": [
+      {
+        "containerPort": 8000,
+        "hostPort": 80,
+        "protocol": "tcp"
+      }
+    ],
+    "volumesFrom": []
+  }
+]
+DEFINITION
+}
+
+resource "aws_ecs_service" "ex_fargate" {
+  name            = "${local.service_name}-ex_fargate"
+  cluster         = "${aws_ecs_cluster.service.id}"
+  task_definition = "${aws_ecs_task_definition.ex_fargate.arn}"
+  desired_count   = "1"
+
+  network_configuration {
+    subnets         = ["${compact(concat(formatlist(var.public_lb ? "%[1]s" : "%[2]s",data.terraform_remote_state.env.public_subnets,data.terraform_remote_state.env.private_subnets)))}"]
+    security_groups = ["${data.terraform_remote_state.env.sg_env}", "${data.terraform_remote_state.app.app_sg}", "${aws_security_group.app.id}"]
+  }
 
   placement_strategy {
     type  = "spread"

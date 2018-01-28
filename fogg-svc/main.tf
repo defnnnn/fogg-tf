@@ -880,6 +880,7 @@ resource "aws_ecs_service" "ex_fargate" {
   name            = "${local.service_name}-ex_fargate"
   cluster         = "${aws_ecs_cluster.service.id}"
   task_definition = "${aws_ecs_task_definition.ex_fargate.arn}"
+  launch_type     = "FARGATE"
   desired_count   = "0"
 
   network_configuration {

@@ -880,7 +880,7 @@ resource "aws_ecs_service" "ex_fargate" {
   name            = "${local.service_name}-ex_fargate"
   cluster         = "${aws_ecs_cluster.service.id}"
   task_definition = "${aws_ecs_task_definition.ex_fargate.arn}"
-  desired_count   = "1"
+  desired_count   = "0"
 
   network_configuration {
     subnets         = ["${compact(concat(formatlist(var.public_lb ? "%[1]s" : "%[2]s",data.terraform_remote_state.env.public_subnets,data.terraform_remote_state.env.private_subnets)))}"]

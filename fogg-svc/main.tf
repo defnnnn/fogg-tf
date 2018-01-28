@@ -322,7 +322,7 @@ data "aws_iam_policy_document" "fargate" {
   }
 }
 
-resource "aws_iam_role" "fargate " {
+resource "aws_iam_role" "fargate" {
   name               = "${local.service_name}-fargate"
   assume_role_policy = "${data.aws_iam_policy_document.fargate.json}"
 }

@@ -888,25 +888,6 @@ resource "aws_ecs_service" "ex_fargate" {
     security_groups = ["${data.terraform_remote_state.env.sg_env}", "${data.terraform_remote_state.app.app_sg}", "${aws_security_group.app.id}"]
   }
 
-  placement_strategy {
-    type  = "spread"
-    field = "attribute:ecs.availability-zone"
-  }
-
-  placement_strategy {
-    type  = "spread"
-    field = "instanceId"
-  }
-
-  placement_strategy {
-    type  = "binpack"
-    field = "memory"
-  }
-
-  placement_constraints {
-    type = "distinctInstance"
-  }
-
   lifecycle {
     ignore_changes = ["desired_count"]
   }

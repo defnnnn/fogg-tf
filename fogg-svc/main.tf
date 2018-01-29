@@ -1388,6 +1388,37 @@ resource "aws_route53_record" "app" {
   count = "${var.asg_count*signum(var.want_alb)}"
 }
 
+resource "aws_iam_role" "batch" {
+  name = "${local.service_name}-batch"
+
+  assume_role_policy = <<EOF
+{
+    "Version": "2012-10-17",
+    "Statement": [
+    {
+        "Action": "sts:AssumeRole",
+        "Effect": "Allow",
+        "Principal": {
+        "Service": "batch.amazonaws.com"
+        }
+    }
+    ]
+}
+EOF
+}
+
+resource "aws_iam_role_policy_attachment" "AWSBatchServiceRole" {
+  role       = "${aws_iam_role.batch.name}"
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSBatchServiceRole"
+}
+
+resource "aws_batch_compute_environment" "batch" {
+  compute_environment_name = "${local.service_name}"
+  service_role             = "${aws_iam_role.batch.arn}"
+  type                     = "UNMANAGED"
+  depends_on               = ["aws_iam_role_policy_attachment.AWSBatchServiceRole"]
+}
+
 resource "aws_ssm_parameter" "fogg_svc" {
   name      = "${local.service_name}.fogg_svc"
   type      = "String"

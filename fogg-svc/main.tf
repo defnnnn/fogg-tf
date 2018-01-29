@@ -1159,7 +1159,7 @@ resource "aws_codedeploy_deployment_group" "service" {
   }
 
   trigger_configuration {
-    trigger_events     = ["DeploymentStart", "DeploymentSuccess", "DeploymentFailure", "DeploymentStop", "DeploymentRollback", "DeploymentReady", "InstanceStart", "InstanceSuccess", "InstanceFailure", "InstanceReady"]
+    trigger_events     = ["DeploymentStart", "DeploymentSuccess", "DeploymentFailure", "DeploymentStop", "DeploymentRollback", "InstanceStart", "InstanceSuccess", "InstanceFailure"]
     trigger_name       = "${local.service_name}"
     trigger_target_arn = "${aws_sns_topic.codedeploy.arn}"
   }

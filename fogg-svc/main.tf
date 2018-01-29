@@ -1077,6 +1077,109 @@ resource "aws_codecommit_repository" "service" {
   description     = "Repo for ${local.service_name} service"
 }
 
+resource "aws_codecommit_trigger" "service" {
+  depends_on      = ["aws_codecommit_repository.service"]
+  repository_name = "${local.service_name}"
+
+  trigger {
+    name            = "all"
+    events          = ["all"]
+    destination_arn = "${aws_sns_topic.codecommit.arn}"
+  }
+}
+
+resource "aws_iam_role" "codebuild" {
+  name = "${local.service_name}-codebuild"
+
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "codebuild.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_policy" "codebuild" {
+  name        = "${local.service_name}-codebuild"
+  description = "${local.service_name}-codebuild"
+
+  policy = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Resource": [
+        "*"
+      ],
+      "Action": [
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+      ]
+    }
+  ]
+}
+POLICY
+}
+
+resource "aws_iam_policy_attachment" "codebuild" {
+  name       = "${local.service_name}-codebuild"
+  policy_arn = "${aws_iam_policy.codebuild.arn}"
+  roles      = ["${aws_iam_role.codebuild.id}"]
+}
+
+resource "aws_ecr_repository" "service" {
+  name = "${local.service_name}"
+}
+
+resource "aws_codebuild_project" "foo" {
+  name          = "${local.service_name}"
+  description   = "${local.service_name}"
+  build_timeout = "5"
+  service_role  = "${aws_iam_role.codebuild.arn}"
+
+  artifacts {
+    type = "NO_ARTIFACTS"
+  }
+
+  environment {
+    compute_type = "BUILD_GENERAL1_SMALL"
+    image        = "${aws.ecr_repository.service.repository_url}"
+    type         = "LINUX_CONTAINER"
+
+    environment_variable {
+      "name"  = "test"
+      "value" = "ing"
+    }
+  }
+
+  source {
+    type     = "CODECOMMIT"
+    location = "${aws_codecommit.service.clone_url_http}"
+  }
+
+  tags {
+    "Name"      = "${local.service_name}"
+    "Env"       = "${data.terraform_remote_state.env.env_name}"
+    "App"       = "${data.terraform_remote_state.app.app_name}"
+    "Service"   = "${var.service_name}"
+    "ManagedBy" = "terraform"
+  }
+}
+
+resource "aws_sns_topic" "codecommit" {
+  name = "${local.service_name}-codecommit"
+}
+
 resource "aws_codedeploy_app" "service" {
   name = "${local.service_name}"
 }

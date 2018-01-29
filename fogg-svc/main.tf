@@ -1153,7 +1153,7 @@ resource "aws_codebuild_project" "foo" {
 
   environment {
     compute_type = "BUILD_GENERAL1_SMALL"
-    image        = "${aws.ecr_repository.service.repository_url}"
+    image        = "${aws_ecr_repository.service.repository_url}"
     type         = "LINUX_CONTAINER"
 
     environment_variable {
@@ -1164,7 +1164,7 @@ resource "aws_codebuild_project" "foo" {
 
   source {
     type     = "CODECOMMIT"
-    location = "${aws_codecommit.service.clone_url_http}"
+    location = "${aws_codecommit_repository.service.clone_url_http}"
   }
 
   tags {

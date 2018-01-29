@@ -874,7 +874,7 @@ resource "aws_ecs_task_definition" "ex_fargate" {
   requires_compatibilities = ["FARGATE"]
   cpu                      = "256"
   memory                   = "512"
-  execution_role_arn       = "TODO"
+  execution_role_arn       = "aws_iam_role.fargate.arn"
 
   container_definitions = <<DEFINITION
 [

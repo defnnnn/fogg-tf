@@ -1153,7 +1153,7 @@ resource "aws_codebuild_project" "foo" {
 
   environment {
     compute_type = "BUILD_GENERAL1_SMALL"
-    image        = "${aws_ecr_repository.service.repository_url}"
+    image        = "${aws_ecr_repository.service.repository_url}:build"
     type         = "LINUX_CONTAINER"
 
     environment_variable {

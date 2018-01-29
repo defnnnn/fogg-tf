@@ -1419,6 +1419,13 @@ resource "aws_batch_compute_environment" "batch" {
   depends_on               = ["aws_iam_role_policy_attachment.AWSBatchServiceRole"]
 }
 
+resource "aws_batch_job_queue" "batch" {
+  name                 = "${local.service_name}"
+  state                = "ENABLED"
+  priority             = 1
+  compute_environments = ["${aws_batch_compute_environment.batch.arn}"]
+}
+
 resource "aws_ssm_parameter" "fogg_svc" {
   name      = "${local.service_name}.fogg_svc"
   type      = "String"

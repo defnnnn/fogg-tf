@@ -293,7 +293,7 @@ data "aws_iam_policy_document" "service" {
 
     principals {
       type        = "Service"
-      identifiers = ["ecs-tasks.amazonaws.com"]
+      identifiers = ["ec2.amazonaws.com", "ecs.amazonaws.com", "lambda.amazonaws.com", "apigateway.amazonaws.com"]
     }
   }
 }
@@ -306,7 +306,7 @@ data "aws_iam_policy_document" "fargate" {
 
     principals {
       type        = "Service"
-      identifiers = ["ec2.amazonaws.com", "ecs.amazonaws.com", "lambda.amazonaws.com", "apigateway.amazonaws.com"]
+      identifiers = ["ecs-tasks.amazonaws.com"]
     }
   }
 

@@ -1088,6 +1088,83 @@ resource "aws_codecommit_trigger" "service" {
   }
 }
 
+resource "aws_codedeploy_app" "service" {
+  name = "${local.service_name}"
+}
+
+resource "aws_sns_topic" "codedeploy" {
+  name = "${local.service_name}-codedeploy"
+}
+
+resource "aws_iam_role" "codedeploy" {
+  name = "${local.service_name}-codedeploy"
+
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "",
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "codedeploy.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role_policy" "codedeploy" {
+  name = "${local.service_name}-codedeploy"
+  role = "${aws_iam_role.codedeploy.id}"
+
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "autoscaling:CompleteLifecycleAction",
+        "autoscaling:DeleteLifecycleHook",
+        "autoscaling:DescribeAutoScalingGroups",
+        "autoscaling:DescribeLifecycleHooks",
+        "autoscaling:PutLifecycleHook",
+        "autoscaling:RecordLifecycleActionHeartbeat",
+        "codedeploy:*",
+        "ec2:DescribeInstances",
+        "ec2:DescribeInstanceStatus",
+        "tag:GetTags",
+        "tag:GetResources",
+        "sns:Publish"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_codedeploy_deployment_group" "service" {
+  app_name              = "${aws_codedeploy_app.service.name}"
+  deployment_group_name = "${local.service_name}"
+  service_role_arn      = "${aws_iam_role.codedeploy.arn}"
+
+  ec2_tag_filter {
+    type  = "KEY_AND_VALUE"
+    key   = "Name"
+    value = "${local.service_name}"
+  }
+
+  trigger_configuration {
+    trigger_events     = ["DeploymentStart", "DeploymentSuccess", "DeploymentFailure", "DeploymentStop", "DeploymentRollback", "DeploymentReady", "InstanceStart", "InstanceSuccess", "InstanceFailure", "InstanceReady"]
+    trigger_name       = "${local.service_name}"
+    trigger_target_arn = "${aws_sns_topic.codedeploy.arn}"
+  }
+}
+
 resource "aws_iam_role" "codebuild" {
   name = "${local.service_name}-codebuild"
 
@@ -1178,10 +1255,6 @@ resource "aws_codebuild_project" "foo" {
 
 resource "aws_sns_topic" "codecommit" {
   name = "${local.service_name}-codecommit"
-}
-
-resource "aws_codedeploy_app" "service" {
-  name = "${local.service_name}"
 }
 
 resource "aws_db_subnet_group" "service" {

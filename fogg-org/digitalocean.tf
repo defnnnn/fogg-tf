@@ -61,11 +61,6 @@ resource "digitalocean_firewall" "service" {
     },
     {
       protocol         = "tcp"
-      port_range       = "9993"
-      source_addresses = ["0.0.0.0/0"]
-    },
-    {
-      protocol         = "tcp"
       port_range       = "22"
       source_addresses = ["0.0.0.0/0"]
     },

@@ -44,7 +44,7 @@ resource "digitalocean_droplet" "service" {
 
   #volume_ids         = ["${element(digitalocean_volume.service.*.id,count.index)}"]
   user_data          = "${data.template_file.user_data_service.rendered}"
-  tags               = ["${digitalocean_tag.org.id}", "${digitalocean_tag.region.*.id[count.index]}", "${digitalocean_tag.service.*.id[count.index]}"]
+  tags               = ["${digitalocean_tag.service.*.id[count.index]}"]
   ipv6               = true
   private_networking = true
   count              = "${var.want_digitalocean*var.do_instance_count}"
@@ -55,7 +55,7 @@ resource "digitalocean_droplet" "service" {
 }
 
 resource "digitalocean_firewall" "service" {
-  name  = "${var.account_name}"
+  name  = "${var.account_name}-${join("-",digitalocean_droplet.service.*.id)}"
   count = "${signum(var.want_digitalocean*var.do_instance_count)}"
 
   droplet_ids = ["${digitalocean_droplet.service.*.id}"]
@@ -85,6 +85,10 @@ resource "digitalocean_firewall" "service" {
       destination_addresses = ["0.0.0.0/0", "::/0"]
     },
   ]
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_route53_record" "do_instance" {

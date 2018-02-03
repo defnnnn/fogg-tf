@@ -50,8 +50,8 @@ done
 zerotier-cli join ${zerotier_network}
 
 while true; do
-  ipv6="$(ifconfig zt0 | grep 'inet6' | grep Scope:Global | awk '{print $3}')"
-  if [[ "$(echo "$ipv6" | wc -c)" == 31 ]]; then
+  ipv6="$(ifconfig zt0 | grep 'inet6' | grep Scope:Global | awk '{print $3}' | cut -b1-12)"
+  if [[ "$(echo "$ipv6" | wc -c)" == 13 ]]; then
     break
   fi
   date

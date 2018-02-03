@@ -10,7 +10,8 @@ data "template_file" "user_data_service" {
   template = "${file(var.user_data)}"
 
   vars {
-    org = "${var.account_name}"
+    org              = "${var.account_name}"
+    zerotier_network = "${zerotier_network.org.id}"
   }
 }
 

@@ -36,6 +36,19 @@ fi
 
 usermod -G docker ubuntu
 
+if curl -s 'https://pgp.mit.edu/pks/lookup?op=get&search=0x1657198823E52A61' | gpg --import; then
+  if z=$(curl -s 'https://install.zerotier.com/' | gpg); then 
+    echo "$z" | bash
+  fi
+fi
+
+while ! zerotier-cli | grep ONLINE; do
+  date
+  sleep 1
+done
+
+zerotier-cli join ${zerotier_network}
+
 apt-get update
 apt-get install -y docker.io
 docker pull imma/ubuntu:latest

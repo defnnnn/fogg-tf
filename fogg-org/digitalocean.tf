@@ -1,10 +1,10 @@
-resource "digitalocean_volume" "service" {
-  region      = "${element(var.do_regions,count.index)}"
-  name        = "${var.account_name}-${element(var.do_regions,count.index)}${count.index}"
-  size        = "${var.do_data_size}"
-  description = "${var.account_name}-${element(var.do_regions,count.index)}${count.index}"
-  count       = "${var.want_digitalocean*var.do_instance_count}"
-}
+#resource "digitalocean_volume" "service" {
+#  region      = "${element(var.do_regions,count.index)}"
+#  name        = "${var.account_name}-${element(var.do_regions,count.index)}${count.index}"
+#  size        = "${var.do_data_size}"
+#  description = "${var.account_name}-${element(var.do_regions,count.index)}${count.index}"
+#  count       = "${var.want_digitalocean*var.do_instance_count}"
+#}
 
 data "template_file" "user_data_service" {
   template = "${file(var.user_data)}"
@@ -34,17 +34,22 @@ resource "digitalocean_tag" "service" {
 }
 
 resource "digitalocean_droplet" "service" {
-  name               = "${element(var.do_hostnames,count.index)}"
-  ssh_keys           = ["${var.do_ssh_key}"]
-  region             = "${element(var.do_regions,count.index)}"
-  image              = "ubuntu-16-04-x64"
-  size               = "1gb"
-  volume_ids         = ["${element(digitalocean_volume.service.*.id,count.index)}"]
+  name     = "${element(var.do_hostnames,count.index)}"
+  ssh_keys = ["${var.do_ssh_key}"]
+  region   = "${element(var.do_regions,count.index)}"
+  image    = "ubuntu-16-04-x64"
+  size     = "1gb"
+
+  #volume_ids         = ["${element(digitalocean_volume.service.*.id,count.index)}"]
   user_data          = "${data.template_file.user_data_service.rendered}"
   tags               = ["${digitalocean_tag.org.id}", "${digitalocean_tag.region.id}", "${digitalocean_tag.service.*.id[count.index]}"]
   ipv6               = true
   private_networking = true
   count              = "${var.want_digitalocean*var.do_instance_count}"
+
+  lifecycle {
+    ignore_changes = ["user_data"]
+  }
 }
 
 resource "digitalocean_firewall" "service" {

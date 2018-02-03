@@ -55,7 +55,7 @@ resource "digitalocean_droplet" "service" {
 }
 
 resource "digitalocean_firewall" "service" {
-  name  = "${var.account_name}-${join("-",digitalocean_droplet.service.*.id)}"
+  name  = "${var.account_name}"
   count = "${signum(var.want_digitalocean*var.do_instance_count)}"
 
   droplet_ids = ["${digitalocean_droplet.service.*.id}"]
@@ -85,10 +85,6 @@ resource "digitalocean_firewall" "service" {
       destination_addresses = ["0.0.0.0/0", "::/0"]
     },
   ]
-
-  lifecycle {
-    create_before_destroy = true
-  }
 }
 
 resource "aws_route53_record" "do_instance" {

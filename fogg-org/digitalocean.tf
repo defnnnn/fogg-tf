@@ -26,6 +26,7 @@ resource "digitalocean_tag" "org" {
 
 resource "digitalocean_tag" "region" {
   name = "${element(var.do_regions,count.index)}"
+  count = "${var.want_digitalocean*var.do_instance_count}"
 }
 
 resource "digitalocean_tag" "service" {

@@ -25,7 +25,7 @@ resource "digitalocean_tag" "org" {
 }
 
 resource "digitalocean_tag" "region" {
-  name = "${element(var.do_regions,count.index)}"
+  name  = "${element(var.do_regions,count.index)}"
   count = "${var.want_digitalocean*var.do_instance_count}"
 }
 
@@ -43,7 +43,7 @@ resource "digitalocean_droplet" "service" {
 
   #volume_ids         = ["${element(digitalocean_volume.service.*.id,count.index)}"]
   user_data          = "${data.template_file.user_data_service.rendered}"
-  tags               = ["${digitalocean_tag.org.id}", "${digitalocean_tag.region.id}", "${digitalocean_tag.service.*.id[count.index]}"]
+  tags               = ["${digitalocean_tag.org.id}", "${digitalocean_tag.region.*.id[count.index]}", "${digitalocean_tag.service.*.id[count.index]}"]
   ipv6               = true
   private_networking = true
   count              = "${var.want_digitalocean*var.do_instance_count}"

@@ -18,7 +18,7 @@ data "template_file" "user_data_service" {
 resource "digitalocean_floating_ip" "service" {
   region     = "${element(var.do_regions,count.index)}"
   droplet_id = "${element(digitalocean_droplet.service.*.id,count.index)}"
-  count      = "${var.want_digitalocean*var.do_instance_count}"
+  count      = "${var.want_digitalocean*var.do_eip_count}"
 }
 
 resource "digitalocean_tag" "org" {
@@ -104,5 +104,5 @@ resource "aws_route53_record" "do_eip" {
   type    = "A"
   ttl     = "60"
   records = ["${digitalocean_floating_ip.service.*.ip_address[count.index]}"]
-  count   = "${var.want_digitalocean*var.do_instance_count}"
+  count   = "${var.want_digitalocean*var.do_eip_count}"
 }

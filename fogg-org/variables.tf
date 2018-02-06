@@ -92,6 +92,10 @@ variable "do_instance_count" {
   default = "0"
 }
 
+variable "do_eip_count" {
+  default = "0"
+}
+
 variable "do_data_size" {
   default = "40"
 }

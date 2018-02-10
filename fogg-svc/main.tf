@@ -293,7 +293,7 @@ data "aws_iam_policy_document" "service" {
 
     principals {
       type        = "Service"
-      identifiers = ["ec2.amazonaws.com", "ecs.amazonaws.com", "lambda.amazonaws.com", "apigateway.amazonaws.com"]
+      identifiers = ["ec2.amazonaws.com"]
     }
   }
 }

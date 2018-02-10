@@ -422,6 +422,27 @@ EOF
   }
 }
 
+resource "aws_s3_bucket" "svc" {
+  bucket = "b-${format("%.8s",sha1(data.terraform_remote_state.org.aws_account_id))}-${var.env_name}-svc"
+  acl    = "private"
+
+  depends_on = ["aws_s3_bucket.s3"]
+
+  logging {
+    target_bucket = "b-${format("%.8s",sha1(data.terraform_remote_state.org.aws_account_id))}-${var.env_name}-s3"
+    target_prefix = "log/"
+  }
+
+  versioning {
+    enabled = true
+  }
+
+  tags {
+    "ManagedBy" = "terraform"
+    "Env"       = "${var.env_name}"
+  }
+}
+
 resource "aws_kms_key" "env" {
   description         = "Environment ${var.env_name}"
   enable_key_rotation = true

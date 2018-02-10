@@ -307,8 +307,8 @@ data "aws_iam_policy_document" "svc" {
     ]
 
     resources = [
-      "arn:${data.aws_partition.current.partition}:s3:::b-${format("%.8s",sha1(data.terraform_remote_state.org.aws_account_id))}-${var.env_name}-svc/&{aws:userid}",
-      "arn:${data.aws.partition.current.partition}:s3:::b-${format("%.8s",sha1(data.terraform_remote_state.org.aws_account_id))}-${var.env_name}-svc/&{aws:userid}/*",
+      "arn:${data.aws_partition.current.partition}:s3:::b-${format("%.8s",sha1(data.terraform_remote_state.org.aws_account_id))}-${data.terraform_remote_state.env.env_name}-svc/&{aws:userid}",
+      "arn:${data.aws_partition.current.partition}:s3:::b-${format("%.8s",sha1(data.terraform_remote_state.org.aws_account_id))}-${data.terraform_remote_state.env.env_name}-svc/&{aws:userid}/*",
     ]
   }
 }

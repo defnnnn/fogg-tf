@@ -15,6 +15,8 @@ provider "aws" {
   region = "us-east-1"
 }
 
+data "aws_partition" "current" {}
+
 data "terraform_remote_state" "org" {
   backend = "s3"
 
@@ -298,43 +300,33 @@ data "aws_iam_policy_document" "service" {
   }
 }
 
-data "aws_iam_policy_document" "fargate" {
+data "aws_iam_policy_document" "svc" {
   statement {
     actions = [
-      "sts:AssumeRole",
+      "s3:*",
     ]
 
-    principals {
-      type        = "Service"
-      identifiers = ["ecs-tasks.amazonaws.com"]
-    }
-  }
-
-  statement {
-    actions = [
-      "sts:AssumeRole",
+    resources = [
+      "arn:${data.aws_partition.current.partition}:s3:::b-${format("%.8s",sha1(data.terraform_remote_state.org.aws_account_id))}-${var.env_name}-svc/&{aws:userid}",
+      "arn:${data.aws.partition.current.partition}:s3:::b-${format("%.8s",sha1(data.terraform_remote_state.org.aws_account_id))}-${var.env_name}-svc/&{aws:userid}/*",
     ]
-
-    principals {
-      type        = "AWS"
-      identifiers = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"]
-    }
   }
 }
 
-resource "aws_iam_role" "fargate" {
-  name               = "${local.service_name}-fargate"
-  assume_role_policy = "${data.aws_iam_policy_document.fargate.json}"
-}
-
-resource "aws_iam_role_policy_attachment" "AmazonECSTaskExecutionRolePolicy" {
-  role       = "${aws_iam_role.fargate.name}"
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+resource "aws_iam_policy" "svc" {
+  name        = "${local.service_name}-svc"
+  description = "${local.service_name}-svc"
+  policy      = "${data.aws_iam_policy_document.svc.json}"
 }
 
 resource "aws_iam_role" "service" {
   name               = "${local.service_name}"
   assume_role_policy = "${data.aws_iam_policy_document.service.json}"
+}
+
+resource "aws_iam_role_policy_attachment" "svc" {
+  role       = "${aws_iam_role.service.name}"
+  policy_arn = "${aws_iam_policy.svc.arn}"
 }
 
 resource "aws_iam_role_policy_attachment" "AmazonEC2ContainerServiceforEC2Role" {
@@ -375,6 +367,40 @@ resource "aws_iam_role_policy_attachment" "AmazonSSMReadOnlyAccess" {
 resource "aws_iam_instance_profile" "service" {
   name = "${local.service_name}"
   role = "${aws_iam_role.service.name}"
+}
+
+data "aws_iam_policy_document" "fargate" {
+  statement {
+    actions = [
+      "sts:AssumeRole",
+    ]
+
+    principals {
+      type        = "Service"
+      identifiers = ["ecs-tasks.amazonaws.com"]
+    }
+  }
+
+  statement {
+    actions = [
+      "sts:AssumeRole",
+    ]
+
+    principals {
+      type        = "AWS"
+      identifiers = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"]
+    }
+  }
+}
+
+resource "aws_iam_role" "fargate" {
+  name               = "${local.service_name}-fargate"
+  assume_role_policy = "${data.aws_iam_policy_document.fargate.json}"
+}
+
+resource "aws_iam_role_policy_attachment" "AmazonECSTaskExecutionRolePolicy" {
+  role       = "${aws_iam_role.fargate.name}"
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
 data "template_file" "user_data_service" {

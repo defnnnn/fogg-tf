@@ -70,7 +70,7 @@ sync
 
 apt-get update
 apt-get install -y docker.io git make jq
-sudo -u ubuntu bash -c 'cd; ssh -o StrictHostKeyChecking=no git@github.com true; git clone https://github.com/imma/port; cd port; make install shell-setup'
+sudo -u ubuntu bash -c 'cd; ssh -o StrictHostKeyChecking=no git@github.com true; git clone https://github.com/imma/port; cd port; make'
 
 gpg --recv-key 18AD5014C99EF7E3BA5F6CE950BDD3E0FC8A365E
 wget https://github.com/rkt/rkt/releases/download/v1.29.0/rkt_1.29.0-1_amd64.deb

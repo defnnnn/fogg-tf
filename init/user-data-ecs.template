@@ -13,6 +13,7 @@ exec 1>~/stdout.log
 exec 2>~/stderr.log
 
 set -x
+cd
 
 dd if=/dev/zero of=/root/swap0 bs=1M count=1000
 dd if=/dev/zero of=/root/swap1 bs=1M count=1000
@@ -43,7 +44,7 @@ ECS_CLUSTER=${env}-${app}-${service}
 EOF
 
 yum update
-yum install -y jq ruby wget nfs-utils git jq
+yum install -y ruby wget nfs-utils git jq
 
 nm_region="$(curl --silent http://169.254.169.254/latest/dynamic/instance-identity/document | jq -r .region)"
 

@@ -108,15 +108,23 @@ while true; do
   sleep 1
 done
 
+mkdir -p /etc/docker
 pth_public='/var/lib/zerotier-one/identity.public'
+echo "{\"storage-driver\": \"overlay\2", \"ipv6\": true, \"fixed-cidr-v6\": \"$(echo "$${ipv6}$(cut -c 1-2 $pth_public):$(cut -c 3-6 $pth_public):$(cut -c 7-10 $pth_public)::/80")\"}" > /etc/docker/daemon.json
 
+export DEBIAN_FRONTEND=noninteractive
 apt-get update
 apt-get install -y git make jq
 
-mkdir -p /etc/docker
-echo "{\"storage-driver\": \"overlay\2", \"ipv6\": true, \"fixed-cidr-v6\": \"$(echo "$${ipv6}$(cut -c 1-2 $pth_public):$(cut -c 3-6 $pth_public):$(cut -c 7-10 $pth_public)::/80")\"}" > /etc/docker/daemon.json
-
-apt-get install -y docker.io
+apt-get update
+apt-get install -y apt-transport-https ca-certificates curl software-properties-common aptitude
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -k
+add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+apt-get update
+apt-get install -y docker-ce
+apt-mark unhold docker-ce 2>/dev/null 1>&2 || true
+apt-get install -y docker-ce="17.12-*"
+aptitude hold docker-ce
 
 cat > /etc/rc.local <<EOF
 #!/bin/sh -e

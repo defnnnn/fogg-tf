@@ -22,7 +22,8 @@ resource "digitalocean_floating_ip" "service" {
 }
 
 resource "digitalocean_tag" "org" {
-  name = "${var.account_name}"
+  name  = "${var.account_name}"
+  count = "${var.want_digitalocean}"
 }
 
 resource "digitalocean_tag" "region" {

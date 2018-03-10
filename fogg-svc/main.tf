@@ -1023,15 +1023,6 @@ module "efs" {
   want_efs = "${var.want_efs}"
 }
 
-resource "aws_security_group_rule" "allow_zerotier" {
-  type              = "ingress"
-  from_port         = 9993
-  to_port           = 9993
-  protocol          = "udp"
-  cidr_blocks       = ["0.0.0.0/0"]
-  security_group_id = "${aws_security_group.service.id}"
-}
-
 resource "aws_security_group_rule" "allow_service_mount" {
   type                     = "ingress"
   from_port                = 2049

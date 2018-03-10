@@ -407,10 +407,11 @@ data "template_file" "user_data_service" {
   template = "${file(var.user_data)}"
 
   vars {
-    vpc_cidr = "${data.aws_vpc.current.cidr_block}"
-    env      = "${data.terraform_remote_state.env.env_name}"
-    app      = "${data.terraform_remote_state.app.app_name}"
-    service  = "${var.service_name}"
+    vpc_cidr         = "${data.aws_vpc.current.cidr_block}"
+    env              = "${data.terraform_remote_state.env.env_name}"
+    app              = "${data.terraform_remote_state.app.app_name}"
+    service          = "${var.service_name}"
+    zerotier_network = "${var.zerotier_network}"
   }
 }
 

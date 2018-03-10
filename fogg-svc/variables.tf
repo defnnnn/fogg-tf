@@ -88,6 +88,10 @@ variable "want_sd" {
   default = "0"
 }
 
+variable "zerotier_network" {
+  default = ""
+}
+
 variable "want_vpc_link" {
   default = "0"
 }

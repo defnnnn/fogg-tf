@@ -1030,7 +1030,6 @@ resource "aws_security_group_rule" "allow_zerotier" {
   protocol          = "udp"
   cidr_blocks       = ["0.0.0.0/0"]
   security_group_id = "${aws_security_group.service.id}"
-  count             = "${var.want_efs}"
 }
 
 resource "aws_security_group_rule" "allow_service_mount" {

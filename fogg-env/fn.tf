@@ -99,7 +99,7 @@ resource "aws_lambda_function" "env" {
   publish          = true
 
   lifecycle {
-    ignore_changes = ["source_code_hash", "filename"]
+    ignore_changes = ["source_code_hash", "filename", "last_modified", "qualified_arn", "version"]
   }
 }
 

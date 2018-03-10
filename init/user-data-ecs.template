@@ -79,7 +79,7 @@ if [[ ! -d /var/lib/docker/overlay/.done ]]; then
   mkdir -p /var/lib/docker/overlay
   mount /dev/docker/overlay /var/lib/docker
 
-  echo 'DOCKER_STORAGE_OPTIONS="--storage-driver overlay2"' > /etc/sysconfig/docker-storage
+  jq -n '{bip: "192.168.250.1/24", "storage-driver": "overlay2"}' > /etc/docker/daemon.json
 
   touch /var/lib/docker/overlay/.done
 

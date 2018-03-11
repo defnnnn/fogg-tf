@@ -5,6 +5,25 @@ Number-Attachments: 1
 
 --===============88888888888888888888888888==
 MIME-Version: 1.0
+Content-Type: text/cloud-config; charset="us-ascii"
+
+power_state:
+  mode: reboot
+  message: Rebooting after initial cloud-init
+  condition: True
+
+swap:
+  filename: /root/swap0
+  size: 4294967296
+  maxsize: 4294967296
+
+runcmd:
+  - [ yum, update ]
+  - [ yum, upgrade, -y ]
+  - [ yum, install, -y, ruby, wget, nfs-utils, git, jq ]
+
+--===============88888888888888888888888888==
+MIME-Version: 1.0
 Content-Type: text/x-shellscript; charset="us-ascii"
 
 #!/bin/bash
@@ -12,30 +31,22 @@ Content-Type: text/x-shellscript; charset="us-ascii"
 exec 1>~/stdout.log
 exec 2>~/stderr.log
 
-set -x
+date
+uname -a
 
-if [[ -f /etc/rc.d/rc.done ]]; then
-  mkdir -p /data
-  mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2 efs.${env}.immanent.io:/ /data
-  exit 0
-fi
+mkdir -p /data
+mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2 efs.${env}.immanent.io:/ /data
 
-if ! id ubuntu; then
-  if id ec2-user; then
-    groupadd -g 1000 ubuntu
-    useradd -m -s /bin/bash -g ubuntu -u 1000 ubuntu
-    mkdir ~ubuntu/.ssh
-    mv ~ec2-user/.ssh/authorized_keys ~ubuntu/.ssh/
-    chown -R ubuntu:ubuntu ~ubuntu
-    echo 'ubuntu ALL=(ALL) NOPASSWD:ALL' | tee -a /etc/sudoers.d/cloud-init
-  fi
+if ! id ubuntu 2>/dev/null; then
+  groupadd -g 1000 ubuntu
+  useradd -m -s /bin/bash -g ubuntu -u 1000 ubuntu
+  mkdir ~ubuntu/.ssh
+  mv ~ec2-user/.ssh/authorized_keys ~ubuntu/.ssh/
+  chown -R ubuntu:ubuntu ~ubuntu
+  echo 'ubuntu ALL=(ALL) NOPASSWD:ALL' | tee -a /etc/sudoers.d/cloud-init
 fi
 
 usermod -G docker ubuntu
-
-yum update
-yum upgrade -y
-yum install -y ruby wget nfs-utils git jq
 
 cat <<EOF | gpg --import
 -----BEGIN PGP PUBLIC KEY BLOCK-----
@@ -146,20 +157,7 @@ echo 'DOCKER_STORAGE_OPTIONS="--storage-driver overlay2"' > /etc/sysconfig/docke
 
 rm -rf /var/lib/ecs/data/* /var/cache/ecs/*
 
-touch /etc/rc.d/rc.done
-
---===============88888888888888888888888888==
-MIME-Version: 1.0
-Content-Type: text/cloud-config; charset="us-ascii"
-
-power_state:
-  mode: reboot
-  message: Rebooting after initial cloud-init
-  condition: True
-
-swap:
-  filename: /root/swap0
-  size: 4294967296
-  maxsize: 4294967296
+service docker start
+start ecs
 
 --===============88888888888888888888888888==

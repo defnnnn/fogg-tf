@@ -17,11 +17,6 @@ swap:
   size: 4294967296
   maxsize: 4294967296
 
-runcmd:
-  - [ yum, update ]
-  - [ yum, upgrade, -y ]
-  - [ yum, install, -y, ruby, wget, nfs-utils, git, jq ]
-
 --===============88888888888888888888888888==
 MIME-Version: 1.0
 Content-Type: text/x-shellscript; charset="us-ascii"
@@ -34,8 +29,9 @@ exec 2>~/stderr.log
 date
 uname -a
 
-mkdir -p /data
-mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2 efs.${env}.immanent.io:/ /data
+yum update
+yum upgrade -y
+yum install -y ruby wget nfs-utils git jq
 
 if ! id ubuntu 2>/dev/null; then
   groupadd -g 1000 ubuntu
@@ -156,8 +152,5 @@ mount /dev/docker/overlay /var/lib/docker
 echo 'DOCKER_STORAGE_OPTIONS="--storage-driver overlay2"' > /etc/sysconfig/docker-storage
 
 rm -rf /var/lib/ecs/data/* /var/cache/ecs/*
-
-service docker start
-start ecs
 
 --===============88888888888888888888888888==

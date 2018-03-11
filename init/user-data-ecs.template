@@ -159,6 +159,7 @@ power_state:
 
 swap:
   filename: /root/swap0
-  size: 4000000
+  size: 4294967296
+  maxsize: 4294967296
 
 --===============88888888888888888888888888==

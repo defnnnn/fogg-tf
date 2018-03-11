@@ -9,20 +9,15 @@ Content-Type: text/x-shellscript; charset="us-ascii"
 
 #!/bin/bash
 
+if [[ -f /etc/rc.d/rc.done ]]; then
+  exit 0
+fi
+
 exec 1>~/stdout.log
 exec 2>~/stderr.log
 
 set -x
 cd
-
-dd if=/dev/zero of=/root/swap0 bs=1M count=1000
-dd if=/dev/zero of=/root/swap1 bs=1M count=1000
-chmod 0600 /root/swap0
-chmod 0600 /root/swap1
-mkswap /root/swap0
-mkswap /root/swap1
-swapon /root/swap0
-swapon /root/swap1
 
 groupadd -g 497 docker || true
 
@@ -40,6 +35,7 @@ fi
 usermod -G docker ubuntu
 
 yum update
+yum upgrade -y
 yum install -y ruby wget nfs-utils git jq
 
 cat <<EOF | gpg --import
@@ -132,40 +128,43 @@ rm -f install
 yum install -y https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/linux_amd64/amazon-ssm-agent.rpm
 
 yum install -y awslogs
-
-cat > /etc/rc.d/rc.local <<EOF
-#!/bin/bash
-
-swapon /root/swap0
-swapon /root/swap1
+chkconfig awslogs on
 
 mkdir -p /data
-mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2 efs.${env}.immanent.io:/ /data
 
-if [[ ! -d /var/lib/docker/overlay/.done ]]; then
-  service docker stop
+stop ecs
+service docker stop
 
-  dmsetup remove_all
-  lvremove docker/docker-pool
+dmsetup remove_all
+lvremove docker/docker-pool
 
-  lvcreate -n overlay -l '100%VG' docker
-  mkfs -t ext4 -L docker -i 4096 -F /dev/docker/overlay
+lvcreate -n overlay -l '100%VG' docker
+mkfs -t ext4 -L docker -i 4096 -F /dev/docker/overlay
 
-  rm -rf /var/lib/docker/*
-  mkdir -p /var/lib/docker/overlay
-  mount /dev/docker/overlay /var/lib/docker
+rm -rf /var/lib/docker/*
+mkdir -p /var/lib/docker/overlay
+mount /dev/docker/overlay /var/lib/docker
 
-  touch /var/lib/docker/overlay/.done
+echo 'DOCKER_STORAGE_OPTIONS="--storage-driver overlay2"' > /etc/sysconfig/docker-storage
 
-  echo 'DOCKER_STORAGE_OPTIONS="--storage-driver overlay2"' > /etc/sysconfig/docker-storage
-  service docker start
+rm -rf /var/lib/ecs/data/* /var/cache/ecs/*
 
-  rm -rf /var/lib/ecs/data/* /var/cache/ecs/*
-  start ecs
-fi
+touch /etc/rc.d/rc.done
 
-touch /var/lock/subsys/local
-EOF
-chmod 755 /etc/rc.d/rc.local
+--===============88888888888888888888888888==
+MIME-Version: 1.0
+Content-Type: text/cloud-config; charset="us-ascii"
+
+power_state:
+  mode: reboot
+  message: Rebooting after initial cloud-init
+  condition: True
+
+swap:
+  filename: /root/swap0
+  size: 2000000
+
+mounts:
+  - [ "efs.${env}.immanent.io:/", /data, "nfs4", "nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2", "0", "0" ]
 
 --===============88888888888888888888888888==

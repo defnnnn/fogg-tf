@@ -38,3 +38,11 @@ resource "aws_security_group_rule" "vpn_ping" {
   cidr_blocks       = ["${var.vpn_cidr}"]
   security_group_id = "${aws_security_group.env.id}"
 }
+
+resource "aws_route53_record" "vpn" {
+  zone_id = "${data.terraform_remote_state.org.public_zone_id}"
+  name    = "vpn.${local.private_zone_name}"
+  type    = "A"
+  ttl     = "60"
+  records = ["${module.vpn.eips}"]
+}

@@ -200,7 +200,7 @@ resource "aws_route" "service_interface_vpn" {
 resource "aws_route" "service_v6" {
   route_table_id              = "${element(aws_route_table.service.*.id,count.index)}"
   destination_ipv6_cidr_block = "::/0"
-  egress_only_gateway_id      = "${data.terraform_remote_state.env.egw_gateway}"
+  gateway_id                  = "${data.terraform_remote_state.env.igw_id}"
   count                       = "${var.want_routes*var.want_subnets*var.az_count*(signum(var.public_network)-1)*-1}"
 }
 
@@ -259,7 +259,7 @@ resource "aws_route" "service_public_interface_vpn" {
 resource "aws_route" "service_public_v6" {
   route_table_id              = "${element(aws_route_table.service_public.*.id,count.index)}"
   destination_ipv6_cidr_block = "::/0"
-  egress_only_gateway_id      = "${data.terraform_remote_state.env.egw_gateway}"
+  gateway_id                  = "${data.terraform_remote_state.env.igw_id}"
   count                       = "${var.want_routes*var.want_subnets*var.az_count*signum(var.public_network)}"
 }
 

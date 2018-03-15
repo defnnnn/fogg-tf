@@ -1,5 +1,8 @@
 provider "aws" {}
 
+variable "this_vpc_id" {}
+variable "that_vpc_id" {}
+
 variable "this_vpc_sg" {}
 
 variable "that_vpc_cidrs" {
@@ -15,6 +18,10 @@ variable "allow_access" {
 resource "aws_vpc_peering_connection_accepter" "peering" {
   vpc_peering_connection_id = "${var.peering_connection}"
   auto_accept               = true
+
+  tags {
+    Name = "${var.this_vpc_id}_${var.that_vpc_id}"
+  }
 }
 
 # access on the peer

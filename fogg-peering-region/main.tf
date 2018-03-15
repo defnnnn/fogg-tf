@@ -27,6 +27,10 @@ resource "aws_vpc_peering_connection" "peering" {
   peer_vpc_id   = "${var.that_vpc_id}"
   vpc_id        = "${var.this_vpc_id}"
   peer_region   = "${var.that_vpc_region}"
+
+  tags {
+    Name = "${var.this_vpc_id}_${var.that_vpc_id}"
+  }
 }
 
 # let peers access

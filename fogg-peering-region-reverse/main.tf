@@ -15,12 +15,17 @@ variable "allow_access" {
   default = 1
 }
 
+locals {
+  vpc_ids      = "${sort(list(var.this_vpc_id,var.that_vpc_id))}"
+  peering_name = "${local.vpc_ids[0]}_${local.vpc_ids[1]}"
+}
+
 resource "aws_vpc_peering_connection_accepter" "peering" {
   vpc_peering_connection_id = "${var.peering_connection}"
   auto_accept               = true
 
   tags {
-    Name = "${var.this_vpc_id}_${var.that_vpc_id}"
+    Name = "${local.peering_name}"
   }
 }
 

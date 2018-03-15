@@ -4,13 +4,21 @@ variable "this_vpc_id" {}
 variable "that_vpc_id" {}
 variable "route_table_id" {}
 
+locals {
+  vpc_ids      = "${sort(list(var.this_vpc_id,var.that_vpc_id))}"
+  peering_name = "${local.vpc_ids[0]}_${local.vpc_ids[1]}"
+}
+
 data "aws_route_table" "rt" {
   route_table_id = "${var.route_table_id}"
 }
 
 data "aws_vpc_peering_connection" "peering" {
-  vpc_id      = "${var.this_vpc_id}"
-  peer_vpc_id = "${var.that_vpc_id}"
+  status = "active"
+
+  tags {
+    Name = "${local.peering_name}"
+  }
 }
 
 resource "aws_route" "rt" {

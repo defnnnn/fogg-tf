@@ -6,8 +6,15 @@ variable "that_vpc_cidrs" {
   default = []
 }
 
+variable "peering_connection" {}
+
 variable "allow_access" {
-  default = 0
+  default = 1
+}
+
+resource "aws_vpc_peering_connection_accepter" "peering" {
+  vpc_peering_connection_id = "${var.peering_connection}"
+  auto_accept               = true
 }
 
 # access on the peer

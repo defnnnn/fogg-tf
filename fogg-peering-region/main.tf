@@ -17,15 +17,16 @@ variable "that_vpc_cidrs" {
 }
 
 variable "allow_access" {
-  default = 0
+  default = 1
 }
 
 data "aws_caller_identity" "current" {}
 
-resource "null_resource" "aws_vpc_peering_connection_region" {
-  provisioner "local-exec" {
-    command = "aws ${var.this_vpc_region} ec2 create-vpc-peering-connection --peer-owner-id ${data.aws_caller_identity.current.account_id} --peer-vpc-id ${var.that_vpc_id} --peer-region ${var.that_vpc_region} --vpc-id ${var.this_vpc_id}"
-  }
+resource "aws_vpc_peering_connection" "peering" {
+  peer_owner_id = "${data.aws_caller_identity.current.account_id}"
+  peer_vpc_id   = "${var.that_vpc_id}"
+  vpc_id        = "${var.this_vpc_id}"
+  peer_region   = "${var.that_vpc_region}"
 }
 
 # let peers access
@@ -47,4 +48,8 @@ resource "aws_security_group_rule" "ssh_into_everything" {
   cidr_blocks       = ["${var.that_vpc_cidrs}"]
   security_group_id = "${var.this_vpc_sg}"
   count             = "${var.allow_access}"
+}
+
+output "peering_connection" {
+  value = "${aws_vpc_peering_connection.peering.id}"
 }

@@ -15,6 +15,6 @@ data "aws_vpc_peering_connection" "peering" {
 
 resource "aws_route" "rt" {
   route_table_id            = "${data.aws_route_table.rt.id}"
-  destination_cidr_block    = "${aws_vpc_peering_connection.peering.peer_cidr_block}"
-  vpc_peering_connection_id = "${aws_vpc_peering_connection.peering.id}"
+  destination_cidr_block    = "${data.aws_vpc_peering_connection.peering.peer_cidr_block}"
+  vpc_peering_connection_id = "${data.aws_vpc_peering_connection.peering.id}"
 }

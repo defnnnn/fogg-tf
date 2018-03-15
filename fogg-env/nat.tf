@@ -50,7 +50,7 @@ resource "aws_security_group_rule" "forward_allow_https" {
 
 resource "aws_route53_record" "nat" {
   zone_id = "${data.terraform_remote_state.org.public_zone_id}"
-  name    = "nat.${local.ses_domain}"
+  name    = "nat.${local.private_zone_name}"
   type    = "A"
   ttl     = "60"
   records = ["${module.nat.eips}"]

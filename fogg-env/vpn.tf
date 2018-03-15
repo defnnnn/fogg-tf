@@ -45,4 +45,5 @@ resource "aws_route53_record" "vpn" {
   type    = "A"
   ttl     = "60"
   records = ["${module.vpn.eips}"]
+  count   = "${var.want_vpn_eip}"
 }

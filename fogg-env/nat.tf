@@ -54,4 +54,5 @@ resource "aws_route53_record" "nat" {
   type    = "A"
   ttl     = "60"
   records = ["${module.nat.eips}"]
+  count   = "${var.want_nat_eip}"
 }

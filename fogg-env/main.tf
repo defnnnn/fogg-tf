@@ -118,7 +118,6 @@ resource "aws_subnet" "public" {
   map_public_ip_on_launch         = true
   assign_ipv6_address_on_creation = true
   cidr_block                      = "${cidrsubnet(data.aws_vpc.current.cidr_block,var.public_bits,element(var.public_subnets,count.index))}"
-  ipv6_cidr_block                 = "${cidrsubnet(data.aws_vpc.current.ipv6_cidr_block,var.ipv6_public_bits,element(var.ipv6_public_subnets,count.index))}"
   count                           = "${var.az_count}"
 
   tags {
@@ -167,7 +166,6 @@ resource "aws_subnet" "private" {
   map_public_ip_on_launch         = false
   assign_ipv6_address_on_creation = true
   cidr_block                      = "${cidrsubnet(data.aws_vpc.current.cidr_block,var.private_bits,element(var.private_subnets,count.index))}"
-  ipv6_cidr_block                 = "${cidrsubnet(data.aws_vpc.current.ipv6_cidr_block,var.ipv6_private_bits,element(var.ipv6_private_subnets,count.index))}"
   count                           = "${var.az_count}"
 
   tags {

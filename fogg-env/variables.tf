@@ -6,11 +6,27 @@ variable "az_count" {}
 
 variable "cidr" {}
 
+variable "ipv6_public_bits" {
+  default = "8"
+}
+
+variable "ipv6_public_subnets" {
+  default = []
+}
+
 variable "public_bits" {
   default = "8"
 }
 
 variable "public_subnets" {
+  default = []
+}
+
+variable "ipv6_private_bits" {
+  default = "8"
+}
+
+variable "ipv6_private_subnets" {
   default = []
 }
 

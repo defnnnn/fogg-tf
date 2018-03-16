@@ -6,6 +6,10 @@ variable "service" {
   default = {}
 }
 
+variable "ipv6_service" {
+  default = {}
+}
+
 variable "region" {}
 
 variable "az_count" {}

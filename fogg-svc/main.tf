@@ -1414,17 +1414,6 @@ locals {
   apig_rest_id     = "${data.terraform_remote_state.env.api_gateway}"
   apig_resource_id = "${data.terraform_remote_state.env.api_gateway_resource}"
   apig_domain_name = "${data.terraform_remote_state.env.private_zone_name}"
-  apig_vpc_link_id = "${module.apig-vpc-link.out1}"
-}
-
-module "apig-vpc-link" {
-  source            = "./module/fogg-tf/fogg-shell-r"
-  region            = "${var.region}"
-  command           = "./module/imma-tf/bin/tf-aws-apig-vpc-link"
-  resource_previous = "${local.service_name}-live"
-  resource_name     = "${local.service_name}-live"
-  arg1              = "${element(concat(aws_lb.net.*.arn,list("")),0)}"
-  mcount            = "${var.want_vpc_link*var.want_nlb}"
 }
 
 resource "aws_api_gateway_method" "apig-vpc-link" {
@@ -1433,37 +1422,6 @@ resource "aws_api_gateway_method" "apig-vpc-link" {
   http_method   = "POST"
   authorization = "NONE"
   count         = "${var.want_vpc_link*var.want_nlb}"
-}
-
-module "apig-vpc-link-integration" {
-  source            = "./module/fogg-tf/fogg-shell"
-  region            = "${var.region}"
-  command           = "./module/imma-tf/bin/tf-aws-apig-vpc-link-integration"
-  resource_previous = "${local.service_name}-live"
-  resource_name     = "${local.service_name}-live"
-  arg1              = "${local.apig_rest_id}"
-  arg2              = "${local.apig_resource_id}"
-  arg3              = "https://${local.apig_domain_name}"
-  arg4              = "${element(concat(aws_api_gateway_method.apig-vpc-link.*.id,list("")),0)}"
-  mcount            = "${var.want_vpc_link*var.want_nlb}"
-}
-
-resource "null_resource" "apig-vpc-link-integration-deployment" {
-  triggers {
-    integration_id = "${module.apig-vpc-link-integration.id}"
-  }
-}
-
-module "apig-vpc-link-deployment" {
-  source            = "./module/fogg-tf/fogg-shell"
-  region            = "${var.region}"
-  command           = "./module/imma-tf/bin/tf-aws-apig-vpc-link-deployment"
-  resource_previous = "${lookup(null_resource.apig-vpc-link-integration-deployment.triggers,"integration_id")}"
-  resource_name     = "${lookup(null_resource.apig-vpc-link-integration-deployment.triggers,"integration_id")}"
-  arg1              = "${local.apig_rest_id}"
-  arg2              = "live"
-  arg3              = "${local.apig_vpc_link_id}"
-  mcount            = "${var.want_vpc_link*var.want_nlb}"
 }
 
 resource "aws_lb" "net" {

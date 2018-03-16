@@ -100,10 +100,6 @@ variable "user_data" {
   default = "./module/fogg-tf/init/user-data-ecs.template"
 }
 
-variable "ipv6_service_bits" {
-  default = 8
-}
-
 variable "service_bits" {}
 
 variable "instance_count" {

@@ -108,9 +108,8 @@ resource "aws_subnet" "service" {
 
   availability_zone = "${element(data.aws_availability_zones.azs.names,count.index)}"
 
-  cidr_block                      = "${cidrsubnet(data.aws_vpc.current.cidr_block,var.service_bits,element(split(" ",lookup(var.service,var.service_name,"")),count.index))}"
-  map_public_ip_on_launch         = "${signum(var.public_network) == 1 ? "true" : "false"}"
-  assign_ipv6_address_on_creation = "${var.want_ipv6 ? true : false}"
+  cidr_block              = "${cidrsubnet(data.aws_vpc.current.cidr_block,var.service_bits,element(split(" ",lookup(var.service,var.service_name,"")),count.index))}"
+  map_public_ip_on_launch = "${signum(var.public_network) == 1 ? "true" : "false"}"
 
   count = "${var.want_subnets*var.az_count*(var.want_ipv6 - 1)*-1}"
 
@@ -132,9 +131,8 @@ resource "aws_subnet" "service_v6" {
 
   availability_zone = "${element(data.aws_availability_zones.azs.names,count.index)}"
 
-  cidr_block                      = "${cidrsubnet(data.aws_vpc.current.cidr_block,var.service_bits,element(split(" ",lookup(var.service,var.service_name,"")),count.index))}"
-  map_public_ip_on_launch         = "${signum(var.public_network) == 1 ? "true" : "false"}"
-  assign_ipv6_address_on_creation = "${var.want_ipv6 ? true : false}"
+  cidr_block              = "${cidrsubnet(data.aws_vpc.current.cidr_block,var.service_bits,element(split(" ",lookup(var.service,var.service_name,"")),count.index))}"
+  map_public_ip_on_launch = "${signum(var.public_network) == 1 ? "true" : "false"}"
 
   count = "${var.want_subnets*var.az_count*var.want_ipv6}"
 

@@ -66,7 +66,6 @@ resource "aws_security_group_rule" "allow_zerotier" {
   to_port           = 9993
   protocol          = "udp"
   cidr_blocks       = ["0.0.0.0/0"]
-  ipv6_cidr_blocks  = ["::/0"]
   security_group_id = "${aws_security_group.env.id}"
 }
 
@@ -85,7 +84,6 @@ resource "aws_security_group_rule" "env_egress" {
   to_port           = 0
   protocol          = "-1"
   cidr_blocks       = ["0.0.0.0/0"]
-  ipv6_cidr_blocks  = ["::/0"]
   security_group_id = "${aws_security_group.env.id}"
 }
 
@@ -113,13 +111,11 @@ resource "null_resource" "fake" {
 }
 
 resource "aws_subnet" "public" {
-  vpc_id                          = "${aws_vpc.env.id}"
-  availability_zone               = "${element(data.aws_availability_zones.azs.names,count.index)}"
-  map_public_ip_on_launch         = true
-  assign_ipv6_address_on_creation = true
-  cidr_block                      = "${cidrsubnet(data.aws_vpc.current.cidr_block,var.public_bits,element(var.public_subnets,count.index))}"
-  ipv6_cidr_block                 = "${cidrsubnet(data.aws_vpc.current.ipv6_cidr_block,var.ipv6_public_bits,element(var.ipv6_public_subnets,count.index))}"
-  count                           = "${var.az_count}"
+  vpc_id                  = "${aws_vpc.env.id}"
+  availability_zone       = "${element(data.aws_availability_zones.azs.names,count.index)}"
+  map_public_ip_on_launch = true
+  cidr_block              = "${cidrsubnet(data.aws_vpc.current.cidr_block,var.public_bits,element(var.public_subnets,count.index))}"
+  count                   = "${var.az_count}"
 
   tags {
     "Name"      = "${var.env_name}-public"
@@ -134,13 +130,6 @@ resource "aws_route" "public" {
   destination_cidr_block = "0.0.0.0/0"
   gateway_id             = "${aws_internet_gateway.env.id}"
   count                  = "${var.az_count}"
-}
-
-resource "aws_route" "public_v6" {
-  route_table_id              = "${element(aws_route_table.public.*.id,count.index)}"
-  destination_ipv6_cidr_block = "::/0"
-  gateway_id                  = "${aws_internet_gateway.env.id}"
-  count                       = "${var.az_count}"
 }
 
 resource "aws_route_table_association" "public" {
@@ -162,26 +151,17 @@ resource "aws_route_table" "public" {
 }
 
 resource "aws_subnet" "private" {
-  vpc_id                          = "${aws_vpc.env.id}"
-  availability_zone               = "${element(data.aws_availability_zones.azs.names,count.index)}"
-  map_public_ip_on_launch         = false
-  assign_ipv6_address_on_creation = true
-  cidr_block                      = "${cidrsubnet(data.aws_vpc.current.cidr_block,var.private_bits,element(var.private_subnets,count.index))}"
-  ipv6_cidr_block                 = "${cidrsubnet(data.aws_vpc.current.ipv6_cidr_block,var.ipv6_private_bits,element(var.ipv6_private_subnets,count.index))}"
-  count                           = "${var.az_count}"
+  vpc_id                  = "${aws_vpc.env.id}"
+  availability_zone       = "${element(data.aws_availability_zones.azs.names,count.index)}"
+  map_public_ip_on_launch = false
+  cidr_block              = "${cidrsubnet(data.aws_vpc.current.cidr_block,var.private_bits,element(var.private_subnets,count.index))}"
+  count                   = "${var.az_count}"
 
   tags {
     "Name"      = "${var.env_name}-private"
     "Env"       = "${var.env_name}"
     "ManagedBy" = "terraform"
   }
-}
-
-resource "aws_route" "private_v6" {
-  route_table_id              = "${element(aws_route_table.private.*.id,count.index)}"
-  destination_ipv6_cidr_block = "::/0"
-  gateway_id                  = "${aws_internet_gateway.env.id}"
-  count                       = "${var.want_nat*var.az_count}"
 }
 
 resource "aws_route" "private" {

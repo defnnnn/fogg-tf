@@ -250,6 +250,10 @@ output "public_ips" {
   value = ["${aws_instance.service.*.public_ip}"]
 }
 
+output "public_ips_v6" {
+  value = ["${zipmap(aws_instance.service.*.id,aws_instance.service.*.ipv6_addresses)}"]
+}
+
 output "instance_ids" {
   value = ["${aws_instance.service.*.id}"]
 }

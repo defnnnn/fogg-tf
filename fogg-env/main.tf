@@ -183,8 +183,8 @@ resource "aws_route" "private" {
 resource "aws_route" "private_v6" {
   route_table_id              = "${element(aws_route_table.private.*.id,count.index)}"
   destination_ipv6_cidr_block = "::/0"
-  nat_gateway_id              = "${element(aws_nat_gateway.env.*.id,count.index%(var.az_count*(signum(var.nat_count)-1)*-1+var.nat_count))}"
-  count                       = "${var.want_nat*var.az_count}"
+  gateway_id                  = "${aws_internet_gateway.env.id}"
+  count                       = "${var.az_count}"
 }
 
 resource "aws_route" "private_nat_eni" {

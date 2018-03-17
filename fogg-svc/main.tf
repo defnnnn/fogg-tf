@@ -1661,6 +1661,7 @@ resource "aws_service_discovery_service" "svc" {
   health_check_config {
     failure_threshold = 2
     type              = "TCP"
+    resource_path     = "/"
   }
 }
 

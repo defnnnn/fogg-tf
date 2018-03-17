@@ -1653,7 +1653,13 @@ resource "aws_service_discovery_service" "svc" {
   }
 
   provisioner "local-exec" {
-    command = "runmany 1 2 'aws servicediscovery register-instance --service-id ${aws_service_discovery_service.svc.id} --instance-id $$1 --attributes AWS_INSTANCE_IPV4=$$2,AWS_INSTANCE_PORT=${var.public_port}' ${join(" ",formatlist("%s %s",aws_instance.service.*.id,aws_instance.service.*.public_ip))}"
+    command = "runmany 1 2 'aws servicediscovery register-instance --service-id ${self.id} --instance-id $$1 --attributes AWS_INSTANCE_IPV4=$$2,AWS_INSTANCE_PORT=${var.public_port}' ${join(" ",formatlist("%s %s",aws_instance.service.*.id,aws_instance.service.*.public_ip))}"
+  }
+
+  provisioner "local-exec" {
+    command    = "aws servicediscovery list-instances --service-id ${self.id} | jq -r '.Instances[].Id' | runmany 'aws servicediscovery deregister-instance --service-id ${self.id} --instance-id $$1'; aws servicediscovery delete-service --id ${self.id}"
+    on_failure = "continue"
+    when       = "destroy"
   }
 }
 
@@ -1665,7 +1671,7 @@ resource "aws_route53_record" "sd" {
   type    = "A"
 
   alias {
-    name                   = "${random_pet.svc.id}.${local.service_name}.${data.terraform_remote_state.org.domain_name}"
+    name                   = "${aws_service_discovery_service.svc.name}.${local.service_name}.${data.terraform_remote_state.org.domain_name}"
     zone_id                = "${aws_service_discovery_public_dns_namespace.svc.hosted_zone}"
     evaluate_target_health = false
   }

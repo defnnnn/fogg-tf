@@ -453,15 +453,6 @@ module "ec2-modify-unlimited" {
   mcount            = "${signum(var.instance_count)}"
 }
 
-resource "null_resource" "aws_service_discovery_service_register_instance" {
-  depends_on = ["aws_instance.service"]
-  count      = "${var.instance_count}"
-
-  provisioner "local-exec" {
-    command = "aws servicediscovery register-instance --service-id ${aws_service_discovery_service.svc.id} --instance-id ${element(aws_instance.service.*.id,count.index)}  --attributes AWS_INSTANCE_IPV4=${element(aws_instance.service.*.public_ip,count.index)}"
-  }
-}
-
 resource "aws_instance" "service" {
   ami           = "${coalesce(element(var.ami_id,count.index),local.vendor_ami_id)}"
   instance_type = "${element(var.instance_type,count.index)}"
@@ -477,6 +468,16 @@ resource "aws_instance" "service" {
 
   lifecycle {
     ignore_changes = ["*"]
+  }
+
+  provisioner "local-exec" {
+    command = "${var.want_sd*var.public_network > 0 ? "" : "echo "}aws servicediscovery register-instance --service-id ${aws_service_discovery_service.svc.id} --instance-id ${self.id}  --attributes AWS_INSTANCE_IPV4=${self.public_ip}"
+  }
+
+  provisioner "local-exec" {
+    command    = "${var.want_sd*var.public_network > 0 ? "" : "echo "}aws servicediscovery deregister-instance --service-id ${element(coalescelist(aws_service_discovery_service.svc.*.id,list("0")),0)} --instance-id ${self.id}"
+    when       = "destroy"
+    on_failure = "continue"
   }
 
   root_block_device {

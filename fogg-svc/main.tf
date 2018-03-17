@@ -1651,6 +1651,11 @@ resource "aws_service_discovery_service" "svc" {
       ttl  = 10
       type = "A"
     }
+
+    dns_records {
+      ttl  = 10
+      type = "SRV"
+    }
   }
 
   health_check_config {

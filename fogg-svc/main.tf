@@ -1638,8 +1638,10 @@ resource "aws_service_discovery_public_dns_namespace" "svc" {
   count = "${var.want_sd*var.public_network}"
 }
 
+resource "random_pet" "svc" {}
+
 resource "aws_service_discovery_service" "svc" {
-  name  = "${local.service_name}.${data.terraform_remote_state.org.domain_name}"
+  name  = "${random_pet.svc.id}"
   count = "${var.want_sd*var.public_network}"
 
   dns_config {
@@ -1665,7 +1667,7 @@ resource "aws_route53_record" "sd" {
   type    = "A"
 
   alias {
-    name                   = "${local.service_name}.${data.terraform_remote_state.org.domain_name}.${local.service_name}.${data.terraform_remote_state.org.domain_name}"
+    name                   = "${random_pet.svc.id}.${local.service_name}.${data.terraform_remote_state.org.domain_name}"
     zone_id                = "${aws_service_discovery_public_dns_namespace.svc.hosted_zone}"
     evaluate_target_health = false
   }

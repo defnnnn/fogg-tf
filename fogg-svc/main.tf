@@ -471,7 +471,7 @@ resource "aws_instance" "service" {
   }
 
   provisioner "local-exec" {
-    command = "${var.want_sd*var.public_network > 0 ? "" : "echo "}aws servicediscovery register-instance --service-id ${aws_service_discovery_service.svc.id} --instance-id ${self.id}  --attributes AWS_INSTANCE_IPV4=${self.public_ip}"
+    command = "${var.want_sd*var.public_network > 0 ? "" : "echo "}aws servicediscovery register-instance --service-id ${aws_service_discovery_service.svc.id} --instance-id ${self.id}  --attributes AWS_INSTANCE_IPV4=${self.public_ip} AWS_INSTANCE_PORT=${var.public_port}"
   }
 
   provisioner "local-exec" {
@@ -1649,6 +1649,11 @@ resource "aws_service_discovery_service" "svc" {
       ttl  = 10
       type = "A"
     }
+  }
+
+  health_check_config {
+    failure_threshold = 2
+    type              = "TCP"
   }
 }
 

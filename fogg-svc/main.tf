@@ -1623,27 +1623,27 @@ resource "aws_ssm_parameter" "fogg_svc_iam_profile" {
   overwrite = true
 }
 
-resource "aws_service_discovery_public_dns_namespace" "svc" {
-  name  = "${local.service_name}.${data.terraform_remote_state.org.domain_name}"
-  count = "${var.want_sd*var.public_network}"
-}
-
 resource "random_pet" "svc" {
   keepers = {
     instances = "${join(",",sort(aws_instance.service.*.id))}"
   }
 }
 
+resource "aws_service_discovery_public_dns_namespace" "svc" {
+  name  = "${local.service_name}.${data.terraform_remote_state.org.domain_name}"
+  count = "${var.want_sd}"
+}
+
 resource "aws_service_discovery_service" "svc" {
   name  = "${random_pet.svc.id}"
-  count = "${var.want_sd*var.public_network}"
+  count = "${var.want_sd}"
 
   dns_config {
     namespace_id = "${aws_service_discovery_public_dns_namespace.svc.id}"
 
     dns_records {
       ttl  = 10
-      type = "A"
+      type = "AAAA"
     }
 
     dns_records {
@@ -1653,7 +1653,7 @@ resource "aws_service_discovery_service" "svc" {
   }
 
   provisioner "local-exec" {
-    command = "runmany 1 2 'aws servicediscovery register-instance --service-id ${self.id} --instance-id $$1 --attributes AWS_INSTANCE_IPV4=$$2,AWS_INSTANCE_PORT=${var.public_port}' ${join(" ",formatlist("%s %s",aws_instance.service.*.id,aws_instance.service.*.public_ip))}"
+    command = "runmany 1 2 'aws servicediscovery register-instance --service-id ${self.id} --instance-id $$1 --attributes AWS_INSTANCE_IPV6=$$2,AWS_INSTANCE_PORT=${var.public_port}' ${join(" ",formatlist("%s %s",aws_instance.service.*.id,flatten(aws_instance.service.*.ipv6_addresses)))}"
   }
 
   provisioner "local-exec" {
@@ -1668,11 +1668,11 @@ resource "aws_service_discovery_service" "svc" {
 }
 
 resource "aws_route53_record" "sd" {
-  count = "${var.want_sd*var.public_network}"
+  count = "${var.want_sd}"
 
   zone_id = "${data.terraform_remote_state.org.public_zone_id}"
   name    = "${local.service_name}.${data.terraform_remote_state.org.domain_name}"
-  type    = "A"
+  type    = "AAAA"
 
   alias {
     name                   = "${aws_service_discovery_service.svc.name}.${local.service_name}.${data.terraform_remote_state.org.domain_name}"

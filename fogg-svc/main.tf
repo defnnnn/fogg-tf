@@ -470,16 +470,6 @@ resource "aws_instance" "service" {
     ignore_changes = ["*"]
   }
 
-  provisioner "local-exec" {
-    command = "${var.want_sd*var.public_network > 0 ? "" : "echo "}aws servicediscovery register-instance --service-id ${aws_service_discovery_service.svc.id} --instance-id ${self.id}  --attributes AWS_INSTANCE_IPV4=${self.public_ip},AWS_INSTANCE_PORT=${var.public_port}"
-  }
-
-  provisioner "local-exec" {
-    command    = "${var.want_sd*var.public_network > 0 ? "" : "echo "}aws servicediscovery deregister-instance --service-id ${element(coalescelist(aws_service_discovery_service.svc.*.id,list("0")),0)} --instance-id ${self.id}"
-    when       = "destroy"
-    on_failure = "continue"
-  }
-
   root_block_device {
     volume_type = "gp2"
     volume_size = "${element(var.root_volume_size,count.index)}"
@@ -1638,7 +1628,11 @@ resource "aws_service_discovery_public_dns_namespace" "svc" {
   count = "${var.want_sd*var.public_network}"
 }
 
-resource "random_pet" "svc" {}
+resource "random_pet" "svc" {
+  keepers = {
+    instances = "${join(",",sort(aws_instance.service.*.id))}"
+  }
+}
 
 resource "aws_service_discovery_service" "svc" {
   name  = "${random_pet.svc.id}"
@@ -1658,10 +1652,8 @@ resource "aws_service_discovery_service" "svc" {
     }
   }
 
-  health_check_config {
-    failure_threshold = 2
-    type              = "TCP"
-    resource_path     = "/"
+  provisioner "local-exec" {
+    command = "runmany 1 2 'aws servicediscovery register-instance --service-id ${aws_service_discovery_service.svc.id} --instance-id $$1 --attributes AWS_INSTANCE_IPV4=$$2,AWS_INSTANCE_PORT=${var.public_port}' ${join(" ",formatlist("%s %s",aws_instance.service.*.id,aws_instance.service.*.public_ip))}"
   }
 }
 

@@ -453,13 +453,13 @@ module "ec2-modify-unlimited" {
   mcount            = "${signum(var.instance_count)}"
 }
 
-resource "aws_route53_record" "instance_public" {
-  zone_id = "${data.terraform_remote_state.org.public_zone_id}"
-  name    = "${local.service_name}${count.index}.${data.terraform_remote_state.org.domain_name}"
-  type    = "A"
-  ttl     = "60"
-  records = ["${element(aws_instance.service.*.public_ip,count.index)}"]
-  count   = "${var.instance_count*var.public_network}"
+resource "null_resource" "aws_service_discovery_service_register_instance" {
+  depends_on = ["aws_instance.service"]
+  count      = "${var.instance_count}"
+
+  provisioner "local-exec" {
+    command = "aws servicediscovery register-instance --service-id ${aws_service_discovery_service.svc.id} --instance-id ${element(aws_instance.service.*.id,count.index)}  --attributes AWS_INSTANCE_IPV4=${element(aws_instance.service.*.public_ip,count.index)}"
+  }
 }
 
 resource "aws_instance" "service" {
@@ -1632,8 +1632,35 @@ resource "aws_ssm_parameter" "fogg_svc_iam_profile" {
   overwrite = true
 }
 
-resource "aws_service_discovery_private_dns_namespace" "env" {
+resource "aws_service_discovery_public_dns_namespace" "svc" {
   name  = "${local.service_name}.${data.terraform_remote_state.org.domain_name}"
-  vpc   = "${data.terraform_remote_state.env.vpc_id}"
-  count = "${var.want_sd}"
+  count = "${var.want_sd*var.public_network}"
+}
+
+resource "aws_service_discovery_service" "svc" {
+  name  = "${local.service_name}.${data.terraform_remote_state.org.domain_name}"
+  count = "${var.want_sd*var.public_network}"
+
+  dns_config {
+    namespace_id = "${aws_service_discovery_public_dns_namespace.svc.id}"
+
+    dns_records {
+      ttl  = 10
+      type = "A"
+    }
+  }
+}
+
+resource "aws_route53_record" "sd" {
+  count = "${var.want_sd*var.public_network}"
+
+  zone_id = "${data.terraform_remote_state.org.public_zone_id}"
+  name    = "${local.service_name}.${data.terraform_remote_state.org.domain_name}"
+  type    = "A"
+
+  alias {
+    name                   = "${local.service_name}.${data.terraform_remote_state.org.domain_name}"
+    zone_id                = "${aws_service_discovery_public_dns_namespace.svc.hosted_zone}"
+    evaluate_target_health = false
+  }
 }

@@ -18,7 +18,7 @@ swap:
   maxsize: 4294967296
 
 bootcmd:
-  - "echo 'sleep 60; service network restart' >> /etc/rc.local
+  - "echo 'service network restart' >> /etc/rc.local"
 
 --===============88888888888888888888888888==
 MIME-Version: 1.0

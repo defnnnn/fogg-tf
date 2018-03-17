@@ -1661,6 +1661,10 @@ resource "aws_service_discovery_service" "svc" {
     on_failure = "continue"
     when       = "destroy"
   }
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_route53_record" "sd" {

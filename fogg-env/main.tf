@@ -160,8 +160,8 @@ resource "aws_route_table" "public" {
 
 resource "aws_vpn_gateway_route_propagation" "public" {
   vpn_gateway_id = "${aws_vpn_gateway.env.id}"
-  route_table_id = "${element(aws_route_table.public.*.id,0)}"
-  count          = "${var.want_vgw}"
+  route_table_id = "${element(aws_route_table.public.*.id,count.index)}"
+  count          = "${var.az_count*var.want_vgw}"
 }
 
 resource "aws_subnet" "private" {
@@ -237,8 +237,8 @@ resource "aws_route_table" "private" {
 
 resource "aws_vpn_gateway_route_propagation" "private" {
   vpn_gateway_id = "${aws_vpn_gateway.env.id}"
-  route_table_id = "${element(aws_route_table.private.*.id,0)}"
-  count          = "${var.want_vgw}"
+  route_table_id = "${element(aws_route_table.private.*.id,count.index)}"
+  count          = "${var.az_count*var.want_vgw}"
 }
 
 resource "aws_nat_gateway" "env" {

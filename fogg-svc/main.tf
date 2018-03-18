@@ -934,6 +934,7 @@ DEFINITION
 }
 
 resource "aws_ecs_service" "ex_fargate" {
+  count           = 0
   name            = "${local.service_name}-ex_fargate"
   cluster         = "${aws_ecs_cluster.service.id}"
   task_definition = "${aws_ecs_task_definition.ex_fargate.arn}"

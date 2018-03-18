@@ -37,9 +37,7 @@ data "aws_caller_identity" "current" {}
 
 data "aws_partition" "current" {}
 
-data "aws_region" "current" {
-  current = true
-}
+data "aws_region" "current" {}
 
 data "terraform_remote_state" "global" {
   backend = "s3"

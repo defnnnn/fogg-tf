@@ -271,5 +271,5 @@ output "vpn_cidr" {
 }
 
 output "vgw_id" {
-  value = "${aws_vpn_gateway.env.id}"
+  value = "${element(concat(aws_vpn_gateway.env.*.id,list("0")),0}}"
 }

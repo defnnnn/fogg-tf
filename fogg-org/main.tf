@@ -727,6 +727,17 @@ module "kms_us_east_2" {
   mcount       = "${var.want_us_east_2}"
 }
 
+module "kms_us_west_1" {
+  source = "../fogg-kms"
+
+  providers = {
+    aws = "aws.us_west_1"
+  }
+
+  account_name = "${var.account_name}"
+  mcount       = "${var.want_us_west_1}"
+}
+
 module "kms_us_west_2" {
   source = "../fogg-kms"
 
@@ -841,6 +852,11 @@ resource "aws_api_gateway_account" "org_us_east_2" {
   cloudwatch_role_arn = "${aws_iam_role.api_gateway.arn}"
 }
 
+resource "aws_api_gateway_account" "org_us_west_1" {
+  provider            = "aws.us_west_1"
+  cloudwatch_role_arn = "${aws_iam_role.api_gateway.arn}"
+}
+
 resource "aws_api_gateway_account" "org_us_west_2" {
   provider            = "aws.us_west_2"
   cloudwatch_role_arn = "${aws_iam_role.api_gateway.arn}"
@@ -904,6 +920,12 @@ resource "aws_key_pair" "org_us_east_1" {
 
 resource "aws_key_pair" "org_us_east_2" {
   provider   = "aws.us_east_2"
+  key_name   = "default"
+  public_key = "${local.public_key}"
+}
+
+resource "aws_key_pair" "org_us_west_1" {
+  provider   = "aws.us_west_1"
   key_name   = "default"
   public_key = "${local.public_key}"
 }

@@ -181,7 +181,7 @@ resource "aws_route_table" "service" {
 
 resource "aws_vpn_gateway_route_propagation" "service" {
   vpn_gateway_id = "${data.terraform_remote_state.env.vgw_id}"
-  route_table_id = "${aws_route_table.service.id}"
+  route_table_id = "${element(aws_route_table.service.*.id,0)}"
   count          = "${var.want_vgw}"
 }
 
@@ -253,7 +253,7 @@ resource "aws_route_table" "service_public" {
 
 resource "aws_vpn_gateway_route_propagation" "service_public" {
   vpn_gateway_id = "${data.terraform_remote_state.env.vgw_id}"
-  route_table_id = "${aws_route_table.service_public.id}"
+  route_table_id = "${element(aws_route_table.service_public.*.id,0)}"
   count          = "${var.want_vgw}"
 }
 

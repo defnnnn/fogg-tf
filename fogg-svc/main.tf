@@ -902,6 +902,7 @@ resource "aws_ecs_service" "ex_vpc" {
 }
 
 resource "aws_ecs_task_definition" "ex_fargate" {
+  count                    = 0
   family                   = "${local.service_name}-ex_fargate"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]

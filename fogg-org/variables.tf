@@ -46,6 +46,10 @@ variable "want_us_east_2" {
   default = 0
 }
 
+variable "want_us_west_1" {
+  default = 0
+}
+
 variable "want_us_west_2" {
   default = 0
 }

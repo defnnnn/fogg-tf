@@ -60,6 +60,10 @@ variable "want_vpn" {
   default = "1"
 }
 
+variable "want_vgw" {
+  default = "0"
+}
+
 variable "want_nat" {
   default = "0"
 }

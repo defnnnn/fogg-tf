@@ -179,6 +179,12 @@ resource "aws_route_table" "service" {
   }
 }
 
+resource "aws_vpn_gateway_route_propagation" "service" {
+  vpn_gateway_id = "${data.terraform_remote_state.env.vgw_id}"
+  route_table_id = "${aws_route_table.service.id}"
+  count          = "${var.want_vgw}"
+}
+
 resource "aws_route" "service" {
   route_table_id         = "${element(aws_route_table.service.*.id,count.index)}"
   destination_cidr_block = "0.0.0.0/0"
@@ -243,6 +249,12 @@ resource "aws_route_table" "service_public" {
     "ManagedBy" = "terraform"
     "Network"   = "public"
   }
+}
+
+resource "aws_vpn_gateway_route_propagation" "service_public" {
+  vpn_gateway_id = "${data.terraform_remote_state.env.vgw_id}"
+  route_table_id = "${aws_route_table.service_public.id}"
+  count          = "${var.want_vgw}"
 }
 
 resource "aws_route" "service_public" {

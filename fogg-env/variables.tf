@@ -238,6 +238,10 @@ variable "want_vpn" {
   default = "1"
 }
 
+variable "want_vgw" {
+  default = "0"
+}
+
 variable "want_vpn_eip" {
   default = "0"
 }
@@ -264,4 +268,8 @@ output "vpn_interfaces" {
 
 output "vpn_cidr" {
   value = "${var.vpn_cidr}"
+}
+
+output "vgw_id" {
+  value = "${aws_vpn_gateway.env.id}"
 }

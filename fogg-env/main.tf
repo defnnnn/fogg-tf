@@ -158,6 +158,12 @@ resource "aws_route_table" "public" {
   }
 }
 
+resource "aws_vpn_gateway_route_propagation" "public" {
+  vpn_gateway_id = "${aws_vpn_gateway.env.id}"
+  route_table_id = "${aws_route_table.public.id}"
+  count          = "${var.want_vgw}"
+}
+
 resource "aws_subnet" "private" {
   vpc_id                  = "${aws_vpc.env.id}"
   availability_zone       = "${element(data.aws_availability_zones.azs.names,count.index)}"
@@ -227,6 +233,12 @@ resource "aws_route_table" "private" {
     "Env"       = "${var.env_name}"
     "ManagedBy" = "terraform"
   }
+}
+
+resource "aws_vpn_gateway_route_propagation" "private" {
+  vpn_gateway_id = "${aws_vpn_gateway.env.id}"
+  route_table_id = "${aws_route_table.private.id}"
+  count          = "${var.want_vgw}"
 }
 
 resource "aws_nat_gateway" "env" {

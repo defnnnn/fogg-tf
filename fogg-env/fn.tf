@@ -35,6 +35,11 @@ resource "aws_api_gateway_domain_name" "env" {
   certificate_arn = "${data.aws_acm_certificate.us_east_1.arn}"
 }
 
+resource "aws_api_gateway_domain_name" "env_rc" {
+  domain_name     = "rc-${aws_route53_zone.private.name}"
+  certificate_arn = "${data.aws_acm_certificate.us_east_1.arn}"
+}
+
 resource "null_resource" "aws_api_gateway_domain_name_env" {
   depends_on = ["aws_api_gateway_domain_name.env"]
 
@@ -47,13 +52,31 @@ resource "null_resource" "aws_api_gateway_domain_name_env" {
   }
 }
 
+resource "null_resource" "aws_api_gateway_domain_name_env_rc" {
+  depends_on = ["aws_api_gateway_domain_name.env_rc"]
+
+  provisioner "local-exec" {
+    command = "aws apigateway update-domain-name --region ${var.region} --domain-name ${aws_api_gateway_domain_name.env_rc.domain_name} --patch-operations op='add',path='/endpointConfiguration/types',value='REGIONAL' op='add',path='/regionalCertificateArn',value='${local.env_cert}'"
+  }
+
+  provisioner "local-exec" {
+    command = " aws apigateway update-domain-name --region ${var.region} --domain-name ${aws_api_gateway_domain_name.env_rc.domain_name} --patch-operations op='remove',path='/endpointConfiguration/types',value='EDGE'"
+  }
+}
+
 data "external" "apig_domain_name" {
   program = ["./module/imma-tf/bin/lookup-apig-domain-name", "${var.region}", "${aws_api_gateway_domain_name.env.domain_name}"]
 }
 
+data "external" "apig_domain_name_rc" {
+  program = ["./module/imma-tf/bin/lookup-apig-domain-name", "${var.region}", "${aws_api_gateway_domain_name.env_rc.domain_name}"]
+}
+
 locals {
-  apig_domain_zone_id = "${lookup(data.external.apig_domain_name.result,"regionalHostedZoneId")}"
-  apig_domain_name    = "${lookup(data.external.apig_domain_name.result,"regionalDomainName")}"
+  apig_domain_zone_id    = "${lookup(data.external.apig_domain_name.result,"regionalHostedZoneId")}"
+  apig_domain_zone_id_rc = "${lookup(data.external.apig_domain_name_rc.result,"regionalHostedZoneId")}"
+  apig_domain_name       = "${lookup(data.external.apig_domain_name.result,"regionalDomainName")}"
+  apig_domain_name_rc    = "${lookup(data.external.apig_domain_name_rc.result,"regionalDomainName")}"
 }
 
 resource "aws_route53_record" "env_api_gateway" {
@@ -66,6 +89,20 @@ resource "aws_route53_record" "env_api_gateway" {
   alias {
     zone_id                = "${local.apig_domain_zone_id}"
     name                   = "${local.apig_domain_name}"
+    evaluate_target_health = "true"
+  }
+}
+
+resource "aws_route53_record" "env_api_gateway_rc" {
+  depends_on = ["null_resource.aws_api_gateway_domain_name_env_rc"]
+
+  zone_id = "${data.terraform_remote_state.org.public_zone_id}"
+  name    = "${aws_route53_zone.private.name}"
+  type    = "A"
+
+  alias {
+    zone_id                = "${local.apig_domain_zone_id_rc}"
+    name                   = "${local.apig_domain_name_rc}"
     evaluate_target_health = "true"
   }
 }
@@ -130,14 +167,14 @@ module "stage_rc" {
   source = "./module/fogg-tf/fogg-api/stage"
 
   rest_api_id = "${aws_api_gateway_rest_api.env.id}"
+  domain_name = "rc-${aws_route53_zone.private.name}"
   stage_name  = "rc"
-  want_domain = 0
 }
 
 module "stage_live" {
   source = "./module/fogg-tf/fogg-api/stage"
 
   rest_api_id = "${aws_api_gateway_rest_api.env.id}"
-  stage_name  = "live"
   domain_name = "${aws_route53_zone.private.name}"
+  stage_name  = "live"
 }

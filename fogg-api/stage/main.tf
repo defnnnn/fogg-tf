@@ -1,13 +1,6 @@
 variable "rest_api_id" {}
 variable "stage_name" {}
-
-variable "domain_name" {
-  default = ""
-}
-
-variable "want_domain" {
-  default = 1
-}
+variable "domain_name" {}
 
 resource "aws_api_gateway_deployment" "stage" {
   rest_api_id = "${var.rest_api_id}"
@@ -36,7 +29,6 @@ resource "aws_api_gateway_base_path_mapping" "stage" {
   api_id      = "${var.rest_api_id}"
   stage_name  = "${var.stage_name}"
   domain_name = "${var.domain_name}"
-  count       = "${var.want_domain}"
 }
 
 output "deployment" {

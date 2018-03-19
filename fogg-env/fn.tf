@@ -83,7 +83,7 @@ resource "aws_route53_record" "env_api_gateway" {
   depends_on = ["null_resource.aws_api_gateway_domain_name_env"]
 
   zone_id = "${data.terraform_remote_state.org.public_zone_id}"
-  name    = "${aws_route53_zone.private.name}"
+  name    = "${aws_api_gateway_domain_name.env.domain_name}"
   type    = "A"
 
   alias {
@@ -97,12 +97,12 @@ resource "aws_route53_record" "env_api_gateway_rc" {
   depends_on = ["null_resource.aws_api_gateway_domain_name_env_rc"]
 
   zone_id = "${data.terraform_remote_state.org.public_zone_id}"
-  name    = "${aws_route53_zone.private.name}"
+  name    = "${aws_api_gateway_domain_name.env_rc.domain_name}"
   type    = "A"
 
   alias {
     zone_id                = "${local.apig_domain_zone_id_rc}"
-    name                   = "rc-${local.apig_domain_name_rc}"
+    name                   = "${local.apig_domain_name_rc}"
     evaluate_target_health = "true"
   }
 }
@@ -111,7 +111,7 @@ resource "aws_route53_record" "env_api_gateway_private" {
   depends_on = ["null_resource.aws_api_gateway_domain_name_env"]
 
   zone_id = "${aws_route53_zone.private.zone_id}"
-  name    = "${aws_route53_zone.private.name}"
+  name    = "${aws_api_gateway_domain_name.env.domain_name}"
   type    = "A"
 
   alias {
@@ -163,18 +163,18 @@ module "resource_hello" {
   resource_id = "${aws_api_gateway_rest_api.env.root_resource_id}"
 }
 
-module "stage_rc" {
-  source = "./module/fogg-tf/fogg-api/stage"
-
-  rest_api_id = "${aws_api_gateway_rest_api.env.id}"
-  domain_name = "rc-${aws_route53_zone.private.name}"
-  stage_name  = "rc"
-}
-
 module "stage_live" {
   source = "./module/fogg-tf/fogg-api/stage"
 
   rest_api_id = "${aws_api_gateway_rest_api.env.id}"
-  domain_name = "${aws_route53_zone.private.name}"
+  domain_name = "${aws_api_gateway_domain_name.env.domain_name}"
   stage_name  = "live"
+}
+
+module "stage_rc" {
+  source = "./module/fogg-tf/fogg-api/stage"
+
+  rest_api_id = "${aws_api_gateway_rest_api.env.id}"
+  domain_name = "${aws_api_gateway_domain_name.env_rc.domain_name}"
+  stage_name  = "rc"
 }

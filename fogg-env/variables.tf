@@ -130,10 +130,6 @@ output "s3_env_ses" {
   value = "b-${format("%.8s",sha1(data.terraform_remote_state.org.aws_account_id))}-${var.env_name}-ses"
 }
 
-output "nat_gateways" {
-  value = ["${aws_nat_gateway.env.*.id}"]
-}
-
 output "public_subnets" {
   value = ["${aws_subnet.public.*.id}"]
 }

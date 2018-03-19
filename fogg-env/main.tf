@@ -178,13 +178,6 @@ resource "aws_subnet" "private" {
   }
 }
 
-resource "aws_route" "private" {
-  route_table_id         = "${element(aws_route_table.private.*.id,count.index)}"
-  destination_cidr_block = "0.0.0.0/0"
-  nat_gateway_id         = "${element(aws_nat_gateway.env.*.id,count.index%(var.az_count*(signum(var.nat_count)-1)*-1+var.nat_count))}"
-  count                  = "${var.want_nat*var.az_count}"
-}
-
 resource "aws_route" "private_v6" {
   route_table_id              = "${element(aws_route_table.private.*.id,count.index)}"
   destination_ipv6_cidr_block = "::/0"
@@ -239,12 +232,6 @@ resource "aws_vpn_gateway_route_propagation" "private" {
   vpn_gateway_id = "${aws_vpn_gateway.env.id}"
   route_table_id = "${element(aws_route_table.private.*.id,count.index)}"
   count          = "${var.az_count*var.want_vgw}"
-}
-
-resource "aws_nat_gateway" "env" {
-  subnet_id     = "${element(aws_subnet.public.*.id,count.index)}"
-  allocation_id = "${element(module.nat.allocation_id,count.index)}"
-  count         = "${var.want_nat*(var.az_count*(signum(var.nat_count)-1)*-1+var.nat_count)}"
 }
 
 resource "aws_route53_zone" "private" {

@@ -185,13 +185,6 @@ resource "aws_vpn_gateway_route_propagation" "service" {
   count          = "${var.want_routes*var.want_subnets*var.az_count*(signum(var.public_network)-1)*-1}"
 }
 
-resource "aws_route" "service" {
-  route_table_id         = "${element(aws_route_table.service.*.id,count.index)}"
-  destination_cidr_block = "0.0.0.0/0"
-  nat_gateway_id         = "${element(data.terraform_remote_state.env.nat_gateways,count.index)}"
-  count                  = "${var.want_routes*var.want_subnets*var.want_nat*var.az_count*(signum(var.public_network)-1)*-1}"
-}
-
 resource "aws_route" "service_interface_nat" {
   route_table_id         = "${element(aws_route_table.service.*.id,count.index)}"
   destination_cidr_block = "0.0.0.0/0"

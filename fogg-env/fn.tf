@@ -94,15 +94,17 @@ resource "aws_route53_record" "env_api_gateway_rc" {
   type    = "A"
 
   alias {
-    zone_id                = "${local.apig_domain_zone_id}"
-    name                   = "${local.apig_domain_name}"
+    zone_id                = "${local.apig_domain_zone_id_rc}"
+    name                   = "${local.apig_domain_name_rc}"
     evaluate_target_health = "true"
   }
 }
 
 locals {
-  apig_domain_zone_id = "${lookup(data.external.apig_domain_name.result,"regionalHostedZoneId")}"
-  apig_domain_name    = "${lookup(data.external.apig_domain_name.result,"regionalDomainName")}"
+  apig_domain_zone_id    = "${lookup(data.external.apig_domain_name.result,"regionalHostedZoneId")}"
+  apig_domain_zone_id_rc = "${lookup(data.external.apig_domain_name_rc.result,"regionalHostedZoneId")}"
+  apig_domain_name       = "${lookup(data.external.apig_domain_name.result,"regionalDomainName")}"
+  apig_domain_name_rc    = "${lookup(data.external.apig_domain_name_rc.result,"regionalDomainName")}"
 }
 
 resource "aws_route53_record" "env_api_gateway_private" {
@@ -123,12 +125,12 @@ resource "aws_route53_record" "env_api_gateway_private_rc" {
   depends_on = ["null_resource.aws_api_gateway_domain_name_env_rc"]
 
   zone_id = "${aws_route53_zone.private.zone_id}"
-  name    = "${aws_route53_zone.private.name}"
+  name    = "rc-${aws_route53_zone.private.name}"
   type    = "A"
 
   alias {
-    zone_id                = "${local.apig_domain_zone_id}"
-    name                   = "${local.apig_domain_name}"
+    zone_id                = "${local.apig_domain_zone_id_rc}"
+    name                   = "${local.apig_domain_name_rc}"
     evaluate_target_health = "true"
   }
 }

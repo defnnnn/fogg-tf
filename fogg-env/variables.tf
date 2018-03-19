@@ -210,20 +210,12 @@ variable "want_nat" {
   default = "0"
 }
 
-variable "want_nat_eip" {
-  default = "0"
-}
-
 variable "nat_count" {
   default = "0"
 }
 
 variable "nat_interface_count" {
   default = 1
-}
-
-output "nat_eips" {
-  value = ["${module.nat.eips}"]
 }
 
 output "nat_sg" {
@@ -242,20 +234,12 @@ variable "want_vgw" {
   default = "0"
 }
 
-variable "want_vpn_eip" {
-  default = "0"
-}
-
 variable "vpn_cidr" {
   default = ""
 }
 
 variable "vpn_interface_count" {
   default = 1
-}
-
-output "vpn_eips" {
-  value = ["${module.vpn.eips}"]
 }
 
 output "vpn_sg" {

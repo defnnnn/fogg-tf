@@ -9,7 +9,6 @@ module "nat" {
 
   network_name    = "nat"
   interface_count = "${var.nat_interface_count}"
-  want_eip        = "${var.want_nat_eip}"
 }
 
 resource "aws_security_group_rule" "ping_everything" {
@@ -46,13 +45,4 @@ resource "aws_security_group_rule" "forward_allow_https" {
   protocol                 = "tcp"
   source_security_group_id = "${aws_security_group.env.id}"
   security_group_id        = "${module.nat.network_sg}"
-}
-
-resource "aws_route53_record" "nat" {
-  zone_id = "${data.terraform_remote_state.org.public_zone_id}"
-  name    = "nat.${local.private_zone_name}"
-  type    = "A"
-  ttl     = "60"
-  records = ["${module.nat.eips}"]
-  count   = "${var.want_nat_eip}"
 }

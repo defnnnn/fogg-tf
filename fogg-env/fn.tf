@@ -93,8 +93,8 @@ resource "aws_lambda_function" "env" {
   filename         = "${local.deployment_file}"
   function_name    = "${var.env_name}"
   role             = "${aws_iam_role.fn.arn}"
-  handler          = "app.app"
-  runtime          = "python3.6"
+  handler          = "main"
+  runtime          = "go1.x"
   source_code_hash = "${base64sha256(file("${local.deployment_file}"))}"
   publish          = true
 

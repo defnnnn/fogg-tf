@@ -20,10 +20,17 @@ resource "aws_network_interface_attachment" "network" {
 resource "aws_eip" "network" {
   vpc   = true
   count = "${var.mcount}"
+
+  tags {
+    "Name"      = "${var.eni_name}"
+    "Service"   = "${var.eni_name}"
+    "ManagedBy" = "terraform"
+    "Network"   = "public"
+  }
 }
 
 resource "aws_eip_association" "network" {
-  network_interface_id = "${element(aws_network_interface.network.*.id,count.index)}"
-  allocation_id        = "${element(aws_eip.network.*.id,count.index)}"
-  count                = "${var.interface_count*var.want_eip}"
+  network_interface_id = "${data.aws_network_interface.network.id}"
+  allocation_id        = "${aws_eip.network.id}"
+  count                = "${var.mcount}"
 }

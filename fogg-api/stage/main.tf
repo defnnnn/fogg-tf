@@ -1,6 +1,9 @@
 variable "rest_api_id" {}
 variable "stage_name" {}
-variable "domain_name" {}
+
+variable "domain_name" {
+  default = ""
+}
 
 variable "want_domain" {
   default = 1

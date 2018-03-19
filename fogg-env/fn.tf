@@ -111,7 +111,7 @@ module "fn_hello" {
 module "resource_hello" {
   source = "./module/fogg-tf/fogg-api/resource"
 
-  api_name   = "hello"
+  api_name   = "{proxy+}"
   invoke_arn = "${aws_lambda_function.env.invoke_arn}"
 
   rest_api_id = "${aws_api_gateway_rest_api.env.id}"

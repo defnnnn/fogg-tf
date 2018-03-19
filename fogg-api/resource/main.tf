@@ -4,7 +4,7 @@ variable "resource_id" {}
 variable "invoke_arn" {}
 
 variable "http_method" {
-  default = "POST"
+  default = "ANY"
 }
 
 resource "aws_api_gateway_resource" "fn" {

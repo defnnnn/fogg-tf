@@ -107,6 +107,15 @@ module "fn_hello" {
   unique_prefix    = "${aws_api_gateway_rest_api.env.id}-${aws_api_gateway_rest_api.env.root_resource_id}"
 }
 
+module "resource_helo" {
+  source = "./module/fogg-tf/fogg-api/root"
+
+  invoke_arn = "${aws_lambda_function.env.invoke_arn}"
+
+  rest_api_id = "${aws_api_gateway_rest_api.env.id}"
+  resource_id = "${aws_api_gateway_rest_api.env.root_resource_id}"
+}
+
 module "resource_hello" {
   source = "./module/fogg-tf/fogg-api/resource"
 
@@ -123,8 +132,6 @@ module "stage_rc" {
   rest_api_id = "${aws_api_gateway_rest_api.env.id}"
   domain_name = "${signum(length(var.env_zone)) == 1 ? var.env_zone : var.env_name}.${signum(length(var.env_domain_name)) == 1 ? var.env_domain_name : data.terraform_remote_state.org.domain_name}"
   stage_name  = "rc"
-
-  anchor = "${module.resource_hello.resource}"
 }
 
 module "stage_live" {
@@ -133,6 +140,4 @@ module "stage_live" {
   rest_api_id = "${aws_api_gateway_rest_api.env.id}"
   domain_name = "${signum(length(var.env_zone)) == 1 ? var.env_zone : var.env_name}.${signum(length(var.env_domain_name)) == 1 ? var.env_domain_name : data.terraform_remote_state.org.domain_name}"
   stage_name  = "live"
-
-  anchor = "${module.stage_rc.deployment}"
 }

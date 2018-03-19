@@ -1,7 +1,6 @@
 variable "rest_api_id" {}
 variable "stage_name" {}
 variable "domain_name" {}
-variable "anchor" {}
 
 resource "aws_api_gateway_deployment" "stage" {
   rest_api_id = "${var.rest_api_id}"

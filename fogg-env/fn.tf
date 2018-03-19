@@ -79,13 +79,6 @@ locals {
   apig_domain_name_rc    = "${lookup(data.external.apig_domain_name_rc.result,"regionalDomainName")}"
 }
 
-locals {
-  apig_domain_zone_id    = "${aws_api_gateway_domain_name.env.cloudfront_zone_id}"
-  apig_domain_zone_id_rc = "${aws_api_gateway_domain_name.env_rc.cloudfront_zone_id}"
-  apig_domain_name       = "${aws_api_gateway_domain_name.env.cloudfront_domain_name}"
-  apig_domain_name_rc    = "${aws_api_gateway_domain_name.env_rc.cloudfront_domain_name}"
-}
-
 resource "aws_route53_record" "env_api_gateway" {
   depends_on = ["null_resource.aws_api_gateway_domain_name_env"]
 

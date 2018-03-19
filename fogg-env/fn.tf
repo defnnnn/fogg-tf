@@ -64,6 +64,21 @@ resource "null_resource" "aws_api_gateway_domain_name_env_rc" {
   }
 }
 
+data "external" "apig_domain_name" {
+  program = ["./module/imma-tf/bin/lookup-apig-domain-name", "${var.region}", "${aws_api_gateway_domain_name.env.domain_name}"]
+}
+
+data "external" "apig_domain_name_rc" {
+  program = ["./module/imma-tf/bin/lookup-apig-domain-name", "${var.region}", "${aws_api_gateway_domain_name.env_rc.domain_name}"]
+}
+
+locals {
+  apig_domain_zone_id    = "${lookup(data.external.apig_domain_name.result,"regionalHostedZoneId")}"
+  apig_domain_zone_id_rc = "${lookup(data.external.apig_domain_name_rc.result,"regionalHostedZoneId")}"
+  apig_domain_name       = "${lookup(data.external.apig_domain_name.result,"regionalDomainName")}"
+  apig_domain_name_rc    = "${lookup(data.external.apig_domain_name_rc.result,"regionalDomainName")}"
+}
+
 locals {
   apig_domain_zone_id    = "${aws_api_gateway_domain_name.env.cloudfront_zone_id}"
   apig_domain_zone_id_rc = "${aws_api_gateway_domain_name.env_rc.cloudfront_zone_id}"

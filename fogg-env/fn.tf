@@ -102,7 +102,7 @@ resource "aws_route53_record" "env_api_gateway_rc" {
 
   alias {
     zone_id                = "${local.apig_domain_zone_id_rc}"
-    name                   = "${local.apig_domain_name_rc}"
+    name                   = "rc-${local.apig_domain_name_rc}"
     evaluate_target_health = "true"
   }
 }

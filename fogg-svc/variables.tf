@@ -41,7 +41,7 @@ variable "want_fargate" {
 }
 
 variable "fargate_image" {
-  default = "imma/ubuntu"
+  default = "imma/ubuntu:minima"
 }
 
 variable "aurora_instances" {

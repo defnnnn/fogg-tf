@@ -866,8 +866,9 @@ resource "aws_ecs_service" "ex_vpc" {
   desired_count   = "1"
 
   network_configuration {
-    subnets         = ["${compact(concat(formatlist(var.public_lb ? "%[1]s" : "%[2]s",data.terraform_remote_state.env.public_subnets,data.terraform_remote_state.env.private_subnets)))}"]
-    security_groups = ["${data.terraform_remote_state.env.sg_env}", "${data.terraform_remote_state.app.app_sg}", "${aws_security_group.app.id}"]
+    subnets          = ["${compact(concat(formatlist(var.public_lb ? "%[1]s" : "%[2]s",data.terraform_remote_state.env.public_subnets,data.terraform_remote_state.env.private_subnets)))}"]
+    security_groups  = ["${data.terraform_remote_state.env.sg_env}", "${data.terraform_remote_state.app.app_sg}", "${aws_security_group.app.id}"]
+    assign_public_ip = true
   }
 
   placement_strategy {
@@ -898,7 +899,6 @@ resource "aws_ecs_task_definition" "ex_fargate" {
   count                    = "${var.want_fargate}"
   family                   = "${local.service_name}-ex_fargate"
   network_mode             = "awsvpc"
-  assign_public_ip         = true
   requires_compatibilities = ["FARGATE"]
   cpu                      = "256"
   memory                   = "512"

@@ -40,6 +40,10 @@ variable "want_fargate" {
   default = "0"
 }
 
+variable "fargate_image" {
+  default = "imma/ubuntu"
+}
+
 variable "aurora_instances" {
   default = "1"
 }

@@ -898,6 +898,7 @@ resource "aws_ecs_task_definition" "ex_fargate" {
   count                    = "${var.want_fargate}"
   family                   = "${local.service_name}-ex_fargate"
   network_mode             = "awsvpc"
+  assign_public_ip         = true
   requires_compatibilities = ["FARGATE"]
   cpu                      = "256"
   memory                   = "512"
@@ -909,7 +910,7 @@ resource "aws_ecs_task_definition" "ex_fargate" {
     "cpu": 64,
     "environment": [],
     "essential": true,
-    "image": "imma/ubuntu",
+    "image": "${var.fargate_image}",
     "memory": 256,
     "mountPoints": [],
     "name": "httpd",

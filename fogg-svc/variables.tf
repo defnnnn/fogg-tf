@@ -36,6 +36,10 @@ variable "want_aurora" {
   default = "0"
 }
 
+variable "want_fargate" {
+  default = "0"
+}
+
 variable "aurora_instances" {
   default = "1"
 }

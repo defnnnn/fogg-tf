@@ -895,7 +895,7 @@ resource "aws_ecs_service" "ex_vpc" {
 }
 
 resource "aws_ecs_task_definition" "ex_fargate" {
-  count                    = 0
+  count                    = "${var.want_fargate}"
   family                   = "${local.service_name}-ex_fargate"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
@@ -909,14 +909,14 @@ resource "aws_ecs_task_definition" "ex_fargate" {
     "cpu": 64,
     "environment": [],
     "essential": true,
-    "image": "crccheck/hello-world",
-    "memory": 64,
+    "image": "imma/ubuntu",
+    "memory": 256,
     "mountPoints": [],
     "name": "httpd",
     "portMappings": [
       {
-        "containerPort": 8000,
-        "hostPort": 8000,
+        "containerPort": 22,
+        "hostPort": 22,
         "protocol": "tcp"
       }
     ],
@@ -927,7 +927,7 @@ DEFINITION
 }
 
 resource "aws_ecs_service" "ex_fargate" {
-  count           = 0
+  count           = "${var.want_fargate}"
   name            = "${local.service_name}-ex_fargate"
   cluster         = "${aws_ecs_cluster.service.id}"
   task_definition = "${aws_ecs_task_definition.ex_fargate.arn}"

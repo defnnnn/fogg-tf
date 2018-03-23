@@ -713,6 +713,21 @@ resource "aws_ecs_task_definition" "ex_dynamic" {
   family       = "${local.service_name}-ex_dynamic"
   network_mode = "bridge"
 
+  volume {
+    name = "data"
+    host_path = "/data"
+  }
+
+  volume {
+    name = "docker"
+    host_path = "/var/run/docker.sock"
+  }
+
+  volume {
+    name = "tmp_work"
+    host_path = "/tmp/work"
+  }
+
   container_definitions = <<DEFINITION
 [
   {
@@ -721,6 +736,20 @@ resource "aws_ecs_task_definition" "ex_dynamic" {
     "image": "imma/ubuntu:minima",
     "memory": 200,
     "name": "sshd",
+    "mountPoints": [
+      {
+        "containerPath": "/data",
+        "sourceVolume": "data"
+      },
+      {
+        "containerPath": "/var/run/docker.sock",
+        "sourceVolume": "docker"
+      },
+      {
+        "containerPath": "/tmp/work",
+        "sourceVolume": "tmp_work"
+      }
+    ],
     "portMappings": []
   }
 ]
@@ -746,10 +775,6 @@ resource "aws_ecs_service" "ex_dynamic" {
   placement_strategy {
     type  = "binpack"
     field = "memory"
-  }
-
-  placement_constraints {
-    type = "distinctInstance"
   }
 
   lifecycle {
@@ -802,10 +827,6 @@ resource "aws_ecs_service" "ex_vpc" {
   placement_strategy {
     type  = "binpack"
     field = "memory"
-  }
-
-  placement_constraints {
-    type = "distinctInstance"
   }
 
   lifecycle {

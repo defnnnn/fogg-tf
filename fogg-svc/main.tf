@@ -716,30 +716,12 @@ resource "aws_ecs_task_definition" "ex_dynamic" {
   container_definitions = <<DEFINITION
 [
   {
-    "cpu": 64,
+    "cpu": 256,
     "essential": true,
-    "image": "crccheck/hello-world",
-    "memory": 64,
-    "name": "httpd-a",
-    "portMappings": [
-      {
-        "containerPort": 8000,
-        "hostPort": 0
-      }
-    ]
-  },
-  {
-    "cpu": 64,
-    "essential": true,
-    "image": "crccheck/hello-world",
-    "memory": 64,
-    "name": "httpd-b",
-    "portMappings": [
-      {
-        "containerPort": 8000,
-        "hostPort": 0
-      }
-    ]
+    "image": "imma/ubuntu:minima",
+    "memory": 10,
+    "name": "sshd",
+    "portMappings": [],
   }
 ]
 DEFINITION

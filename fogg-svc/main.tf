@@ -719,7 +719,7 @@ resource "aws_ecs_task_definition" "ex_dynamic" {
     "cpu": 256,
     "essential": true,
     "image": "imma/ubuntu:minima",
-    "memory": 10,
+    "memory": 200,
     "name": "sshd",
     "portMappings": []
   }
@@ -757,63 +757,6 @@ resource "aws_ecs_service" "ex_dynamic" {
   }
 }
 
-resource "aws_ecs_task_definition" "ex_host" {
-  family       = "${local.service_name}-ex_host"
-  network_mode = "host"
-
-  container_definitions = <<DEFINITION
-[
-  {
-    "cpu": 64,
-    "environment": [],
-    "essential": true,
-    "image": "crccheck/hello-world",
-    "memory": 64,
-    "mountPoints": [],
-    "name": "httpd",
-    "portMappings": [
-      {
-        "containerPort": 8000,
-        "hostPort": 8000,
-        "protocol": "tcp"
-      }
-    ],
-    "volumesFrom": []
-  }
-]
-DEFINITION
-}
-
-resource "aws_ecs_service" "ex_host" {
-  name            = "${local.service_name}-ex_host"
-  cluster         = "${aws_ecs_cluster.service.id}"
-  task_definition = "${aws_ecs_task_definition.ex_host.arn}"
-  desired_count   = "1"
-
-  placement_strategy {
-    type  = "spread"
-    field = "attribute:ecs.availability-zone"
-  }
-
-  placement_strategy {
-    type  = "spread"
-    field = "instanceId"
-  }
-
-  placement_strategy {
-    type  = "binpack"
-    field = "memory"
-  }
-
-  placement_constraints {
-    type = "distinctInstance"
-  }
-
-  lifecycle {
-    ignore_changes = ["desired_count"]
-  }
-}
-
 resource "aws_ecs_task_definition" "ex_vpc" {
   family       = "${local.service_name}-ex_vpc"
   network_mode = "awsvpc"
@@ -825,7 +768,7 @@ resource "aws_ecs_task_definition" "ex_vpc" {
     "environment": [],
     "essential": true,
     "image": "imma/ubuntu:minima",
-    "memory": 10,
+    "memory": 200,
     "mountPoints": [],
     "name": "sshd",
     "portMappings": [],

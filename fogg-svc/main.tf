@@ -843,7 +843,7 @@ resource "aws_ecs_task_definition" "ex_vpc" {
     "environment": [],
     "essential": true,
     "image": "imma/ubuntu:minima",
-    "memory": 1,
+    "memory": 10,
     "mountPoints": [],
     "name": "sshd",
     "portMappings": [],

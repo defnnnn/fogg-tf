@@ -128,8 +128,8 @@ if type -P docker; then
     '{bip: "192.168.250.1/24", ipv6: true, "fixed-cidr-v6": $ipv6}' > /etc/docker/daemon.json
 
   cat >> /etc/ecs/ecs.config <<EOF
-  ECS_CLUSTER=${env}-${app}-${service}
-  EOF
+ECS_CLUSTER=${env}-${app}-${service}
+EOF
 
   nm_region="$(curl --silent http://169.254.169.254/latest/dynamic/instance-identity/document | jq -r .region)"
 

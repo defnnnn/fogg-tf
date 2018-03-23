@@ -936,7 +936,7 @@ resource "aws_ecs_service" "ex_fargate" {
 
   network_configuration {
     subnets          = ["${data.terraform_remote_state.env.public_subnets}"]
-    security_groups  = ["${data.terraform_remote_state.env.sg_env}", "${data.terraform_remote_state.app.app_sg}", "${aws_security_group.app.id}"]
+    security_groups  = ["${data.terraform_remote_state.env.sg_env}", "${data.terraform_remote_state.app.app_sg}", "${aws_security_group.service.id}"]
     assign_public_ip = true
   }
 

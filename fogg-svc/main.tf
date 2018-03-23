@@ -906,17 +906,17 @@ resource "aws_ecs_task_definition" "ex_fargate" {
   container_definitions = <<DEFINITION
 [
   {
-    "cpu": 64,
+    "cpu": 256,
     "environment": [],
     "essential": true,
     "image": "${var.fargate_image}",
-    "memory": 256,
+    "memory": 512,
     "mountPoints": [],
-    "name": "httpd",
+    "name": "sshd",
     "portMappings": [
       {
-        "containerPort": 22,
-        "hostPort": 22,
+        "containerPort": 2000,
+        "hostPort": 2000,
         "protocol": "tcp"
       }
     ],

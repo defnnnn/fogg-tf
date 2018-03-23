@@ -721,7 +721,7 @@ resource "aws_ecs_task_definition" "ex_dynamic" {
     "image": "imma/ubuntu:minima",
     "memory": 10,
     "name": "sshd",
-    "portMappings": [],
+    "portMappings": []
   }
 ]
 DEFINITION

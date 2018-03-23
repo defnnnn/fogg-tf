@@ -839,20 +839,14 @@ resource "aws_ecs_task_definition" "ex_vpc" {
   container_definitions = <<DEFINITION
 [
   {
-    "cpu": 64,
+    "cpu": 256,
     "environment": [],
     "essential": true,
-    "image": "crccheck/hello-world",
-    "memory": 64,
+    "image": "imma/ubuntu:minima",
+    "memory": 1,
     "mountPoints": [],
-    "name": "httpd",
-    "portMappings": [
-      {
-        "containerPort": 8000,
-        "hostPort": 8000,
-        "protocol": "tcp"
-      }
-    ],
+    "name": "sshd",
+    "portMappings": [],
     "volumesFrom": []
   }
 ]
@@ -913,13 +907,7 @@ resource "aws_ecs_task_definition" "ex_fargate" {
     "memory": 512,
     "mountPoints": [],
     "name": "sshd",
-    "portMappings": [
-      {
-        "containerPort": 2000,
-        "hostPort": 2000,
-        "protocol": "tcp"
-      }
-    ],
+    "portMappings": [],
     "volumesFrom": []
   }
 ]

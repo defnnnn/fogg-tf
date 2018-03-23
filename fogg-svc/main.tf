@@ -746,7 +746,7 @@ DEFINITION
 }
 
 resource "aws_ecs_service" "ex_dynamic" {
-  name            = "${local.service_name}-ex_dynamic"
+  name            = "ex_dynamic"
   cluster         = "${aws_ecs_cluster.service.id}"
   task_definition = "${aws_ecs_task_definition.ex_dynamic.arn}"
   desired_count   = "1"
@@ -803,7 +803,7 @@ DEFINITION
 }
 
 resource "aws_ecs_service" "ex_host" {
-  name            = "${local.service_name}-ex_host"
+  name            = "ex_host"
   cluster         = "${aws_ecs_cluster.service.id}"
   task_definition = "${aws_ecs_task_definition.ex_host.arn}"
   desired_count   = "1"
@@ -860,7 +860,7 @@ DEFINITION
 }
 
 resource "aws_ecs_service" "ex_vpc" {
-  name            = "${local.service_name}-ex_vpc"
+  name            = "ex_vpc"
   cluster         = "${aws_ecs_cluster.service.id}"
   task_definition = "${aws_ecs_task_definition.ex_vpc.arn}"
   desired_count   = "1"
@@ -928,7 +928,7 @@ DEFINITION
 
 resource "aws_ecs_service" "ex_fargate" {
   count           = "${var.want_fargate}"
-  name            = "${local.service_name}-ex_fargate"
+  name            = "ex_fargate"
   cluster         = "${aws_ecs_cluster.service.id}"
   task_definition = "${aws_ecs_task_definition.ex_fargate.arn}"
   launch_type     = "FARGATE"

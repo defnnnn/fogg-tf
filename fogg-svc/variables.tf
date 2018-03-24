@@ -281,3 +281,11 @@ output "kms_arn" {
 output "kms_key_id" {
   value = "${element(coalescelist(aws_kms_key.service.*.key_id,list(data.terraform_remote_state.env.kms_key_id)),0)}"
 }
+
+output "ecs_id" {
+  value = "${aws_ecs_cluster.service.id}"
+}
+
+output "ecs_service_name" {
+  value = "${local.service_name}"
+}

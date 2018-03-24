@@ -693,9 +693,10 @@ resource "aws_cloudfront_distribution" "website" {
 }
 
 data "aws_acm_certificate" "us_east_1" {
-  provider = "aws.us_east_1"
-  domain   = "*.${var.domain_name}"
-  statuses = ["ISSUED"]
+  provider    = "aws.us_east_1"
+  domain      = "*.${var.domain_name}"
+  statuses    = ["ISSUED"]
+  most_recent = true
 }
 
 resource "aws_codecommit_repository" "org" {

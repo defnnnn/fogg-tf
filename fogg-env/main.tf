@@ -542,25 +542,27 @@ data "aws_route53_zone" "public" {
   private_zone = false
 }
 
-data "aws_acm_certificate" "env" {
-  domain   = "*.${data.terraform_remote_state.org.domain_name}"
-  statuses = ["ISSUED"]
-}
-
 data "aws_acm_certificate" "us_east_1" {
   provider = "aws.us_east_1"
   domain   = "*.${data.terraform_remote_state.org.domain_name}"
   statuses = ["ISSUED"]
 }
 
-data "external" "acm_cert" {
-  program = ["./module/imma-tf/bin/lookup-acm-cert", "${var.region}", "${data.aws_acm_certificate.env.arn}"]
+resource "aws_acm_certificate" "env" {
+  domain_name               = "*.${data.terraform_remote_state.org.domain_name}"
+  subject_alternative_names = ["${data.terraform_remote_state.org.domain_name}"]
+  validation_method         = "DNS"
 }
 
 resource "aws_route53_record" "acm_validation" {
+  name    = "${aws_acm_certificate.env.domain_validation_options.0.resource_record_name}"
+  type    = "${aws_acm_certificate.env.domain_validation_options.0.resource_record_type}"
   zone_id = "${data.aws_route53_zone.public.zone_id}"
-  name    = "${lookup(data.external.acm_cert.result,"validation_name")}"
-  type    = "CNAME"
-  ttl     = "60"
-  records = ["${lookup(data.external.acm_cert.result,"validation_value")}"]
+  records = ["${aws_acm_certificate.env.domain_validation_options.0.resource_record_value}"]
+  ttl     = 60
+}
+
+resource "aws_acm_certificate_validation" "env" {
+  certificate_arn         = "${aws_acm_certificate.env.arn}"
+  validation_record_fqdns = ["${aws_route53_record.acm_validation.fqdn}"]
 }

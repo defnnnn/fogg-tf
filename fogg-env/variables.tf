@@ -179,7 +179,7 @@ output "kms_key_id" {
 }
 
 locals {
-  env_cert = "${data.aws_acm_certificate.env.arn}"
+  env_cert = "${aws_acm_certificate.env.arn}"
 }
 
 output "env_region" {

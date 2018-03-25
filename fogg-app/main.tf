@@ -38,22 +38,6 @@ resource "aws_security_group" "app" {
   }
 }
 
-resource "aws_kms_key" "app" {
-  description         = "Application ${var.app_name}"
-  enable_key_rotation = true
-
-  tags {
-    "ManagedBy" = "terraform"
-    "Env"       = "${data.terraform_remote_state.env.env_name}"
-    "Name"      = "${data.terraform_remote_state.env.env_name}-${var.app_name}"
-  }
-}
-
-resource "aws_kms_alias" "app" {
-  name          = "alias/${data.terraform_remote_state.env.env_name}-${var.app_name}"
-  target_key_id = "${aws_kms_key.app.id}"
-}
-
 resource "aws_codecommit_repository" "app" {
   repository_name = "${data.terraform_remote_state.env.env_name}-${var.app_name}"
   description     = "Repo for ${data.terraform_remote_state.env.env_name}-${var.app_name} app"

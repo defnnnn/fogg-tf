@@ -468,7 +468,7 @@ resource "aws_s3_bucket" "svc" {
 
 resource "aws_kms_key" "env" {
   description         = "Environment ${var.env_name}"
-  enable_key_rotation = true
+  enable_key_rotation = false
 
   tags {
     "ManagedBy" = "terraform"

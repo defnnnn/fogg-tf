@@ -332,6 +332,7 @@ resource "aws_config_delivery_channel" "config" {
   name           = "config"
   s3_bucket_name = "${aws_s3_bucket.config.bucket}"
   sns_topic_arn  = "${aws_sns_topic.config.arn}"
+  count          = "${var.want_config}"
 }
 
 resource "aws_config_configuration_recorder" "config" {
@@ -342,12 +343,15 @@ resource "aws_config_configuration_recorder" "config" {
     all_supported                 = true
     include_global_resource_types = true
   }
+
+  count = "${var.want_config}"
 }
 
 resource "aws_config_configuration_recorder_status" "config" {
   name       = "${aws_config_configuration_recorder.config.name}"
   is_enabled = true
   depends_on = ["aws_config_delivery_channel.config"]
+  count      = "${var.want_config}"
 }
 
 data "aws_billing_service_account" "global" {}

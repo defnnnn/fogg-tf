@@ -1017,7 +1017,7 @@ resource "aws_route53_record" "db_ro" {
 
 resource "aws_kms_key" "service" {
   description         = "Service ${var.service_name}"
-  enable_key_rotation = true
+  enable_key_rotation = false
 
   tags {
     "Name"      = "${local.service_name}"
@@ -1032,7 +1032,7 @@ resource "aws_kms_key" "service" {
 
 resource "aws_kms_alias" "service" {
   name          = "alias/${local.service_name}"
-  target_key_id = "${var.want_kms ? join(" ",aws_kms_key.service.*.key_id) : data.terraform_remote_state.env.kms_key_id}"
+  target_key_id = "${element(coalescelist(aws_kms_key.service.*.id,list(lookup(data.terraform_remote_state.org.kms_key_id,var.region))),0)}"
 }
 
 resource "aws_codecommit_repository" "service" {

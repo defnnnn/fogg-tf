@@ -10,6 +10,10 @@ variable "want_macie" {
   default = 1
 }
 
+variable "want_config" {
+  default = 0
+}
+
 variable "cdn_secret" {
   default = "not-a-secret"
 }

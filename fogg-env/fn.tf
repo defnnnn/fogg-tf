@@ -133,6 +133,10 @@ resource "aws_lambda_function" "env" {
   runtime          = "go1.x"
   source_code_hash = "${base64sha256(file("${local.deployment_file}"))}"
   publish          = true
+
+  lifecycle {
+    ignore_changes = ["source_code_hash", "filename"]
+  }
 }
 
 module "fn_hello" {

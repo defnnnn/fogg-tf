@@ -2,6 +2,8 @@ variable "org_bucket" {}
 variable "org_key" {}
 variable "org_region" {}
 
+variable "reg_key" {}
+
 provider "aws" {
   alias  = "us_west_2"
   region = "us-west-2"
@@ -27,6 +29,17 @@ data "terraform_remote_state" "org" {
   config {
     bucket         = "${var.org_bucket}"
     key            = "${var.org_key}"
+    region         = "${var.org_region}"
+    dynamodb_table = "terraform_state_lock"
+  }
+}
+
+data "terraform_remote_state" "reg" {
+  backend = "s3"
+
+  config {
+    bucket         = "${var.org_bucket}"
+    key            = "${var.reg_key}"
     region         = "${var.org_region}"
     dynamodb_table = "terraform_state_lock"
   }
@@ -486,7 +499,7 @@ resource "aws_kms_key" "env" {
 
 resource "aws_kms_alias" "env" {
   name          = "alias/${var.env_name}"
-  target_key_id = "${element(coalescelist(aws_kms_key.env.*.id,list(lookup(data.terraform_remote_state.org.kms_key_id,var.region))),0)}"
+  target_key_id = "${element(coalescelist(aws_kms_key.env.*.id,list(data.terraform_remote_state.reg.kms_key_id)),0)}"
 }
 
 data "aws_vpc_endpoint_service" "s3" {

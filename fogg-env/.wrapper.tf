@@ -10,6 +10,8 @@ module "env" {
   org_bucket = "${var.remote_bucket}"
   org_key    = "env:/${element(split("_",var.remote_path),0)}/${local.org_key}"
   org_region = "${var.remote_region}"
+
+  reg_key = "${local.reg_key}"
 }
 
 data "terraform_remote_state" "org" {

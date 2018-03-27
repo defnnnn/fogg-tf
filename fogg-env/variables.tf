@@ -171,11 +171,11 @@ output "egw_gateway" {
 }
 
 output "kms_arn" {
-  value = "${element(coalescelist(aws_kms_key.env.*.arn,list(lookup(data.terraform_remote_state.org.kms_arn,var.region))),0)}"
+  value = "${element(coalescelist(aws_kms_key.env.*.arn,list(data.terraform_remote_state.reg.kms_arn)),0)}"
 }
 
 output "kms_key_id" {
-  value = "${element(coalescelist(aws_kms_key.env.*.key_id,list(lookup(data.terraform_remote_state.org.kms_key_id,var.region))),0)}"
+  value = "${element(coalescelist(aws_kms_key.env.*.key_id,list(data.terraform_remote_state.reg.kms_key_id)),0)}"
 }
 
 locals {

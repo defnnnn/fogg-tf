@@ -26,6 +26,7 @@ module "kms" {
   source = "./module/fogg-tf/fogg-kms"
 
   account_name = "${var.account_name}"
+  region       = "${var.region}"
   mcount       = 1
 }
 

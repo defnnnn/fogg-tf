@@ -1,4 +1,5 @@
 variable "account_name" {}
+variable "region" {}
 
 variable "mcount" {
   default = 1

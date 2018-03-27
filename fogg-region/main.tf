@@ -63,12 +63,12 @@ data "aws_ami" "region" {
   owners = ["amazon"]
 }
 
-module "ami" {
-  source = "./module/fogg-tf/fogg-ami-copy"
-
-  source_ami_region = "us-east-1"
-  source_ami_id     = "${data.aws_ami.region.image_id}"
-}
+#module "ami" {
+#  source = "./module/fogg-tf/fogg-ami-copy"
+#
+#  source_ami_region = "us-east-1"
+#  source_ami_id     = "${data.aws_ami.region.image_id}"
+#}
 
 resource "aws_acm_certificate" "env" {
   domain_name               = "*.${data.terraform_remote_state.org.domain_name}"

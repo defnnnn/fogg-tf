@@ -2,6 +2,11 @@ variable "org_bucket" {}
 variable "org_key" {}
 variable "org_region" {}
 
+provider "aws" {
+  alias  = "us_east_1"
+  region = "us-east-1"
+}
+
 data "terraform_remote_state" "org" {
   backend = "s3"
 
@@ -47,6 +52,7 @@ module "kms" {
 #}
 
 data "aws_ami" "region" {
+  provider    = "aws.us_east_1"
   most_recent = true
 
   filter {

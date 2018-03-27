@@ -8,9 +8,10 @@ locals {
 module "instance" {
   source = "./module/fogg-tf/fogg-instance"
 
-  org_bucket = "${var.remote_bucket}"
-  org_key    = "env:/${element(split("_",var.remote_path),0)}/${local.org_key}"
-  org_region = "${var.remote_region}"
+  org_bucket    = "${var.remote_bucket}"
+  org_key       = "${local.org_key}"
+  org_region    = "${var.remote_region}"
+  org_workspace = "${element(split("_",var.remote_path),0)}"
 
   env_key     = "${local.env_key}"
   app_key     = "${local.app_key}"
@@ -18,44 +19,48 @@ module "instance" {
 }
 
 data "terraform_remote_state" "org" {
-  backend = "s3"
+  backend   = "s3"
+  workspace = "${element(split("_",var.remote_path),0)}"
 
   config {
     bucket         = "${var.remote_bucket}"
-    key            = "env:/${element(split("_",var.remote_path),0)}/${local.org_key}"
+    key            = "${local.org_key}"
     region         = "${var.remote_region}"
     dynamodb_table = "terraform_state_lock"
   }
 }
 
 data "terraform_remote_state" "env" {
-  backend = "s3"
+  backend   = "s3"
+  workspace = "${terraform.workspace}"
 
   config {
     bucket         = "${var.remote_bucket}"
-    key            = "env:/${terraform.workspace}/${local.env_key}"
+    key            = "${local.env_key}"
     region         = "${var.remote_region}"
     dynamodb_table = "terraform_state_lock"
   }
 }
 
 data "terraform_remote_state" "app" {
-  backend = "s3"
+  backend   = "s3"
+  workspace = "${terraform.workspace}"
 
   config {
     bucket         = "${var.remote_bucket}"
-    key            = "env:/${terraform.workspace}/${local.app_key}"
+    key            = "${local.app_key}"
     region         = "${var.remote_region}"
     dynamodb_table = "terraform_state_lock"
   }
 }
 
 data "terraform_remote_state" "service" {
-  backend = "s3"
+  backend   = "s3"
+  workspace = "${terraform.workspace}"
 
   config {
     bucket         = "${var.remote_bucket}"
-    key            = "env:/${terraform.workspace}/${local.service_key}"
+    key            = "${local.service_key}"
     region         = "${var.remote_region}"
     dynamodb_table = "terraform_state_lock"
   }

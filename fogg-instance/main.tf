@@ -1,4 +1,5 @@
 variable "org_bucket" {}
+variable "org_instance" {}
 variable "org_key" {}
 variable "org_region" {}
 
@@ -7,7 +8,8 @@ variable "app_key" {}
 variable "service_key" {}
 
 data "terraform_remote_state" "org" {
-  backend = "s3"
+  backend   = "s3"
+  workspace = "${var.org_key}"
 
   config {
     bucket         = "${var.org_bucket}"
@@ -18,7 +20,8 @@ data "terraform_remote_state" "org" {
 }
 
 data "terraform_remote_state" "env" {
-  backend = "s3"
+  backend   = "s3"
+  workspace = "${terraform.workspace}"
 
   config {
     bucket         = "${var.org_bucket}"
@@ -29,7 +32,8 @@ data "terraform_remote_state" "env" {
 }
 
 data "terraform_remote_state" "app" {
-  backend = "s3"
+  backend   = "s3"
+  workspace = "${terraform.workspace}"
 
   config {
     bucket         = "${var.org_bucket}"
@@ -40,7 +44,8 @@ data "terraform_remote_state" "app" {
 }
 
 data "terraform_remote_state" "service" {
-  backend = "s3"
+  backend   = "s3"
+  workspace = "${terraform.workspace}"
 
   config {
     bucket         = "${var.org_bucket}"

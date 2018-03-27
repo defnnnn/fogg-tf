@@ -1,11 +1,13 @@
 variable "org_region" {}
 variable "org_bucket" {}
 
+variable "org_workspace" {}
 variable "org_key" {}
 variable "env_key" {}
 
 data "terraform_remote_state" "global" {
-  backend = "s3"
+  backend   = "s3"
+  workspace = "${var.org_workspace}"
 
   config {
     bucket         = "${var.org_bucket}"
@@ -16,7 +18,8 @@ data "terraform_remote_state" "global" {
 }
 
 data "terraform_remote_state" "env" {
-  backend = "s3"
+  backend   = "s3"
+  workspace = "${terraform.workspace}"
 
   config {
     bucket         = "${var.org_bucket}"

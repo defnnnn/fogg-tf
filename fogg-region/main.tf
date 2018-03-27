@@ -30,27 +30,38 @@ module "kms" {
   mcount       = 1
 }
 
-data "aws_ami" "block" {
+#data "aws_ami" "block" {
+#  most_recent = true
+#
+#  filter {
+#    name   = "state"
+#    values = ["available"]
+#  }
+#
+#  filter {
+#    name   = "tag:Block"
+#    values = ["block-ubuntu-*"]
+#  }
+#
+#  owners = ["self"]
+#}
+
+data "aws_ami" "region" {
   most_recent = true
 
   filter {
-    name   = "state"
-    values = ["available"]
+    name   = "name"
+    values = ["amzn-ami-2017.09.*-amazon-ecs-optimized"]
   }
 
-  filter {
-    name   = "tag:Block"
-    values = ["block-ubuntu-*"]
-  }
-
-  owners = ["self"]
+  owners = ["amazon"]
 }
 
 module "ami" {
   source = "./module/fogg-tf/fogg-ami-copy"
 
   source_ami_region = "us-east-1"
-  source_ami_id     = "${data.aws_ami.block.image_id}"
+  source_ami_id     = "${data.aws_ami.region.image_id}"
 }
 
 resource "aws_acm_certificate" "env" {

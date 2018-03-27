@@ -133,3 +133,7 @@ output "do_bastion_ips" {
 output "do_bastion_cidrs" {
   value = ["${formatlist("%s/32",digitalocean_droplet.service.*.ipv4_address)}"]
 }
+
+output "api_gateway_arn" {
+  value = "${aws_iam_role.api_gateway.arn}"
+}

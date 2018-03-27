@@ -3,6 +3,7 @@ variable "org_workspace" {}
 variable "org_key" {}
 variable "org_region" {}
 
+variable "reg_key" {}
 variable "env_key" {}
 variable "app_key" {}
 
@@ -25,6 +26,18 @@ data "terraform_remote_state" "org" {
   config {
     bucket         = "${var.org_bucket}"
     key            = "${var.org_key}"
+    region         = "${var.org_region}"
+    dynamodb_table = "terraform_state_lock"
+  }
+}
+
+data "terraform_remote_state" "reg" {
+  backend   = "s3"
+  workspace = "${var.region}"
+
+  config {
+    bucket         = "${var.org_bucket}"
+    key            = "${var.reg_key}"
     region         = "${var.org_region}"
     dynamodb_table = "terraform_state_lock"
   }

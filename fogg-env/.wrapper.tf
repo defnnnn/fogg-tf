@@ -1,5 +1,6 @@
 locals {
   org_key = "${join("_",slice(split("_",var.remote_path),0,1))}/terraform.tfstate"
+  reg_key = "${join("_",slice(split("_",var.remote_path),0,1))}_region/terraform.tfstate"
   env_key = "${join("_",slice(split("_",var.remote_path),0,2))}/terraform.tfstate"
 }
 
@@ -17,6 +18,17 @@ data "terraform_remote_state" "org" {
   config {
     bucket         = "${var.remote_bucket}"
     key            = "env:/${element(split("_",var.remote_path),0)}/${local.org_key}"
+    region         = "${var.remote_region}"
+    dynamodb_table = "terraform_state_lock"
+  }
+}
+
+data "terraform_remote_state" "reg" {
+  backend = "s3"
+
+  config {
+    bucket         = "${var.remote_bucket}"
+    key            = "env:/${var.region}/${local.reg_key}"
     region         = "${var.remote_region}"
     dynamodb_table = "terraform_state_lock"
   }

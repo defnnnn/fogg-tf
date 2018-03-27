@@ -83,6 +83,15 @@ data "aws_route53_zone" "public" {
 resource "aws_eip" "this" {
   vpc   = true
   count = "${var.want_eip}"
+
+  tags {
+    ManagedBy = "terraform"
+    Env       = "${data.terraform_remote_state.env.env_name}"
+    App       = "${data.terraform_remote_state.app.app_name}"
+    Service   = "${data.terraform_remote_state.service.service_name}"
+    Name      = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${data.terraform_remote_state.service.service_name}"
+    Attached  = "${data.aws_instance.this.id}"
+  }
 }
 
 resource "aws_route53_record" "public" {
@@ -120,6 +129,7 @@ resource "aws_ebs_volume" "this" {
     App       = "${data.terraform_remote_state.app.app_name}"
     Service   = "${data.terraform_remote_state.service.service_name}"
     Name      = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${data.terraform_remote_state.service.service_name}"
+    Attached  = "${data.aws_instance.this.id}"
   }
 }
 

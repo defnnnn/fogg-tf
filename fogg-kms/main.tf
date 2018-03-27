@@ -13,6 +13,20 @@ resource "aws_kms_key" "region" {
   count = "${var.mcount}"
 }
 
+resource "aws_kms_alias" "region_name" {
+  name          = "alias/${var.region}"
+  target_key_id = "${aws_kms_key.region.key_id}"
+
+  count = "${var.mcount}"
+}
+
+resource "aws_kms_alias" "region" {
+  name          = "alias/region"
+  target_key_id = "${aws_kms_key.region.key_id}"
+
+  count = "${var.mcount}"
+}
+
 resource "aws_kms_alias" "ssm_ps" {
   name          = "alias/parameter_store_key"
   target_key_id = "${aws_kms_key.region.key_id}"

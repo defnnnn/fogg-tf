@@ -1,5 +1,7 @@
 variable "instance_name" {}
 
+variable "region" {}
+
 variable "ebs_count" {
   default = "0"
 }

@@ -1,6 +1,5 @@
 variable "org_bucket" {}
 variable "org_workspace" {}
-variable "org_instance" {}
 variable "org_key" {}
 variable "org_region" {}
 

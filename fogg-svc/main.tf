@@ -1036,7 +1036,7 @@ resource "aws_kms_key" "service" {
 
 resource "aws_kms_alias" "service" {
   name          = "alias/${local.service_name}"
-  target_key_id = "${element(coalescelist(aws_kms_key.service.*.id,list(lookup(data.terraform_remote_state.org.kms_key_id,var.region))),0)}"
+  target_key_id = "${element(coalescelist(aws_kms_key.service.*.id,list(data.terraform_remote_state.reg.kms_key_id)),0)}"
 }
 
 resource "aws_codecommit_repository" "service" {

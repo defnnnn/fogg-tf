@@ -1,6 +1,6 @@
 locals {
   org_key = "${join("_",slice(split("_",var.remote_path),0,1))}/terraform.tfstate"
-  reg_key = "${join("_",slice(split("_",var.remote_path),0,1))}_region/terraform.tfstate"
+  reg_key = "${join("_",slice(split("_",var.remote_path),0,1))}/terraform.tfstate"
   env_key = "${join("_",slice(split("_",var.remote_path),0,2))}/terraform.tfstate"
 }
 

@@ -1,3 +1,5 @@
+variable "account_name" {}
+
 variable "meh" {
   default = "1"
 }

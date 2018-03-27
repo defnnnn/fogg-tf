@@ -1,5 +1,5 @@
 resource "aws_route53_zone" "public" {
-  name = "${var.domain_name}"
+  name = "${var.domain_name}."
 
   tags {
     "Name"      = "${var.domain_name}"

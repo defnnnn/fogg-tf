@@ -1,19 +1,33 @@
 variable "org_bucket" {}
+variable "org_workspace" {}
 variable "org_instance" {}
 variable "org_key" {}
 variable "org_region" {}
 
+variable "reg_key" {}
 variable "env_key" {}
 variable "app_key" {}
 variable "service_key" {}
 
 data "terraform_remote_state" "org" {
   backend   = "s3"
-  workspace = "${var.org_key}"
+  workspace = "${var.org_workspace}"
 
   config {
     bucket         = "${var.org_bucket}"
     key            = "${var.org_key}"
+    region         = "${var.org_region}"
+    dynamodb_table = "terraform_state_lock"
+  }
+}
+
+data "terraform_remote_state" "reg" {
+  backend   = "s3"
+  workspace = "${var.region}"
+
+  config {
+    bucket         = "${var.org_bucket}"
+    key            = "${var.reg_key}"
     region         = "${var.org_region}"
     dynamodb_table = "terraform_state_lock"
   }

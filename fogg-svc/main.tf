@@ -779,7 +779,7 @@ resource "aws_ecs_service" "ex_dynamic" {
   task_definition                    = "${aws_ecs_task_definition.ex_dynamic.arn}"
   desired_count                      = "1"
   deployment_maximum_percent         = "100"
-  deployment_maximum_healthy_percent = "0"
+  deployment_minimum_healthy_percent = "0"
 
   placement_strategy {
     type  = "spread"
@@ -828,7 +828,7 @@ resource "aws_ecs_service" "ex_vpc" {
   task_definition                    = "${aws_ecs_task_definition.ex_vpc.arn}"
   desired_count                      = "1"
   deployment_maximum_percent         = "100"
-  deployment_maximum_healthy_percent = "0"
+  deployment_minimum_healthy_percent = "0"
 
   network_configuration {
     subnets         = ["${compact(concat(formatlist(var.public_lb ? "%[1]s" : "%[2]s",data.terraform_remote_state.env.public_subnets,data.terraform_remote_state.env.private_subnets)))}"]

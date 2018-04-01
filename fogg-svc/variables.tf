@@ -120,6 +120,10 @@ variable "user_data" {
   default = "./module/fogg-tf/init/user-data-ecs.template"
 }
 
+variable "ecs_image" {
+  default = "imma/ubuntu:minima"
+}
+
 variable "ipv6_service_bits" {
   default = 8
 }

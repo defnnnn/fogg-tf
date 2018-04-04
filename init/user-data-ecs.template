@@ -37,7 +37,13 @@ echo net.ipv4.conf.all.forwarding=1 >> /etc/sysctl.conf
 
 yum update
 yum upgrade -y
-yum install -y ruby wget nfs-utils git jq vim amazon-efs-utils
+yum install -y ruby wget curl nc jq git vim nfs-utils amazon-efs-utils
+
+DOCKER_COMPOSE_VERSION='1.19.0'
+curl "https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)"
+mkdir -p /usr/local/bin
+mv "docker-compose-$(uname -s)-$(uname -m)" /usr/local/bin/docker-compose
+chmod +x /usr/local/bin/docker-compose
 
 if ! id ubuntu 2>/dev/null; then
   groupadd -g 1000 ubuntu

@@ -40,7 +40,7 @@ yum upgrade -y
 yum install -y ruby wget curl nc jq git vim nfs-utils amazon-efs-utils
 
 DOCKER_COMPOSE_VERSION='1.19.0'
-curl "https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)"
+curl "https://github.com/docker/compose/releases/download/$${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)"
 mkdir -p /usr/local/bin
 mv "docker-compose-$(uname -s)-$(uname -m)" /usr/local/bin/docker-compose
 chmod +x /usr/local/bin/docker-compose

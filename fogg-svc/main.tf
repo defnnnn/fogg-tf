@@ -777,7 +777,7 @@ resource "aws_ecs_service" "ex_dynamic" {
   name                               = "${local.service_name}-ex_dynamic"
   cluster                            = "${aws_ecs_cluster.service.id}"
   task_definition                    = "${aws_ecs_task_definition.ex_dynamic.arn}"
-  desired_count                      = "1"
+  desired_count                      = "0"
   deployment_maximum_percent         = "100"
   deployment_minimum_healthy_percent = "0"
 
@@ -826,7 +826,7 @@ resource "aws_ecs_service" "ex_vpc" {
   name                               = "${local.service_name}-ex_vpc"
   cluster                            = "${aws_ecs_cluster.service.id}"
   task_definition                    = "${aws_ecs_task_definition.ex_vpc.arn}"
-  desired_count                      = "1"
+  desired_count                      = "0"
   deployment_maximum_percent         = "100"
   deployment_minimum_healthy_percent = "0"
 

@@ -13,9 +13,34 @@ data "aws_iam_policy_document" "fn" {
   }
 }
 
+data "aws_iam_policy_document" "executor" {
+  statement {
+    actions = [
+      "logs:CreateLogGroup",
+      "logs:CreateLogStream",
+      "logs:PutLogEvents",
+    ]
+
+    resources = [
+      "arn:aws:logs:*:*:*",
+    ]
+  }
+}
+
 resource "aws_iam_role" "fn" {
   name               = "${var.env_name}-executor"
   assume_role_policy = "${data.aws_iam_policy_document.fn.json}"
+}
+
+resource "aws_iam_policy" "executor" {
+  name        = "${local.service_name}-executor"
+  description = "${local.service_name}-executor"
+  policy      = "${data.aws_iam_policy_document.executor.json}"
+}
+
+resource "aws_iam_role_policy_attachment" "executor" {
+  role       = "${aws_iam_role.fn.name}"
+  policy_arn = "${aws_iam_policy.executor.arn}"
 }
 
 resource "aws_api_gateway_rest_api" "env" {

@@ -17,7 +17,7 @@ resource "aws_api_gateway_method" "fn" {
   rest_api_id   = "${var.rest_api_id}"
   resource_id   = "${aws_api_gateway_resource.fn.id}"
   http_method   = "${var.http_method}"
-  authorization = ""AWS_IAM
+  authorization = "AWS_IAM"
 }
 
 resource "aws_api_gateway_integration" "fn" {

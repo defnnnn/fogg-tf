@@ -30,6 +30,10 @@ data "aws_iam_policy_document" "executor" {
 resource "aws_iam_role" "fn" {
   name               = "${var.env_name}-executor"
   assume_role_policy = "${data.aws_iam_policy_document.fn.json}"
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_iam_policy" "executor" {

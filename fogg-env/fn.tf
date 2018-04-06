@@ -37,8 +37,8 @@ resource "aws_iam_role" "fn" {
 }
 
 resource "aws_iam_policy" "executor" {
-  name        = "${aws_iam_role.fn.name}-executor"
-  description = "${aws_iam_role.fn.name}-executor"
+  name        = "${aws_iam_role.fn.name}"
+  description = "${aws_iam_role.fn.name}"
   policy      = "${data.aws_iam_policy_document.executor.json}"
 }
 

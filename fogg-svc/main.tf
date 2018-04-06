@@ -1374,7 +1374,7 @@ resource "aws_api_gateway_method" "apig-vpc-link" {
   rest_api_id   = "${local.apig_rest_id}"
   resource_id   = "${local.apig_resource_id}"
   http_method   = "POST"
-  authorization = "NONE"
+  authorization = "AWS_IAM"
   count         = "${var.want_vpc_link*var.want_nlb}"
 }
 

@@ -14,7 +14,7 @@ data "aws_iam_policy_document" "fn" {
 }
 
 resource "aws_iam_role" "fn" {
-  name               = "${var.env_name}-fn"
+  name               = "${var.env_name}-executor"
   assume_role_policy = "${data.aws_iam_policy_document.fn.json}"
 }
 

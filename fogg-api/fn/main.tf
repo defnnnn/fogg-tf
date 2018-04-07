@@ -38,7 +38,7 @@ resource "aws_lambda_alias" "rc" {
 
 resource "aws_lambda_permission" "live" {
   depends_on    = ["aws_lambda_alias.live"]
-  statement_id  = "${var.unique_prefix}-${var.function_name}"
+  statement_id  = "${var.unique_prefix}-${var.function_name}-live"
   action        = "lambda:InvokeFunction"
   principal     = "apigateway.amazonaws.com"
   function_name = "${var.function_name}"
@@ -48,7 +48,7 @@ resource "aws_lambda_permission" "live" {
 
 resource "aws_lambda_permission" "rc" {
   depends_on    = ["aws_lambda_alias.rc"]
-  statement_id  = "${var.unique_prefix}-${var.function_name}"
+  statement_id  = "${var.unique_prefix}-${var.function_name}-rc"
   action        = "lambda:InvokeFunction"
   principal     = "apigateway.amazonaws.com"
   function_name = "${var.function_name}"

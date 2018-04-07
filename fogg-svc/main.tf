@@ -1370,14 +1370,6 @@ locals {
   apig_domain_name = "${data.terraform_remote_state.env.private_zone_name}"
 }
 
-resource "aws_api_gateway_method" "apig-vpc-link" {
-  rest_api_id   = "${local.apig_rest_id}"
-  resource_id   = "${local.apig_resource_id}"
-  http_method   = "POST"
-  authorization = "AWS_IAM"
-  count         = "${var.want_vpc_link*var.want_nlb}"
-}
-
 resource "aws_lb" "net" {
   name               = "${local.service_name}-${element(var.asg_name,count.index)}"
   load_balancer_type = "network"

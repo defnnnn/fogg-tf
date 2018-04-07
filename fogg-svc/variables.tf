@@ -112,10 +112,6 @@ variable "zerotier_network" {
   default = ""
 }
 
-variable "want_vpc_link" {
-  default = "0"
-}
-
 variable "user_data" {
   default = "./module/fogg-tf/init/user-data-ecs.template"
 }

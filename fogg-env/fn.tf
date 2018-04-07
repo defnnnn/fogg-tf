@@ -173,7 +173,7 @@ module "fn_hello" {
   function_name    = "${aws_lambda_function.env.function_name}"
   function_arn     = "${aws_lambda_function.env.arn}"
   function_version = "${aws_lambda_function.env.version}"
-  source_arn       = "arn:aws:execute-api:${var.region}:${data.aws_caller_identity.current.account_id}:${aws_api_gateway_rest_api.env.id}/*/*/*"
+  source_arn       = "arn:aws:execute-api:${var.region}:${data.aws_caller_identity.current.account_id}:${aws_api_gateway_rest_api.env.id}/*/*"
   unique_prefix    = "${aws_api_gateway_rest_api.env.id}-${aws_api_gateway_rest_api.env.root_resource_id}"
 }
 

@@ -42,7 +42,17 @@ resource "aws_lambda_permission" "live" {
   action        = "lambda:InvokeFunction"
   principal     = "apigateway.amazonaws.com"
   function_name = "${var.function_name}"
-  source_arn    = "${var.source_arn}"
+  source_arn    = "${var.source_arn}/"
+  qualifier     = "live"
+}
+
+resource "aws_lambda_permission" "live_proxy" {
+  depends_on    = ["aws_lambda_alias.live"]
+  statement_id  = "${var.unique_prefix}-${var.function_name}-live-proxy"
+  action        = "lambda:InvokeFunction"
+  principal     = "apigateway.amazonaws.com"
+  function_name = "${var.function_name}"
+  source_arn    = "${var.source_arn}/{proxy+}"
   qualifier     = "live"
 }
 
@@ -52,6 +62,16 @@ resource "aws_lambda_permission" "rc" {
   action        = "lambda:InvokeFunction"
   principal     = "apigateway.amazonaws.com"
   function_name = "${var.function_name}"
-  source_arn    = "${var.source_arn}"
+  source_arn    = "${var.source_arn}/"
+  qualifier     = "rc"
+}
+
+resource "aws_lambda_permission" "rc_proxy" {
+  depends_on    = ["aws_lambda_alias.rc"]
+  statement_id  = "${var.unique_prefix}-${var.function_name}-rc-proxy"
+  action        = "lambda:InvokeFunction"
+  principal     = "apigateway.amazonaws.com"
+  function_name = "${var.function_name}"
+  source_arn    = "${var.source_arn}/{proxy+}"
   qualifier     = "rc"
 }

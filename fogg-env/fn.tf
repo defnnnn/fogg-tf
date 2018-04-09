@@ -159,7 +159,7 @@ resource "aws_lambda_function" "env" {
   function_name    = "${var.env_name}"
   role             = "${aws_iam_role.fn.arn}"
   handler          = "app.handler"
-  runtime          = "nodejs6.10"
+  runtime          = "nodejs8.10"
   source_code_hash = "${base64sha256(file("${local.deployment_file}"))}"
   publish          = true
 

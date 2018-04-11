@@ -40,6 +40,10 @@ resource "aws_iam_policy" "executor" {
   name        = "${aws_iam_role.fn.name}"
   description = "${aws_iam_role.fn.name}"
   policy      = "${data.aws_iam_policy_document.executor.json}"
+
+  lifecycle {
+    ignore_changes = ["policy"]
+  }
 }
 
 resource "aws_iam_role_policy_attachment" "executor" {

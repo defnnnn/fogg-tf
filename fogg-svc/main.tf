@@ -1584,8 +1584,9 @@ resource "random_pet" "svc" {
   }
 }
 
-resource "aws_service_discovery_public_dns_namespace" "svc" {
+resource "aws_service_discovery_private_dns_namespace" "svc" {
   name  = "${local.service_name}.${data.terraform_remote_state.org.domain_name}"
+  vpc   = "${data.aws_vpc.current.id}"
   count = "${var.want_sd}"
 }
 
@@ -1593,8 +1594,12 @@ resource "aws_service_discovery_service" "svc" {
   name  = "${random_pet.svc.id}"
   count = "${var.want_sd}"
 
+  health_check_custom_config {
+    failure_threshold = "4"
+  }
+
   dns_config {
-    namespace_id = "${aws_service_discovery_public_dns_namespace.svc.id}"
+    namespace_id = "${aws_service_discovery_private_dns_namespace.svc.id}"
 
     dns_records {
       ttl  = 10
@@ -1625,13 +1630,13 @@ resource "aws_service_discovery_service" "svc" {
 resource "aws_route53_record" "sd" {
   count = "${var.want_sd}"
 
-  zone_id = "${data.terraform_remote_state.org.public_zone_id}"
+  zone_id = "${data.terraform_remote_state.org.private_zone_id}"
   name    = "${local.service_name}.${data.terraform_remote_state.org.domain_name}"
   type    = "AAAA"
 
   alias {
     name                   = "${aws_service_discovery_service.svc.name}.${local.service_name}.${data.terraform_remote_state.org.domain_name}"
-    zone_id                = "${aws_service_discovery_public_dns_namespace.svc.hosted_zone}"
+    zone_id                = "${aws_service_discovery_private_dns_namespace.svc.hosted_zone}"
     evaluate_target_health = false
   }
 }

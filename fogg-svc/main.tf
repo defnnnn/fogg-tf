@@ -1591,7 +1591,7 @@ resource "random_pet" "svc" {
 }
 
 resource "aws_service_discovery_private_dns_namespace" "svc" {
-  name  = "${local.service_name}.${data.terraform_remote_state.org.domain_name}"
+  name  = "sd-${local.service_name}.${data.terraform_remote_state.org.domain_name}"
   vpc   = "${data.aws_vpc.current.id}"
   count = "${var.want_sd}"
 }

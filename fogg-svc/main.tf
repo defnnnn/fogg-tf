@@ -1613,16 +1613,6 @@ resource "aws_service_discovery_service" "svc" {
     }
   }
 
-  provisioner "local-exec" {
-    command = "runmany 1 2 'aws servicediscovery register-instance --service-id ${self.id} --instance-id $$1 --attributes AWS_INSTANCE_IPV6=$$2,AWS_INSTANCE_PORT=${var.public_port}' ${join(" ",formatlist("%s %s",aws_instance.service.*.id,flatten(aws_instance.service.*.ipv6_addresses)))}"
-  }
-
-  provisioner "local-exec" {
-    command    = "aws servicediscovery list-instances --service-id ${self.id} | jq -r '.Instances[].Id' | runmany 'aws servicediscovery deregister-instance --service-id ${self.id} --instance-id $$1'; aws servicediscovery delete-service --id ${self.id}"
-    on_failure = "continue"
-    when       = "destroy"
-  }
-
   lifecycle {
     create_before_destroy = true
   }

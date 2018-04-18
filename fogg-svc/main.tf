@@ -1626,7 +1626,7 @@ resource "aws_route53_record" "sd" {
   type    = "A"
 
   alias {
-    name                   = "${aws_service_discovery_service.svc.name}.${local.service_name}.${data.terraform_remote_state.org.domain_name}"
+    name                   = "${aws_service_discovery_service.svc.name}.sd-${local.service_name}.${data.terraform_remote_state.org.domain_name}"
     zone_id                = "${aws_service_discovery_private_dns_namespace.svc.hosted_zone}"
     evaluate_target_health = false
   }

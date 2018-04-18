@@ -802,7 +802,7 @@ resource "aws_ecs_service" "ex_dynamic" {
 }
 
 resource "aws_ecs_task_definition" "ex_vpc" {
-  count        = "${want_sd}"
+  count        = "${var.want_sd}"
   family       = "${local.service_name}-ex_vpc"
   network_mode = "awsvpc"
 
@@ -824,7 +824,7 @@ DEFINITION
 }
 
 resource "aws_ecs_service" "ex_vpc" {
-  count                              = "${want_sd}"
+  count                              = "${var.want_sd}"
   name                               = "${local.service_name}-ex_vpc"
   cluster                            = "${aws_ecs_cluster.service.id}"
   task_definition                    = "${aws_ecs_task_definition.ex_vpc.arn}"

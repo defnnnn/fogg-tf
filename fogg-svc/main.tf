@@ -1603,12 +1603,7 @@ resource "aws_service_discovery_service" "svc" {
 
     dns_records {
       ttl  = 10
-      type = "AAAA"
-    }
-
-    dns_records {
-      ttl  = 10
-      type = "SRV"
+      type = "A"
     }
   }
 
@@ -1630,9 +1625,9 @@ resource "aws_service_discovery_service" "svc" {
 resource "aws_route53_record" "sd" {
   count = "${var.want_sd}"
 
-  zone_id = "${data.terraform_remote_state.org.private_zone_id}"
+  zone_id = "${data.terraform_remote_state.env.private_zone_id}"
   name    = "${local.service_name}.${data.terraform_remote_state.org.domain_name}"
-  type    = "AAAA"
+  type    = "A"
 
   alias {
     name                   = "${aws_service_discovery_service.svc.name}.${local.service_name}.${data.terraform_remote_state.org.domain_name}"

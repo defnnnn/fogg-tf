@@ -1395,6 +1395,12 @@ resource "aws_lb" "net" {
   count = "${var.want_nlb*var.asg_count}"
 }
 
+resource "aws_api_gateway_vpc_link" "net" {
+  name        = "${local.service_name}-${element(var.asg_name,count.index)}"
+  target_arns = ["${aws_lb.net.arn}"]
+  count       = "${var.want_nlb*var.asg_count}"
+}
+
 resource "aws_lb" "app" {
   name               = "${local.service_name}-${element(var.asg_name,count.index)}"
   load_balancer_type = "application"

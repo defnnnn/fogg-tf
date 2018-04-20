@@ -106,6 +106,18 @@ output "private_zone_name" {
   value = "${local.private_zone_name}"
 }
 
+output "private_sd_zone_name" {
+  value = "${aws_service_discovery_private_dns_namespace.env.name}"
+}
+
+output "private_sd_zone_id" {
+  value = "${aws_service_discovery_private_dns_namespace.env.hosted_zone}"
+}
+
+output "private_sd_id" {
+  value = "${aws_service_discovery_private_dns_namespace.env.id}"
+}
+
 output "sg_efs" {
   value = "${module.efs.efs_sg}"
 }

@@ -1615,12 +1615,6 @@ resource "random_pet" "svc" {
   }
 }
 
-resource "aws_service_discovery_private_dns_namespace" "svc" {
-  name  = "sd-${local.service_name}.${data.terraform_remote_state.org.domain_name}"
-  vpc   = "${data.aws_vpc.current.id}"
-  count = "${var.want_sd}"
-}
-
 resource "aws_service_discovery_service" "svc" {
   name  = "${random_pet.svc.id}"
   count = "${var.want_sd}"
@@ -1630,7 +1624,7 @@ resource "aws_service_discovery_service" "svc" {
   }
 
   dns_config {
-    namespace_id = "${aws_service_discovery_private_dns_namespace.svc.id}"
+    namespace_id = "${data.terraform_remote_state.env.private_sd_id}"
 
     dns_records {
       ttl  = 10
@@ -1651,8 +1645,8 @@ resource "aws_route53_record" "sd" {
   type    = "A"
 
   alias {
-    name                   = "${aws_service_discovery_service.svc.name}.sd-${local.service_name}.${data.terraform_remote_state.org.domain_name}"
-    zone_id                = "${aws_service_discovery_private_dns_namespace.svc.hosted_zone}"
+    name                   = "${aws_service_discovery_service.svc.name}.${data.terraform_remote_state.env.private_sd_zone_name}"
+    zone_id                = "${data.terraform_remote_state.env.private_sd_zone_id}"
     evaluate_target_health = false
   }
 }

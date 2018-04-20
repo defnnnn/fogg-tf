@@ -105,7 +105,7 @@ variable "want_kms" {
 }
 
 variable "want_sd" {
-  default = "0"
+  default = "1"
 }
 
 variable "zerotier_network" {

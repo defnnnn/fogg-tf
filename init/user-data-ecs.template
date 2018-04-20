@@ -142,11 +142,6 @@ EOF
 
   nm_region="$(curl --silent http://169.254.169.254/latest/dynamic/instance-identity/document | jq -r .region)"
 
-  wget "https://aws-codedeploy-$${nm_region}.s3.amazonaws.com/latest/install"
-  chmod 755 install
-  ./install auto
-  rm -f install
-
   yum install -y https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/linux_amd64/amazon-ssm-agent.rpm
 
   yum install -y awslogs

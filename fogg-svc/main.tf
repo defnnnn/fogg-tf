@@ -824,8 +824,17 @@ resource "aws_ecs_task_definition" "ex_vpc" {
     "essential": true,
     "image": "${var.ecs_image}",
     "memory": 200,
-    "mountPoints": [],
-    "name": "sshd",
+    "mountPoints": [
+      {
+        "containerPath": "/data",
+        "sourceVolume": "data"
+      },
+      {
+        "containerPath": "/var/run/docker.sock",
+        "sourceVolume": "docker"
+      }
+    ],
+   "name": "sshd",
     "portMappings": [],
     "volumesFrom": []
   }

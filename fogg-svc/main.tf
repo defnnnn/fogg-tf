@@ -806,6 +806,16 @@ resource "aws_ecs_task_definition" "ex_vpc" {
   family       = "${local.service_name}-ex_vpc"
   network_mode = "awsvpc"
 
+  volume {
+    name      = "data"
+    host_path = "/data"
+  }
+
+  volume {
+    name      = "docker"
+    host_path = "/var/run/docker.sock"
+  }
+
   container_definitions = <<DEFINITION
 [
   {

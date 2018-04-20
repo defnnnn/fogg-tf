@@ -1628,7 +1628,7 @@ resource "aws_route53_record" "sd" {
   count = "${var.want_sd}"
 
   zone_id = "${data.terraform_remote_state.env.private_zone_id}"
-  name    = "${local.service_name}.${data.terraform_remote_state.org.domain_name}"
+  name    = "${data.terraform_remote_state.app.app_name}-${var.service_name}"
   type    = "A"
 
   alias {

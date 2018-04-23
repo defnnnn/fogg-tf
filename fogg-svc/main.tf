@@ -726,84 +726,9 @@ resource "aws_ecs_cluster" "service" {
   name = "${local.service_name}"
 }
 
-resource "aws_ecs_task_definition" "ex_dynamic" {
-  family       = "${local.service_name}-ex_dynamic"
-  network_mode = "bridge"
-
-  volume {
-    name      = "data"
-    host_path = "/data"
-  }
-
-  volume {
-    name      = "docker"
-    host_path = "/var/run/docker.sock"
-  }
-
-  volume {
-    name      = "tmp_work"
-    host_path = "/tmp/work"
-  }
-
-  container_definitions = <<DEFINITION
-[
-  {
-    "cpu": 256,
-    "essential": true,
-    "image": "${var.ecs_image}",
-    "memory": 200,
-    "name": "sshd",
-    "mountPoints": [
-      {
-        "containerPath": "/data",
-        "sourceVolume": "data"
-      },
-      {
-        "containerPath": "/var/run/docker.sock",
-        "sourceVolume": "docker"
-      },
-      {
-        "containerPath": "/tmp/work",
-        "sourceVolume": "tmp_work"
-      }
-    ],
-    "portMappings": []
-  }
-]
-DEFINITION
-}
-
-resource "aws_ecs_service" "ex_dynamic" {
-  name                               = "${local.service_name}-ex_dynamic"
-  cluster                            = "${aws_ecs_cluster.service.id}"
-  task_definition                    = "${aws_ecs_task_definition.ex_dynamic.arn}"
-  desired_count                      = "0"
-  deployment_maximum_percent         = "100"
-  deployment_minimum_healthy_percent = "0"
-
-  placement_strategy {
-    type  = "spread"
-    field = "attribute:ecs.availability-zone"
-  }
-
-  placement_strategy {
-    type  = "spread"
-    field = "instanceId"
-  }
-
-  placement_strategy {
-    type  = "binpack"
-    field = "memory"
-  }
-
-  lifecycle {
-    ignore_changes = ["desired_count"]
-  }
-}
-
-resource "aws_ecs_task_definition" "ex_vpc" {
+resource "aws_ecs_task_definition" "svc" {
   count        = "${var.want_sd}"
-  family       = "${local.service_name}-ex_vpc"
+  family       = "${local.service_name}"
   network_mode = "awsvpc"
 
   volume {
@@ -842,11 +767,11 @@ resource "aws_ecs_task_definition" "ex_vpc" {
 DEFINITION
 }
 
-resource "aws_ecs_service" "ex_vpc" {
+resource "aws_ecs_service" "svc" {
   count                              = "${var.want_sd}"
-  name                               = "${local.service_name}-ex_vpc"
+  name                               = "${local.service_name}"
   cluster                            = "${aws_ecs_cluster.service.id}"
-  task_definition                    = "${aws_ecs_task_definition.ex_vpc.arn}"
+  task_definition                    = "${aws_ecs_task_definition.svc.arn}"
   desired_count                      = "0"
   deployment_maximum_percent         = "100"
   deployment_minimum_healthy_percent = "0"

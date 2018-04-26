@@ -1,1 +1,22 @@
 aws iam create-service-linked-role --aws-service-name SERVICE-NAME.amazonaws.com
+
+resource "null_resource" "access-logging" {
+
+  depends_on = ["aws_cloudwatch_log_group.cloudwatch_access_log_group"]
+  count = "${var.access_logs_enabled == "true" ? 1 : 0}"
+  triggers {
+    log_format = "${file("log_format.json")}"
+    log_group = "${local.cloudwatch_access_log_group_arn}"
+  }
+  provisioner "local-exec" {
+    command = "aws apigateway update-stage --rest-api-id ${aws_api_gateway_deployment.deployment.rest_api_id} --stage-name ${aws_api_gateway_deployment.deployment.stage_name} --patch-operations op=replace,path=/accessLogSettings/destinationArn,value='${local.cloudwatch_access_log_group_arn}'"
+  }
+  provisioner "local-exec" {
+    command = "aws apigateway update-stage --rest-api-id ${aws_api_gateway_deployment.deployment.rest_api_id} --stage-name ${aws_api_gateway_deployment.deployment.stage_name} --patch-operations 'op=replace,path=/accessLogSettings/format,value=${jsonencode(replace(file("log_format.json"), "\n", ""))}'"
+  }
+
+  provisioner "local-exec" {
+    when = "destroy"
+    command = "aws apigateway update-stage --rest-api-id ${aws_api_gateway_deployment.deployment.rest_api_id} --stage-name ${aws_api_gateway_deployment.deployment.stage_name} --patch-operations op=remove,path=/accessLogSettings,value="
+  }
+}

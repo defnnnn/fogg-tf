@@ -466,15 +466,6 @@ locals {
   vendor_ami_id = "${var.amazon_nat ? data.aws_ami.nat.image_id : data.aws_ami.ecs.image_id}"
 }
 
-module "ec2-modify-unlimited" {
-  source            = "./module/fogg-tf/fogg-shell"
-  region            = "${var.region}"
-  command           = "./module/imma-tf/bin/tf-aws-ec2-modify-unlimited"
-  resource_previous = "${join(" ",concat(aws_instance.service.*.id,list(" ")))}"
-  resource_name     = "${join(" ",concat(aws_instance.service.*.id,list(" ")))}"
-  mcount            = "${signum(var.instance_count)}"
-}
-
 resource "aws_instance" "service" {
   ami           = "${coalesce(element(var.ami_id,count.index),local.vendor_ami_id)}"
   instance_type = "${element(var.instance_type,count.index)}"
@@ -487,6 +478,10 @@ resource "aws_instance" "service" {
   vpc_security_group_ids      = ["${concat(list(data.terraform_remote_state.env.sg_env,aws_security_group.service.id),list(data.terraform_remote_state.app.app_sg))}"]
   subnet_id                   = "${element(compact(concat(aws_subnet.service.*.id,aws_subnet.service_v6.*.id,formatlist(var.want_subnets ? "%[3]s" : (var.public_network ? "%[1]s" : "%[2]s"),data.terraform_remote_state.env.public_subnets,data.terraform_remote_state.env.private_subnets,data.terraform_remote_state.env.fake_subnets))),count.index)}"
   associate_public_ip_address = "${var.public_network ? "true" : "false"}"
+
+  credit_specification {
+    cpu_credits = "unlimited"
+  }
 
   lifecycle {
     ignore_changes = ["*"]

@@ -51,8 +51,41 @@ resource "aws_iam_role_policy_attachment" "executor" {
   policy_arn = "${aws_iam_policy.executor.arn}"
 }
 
+data "aws_iam_policy_document" "apigateway" {
+  statement {
+    actions = [
+      "execute-api:Invoke",
+    ]
+
+    principals {
+      type        = "AWS"
+      identifiers = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/administrator"]
+    }
+
+    resources = [
+      "arn:aws:execute-api:us-east-1:${data.aws_caller_identity.current.account_id}:*/rc/*/*",
+    ]
+  }
+
+  statement {
+    actions = [
+      "execute-api:Invoke",
+    ]
+
+    principals {
+      type        = "AWS"
+      identifiers = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/administrator"]
+    }
+
+    resources = [
+      "arn:aws:execute-api:us-east-1:${data.aws_caller_identity.current.account_id}:*/live/*/*",
+    ]
+  }
+}
+
 resource "aws_api_gateway_rest_api" "env" {
-  name = "${var.env_name}"
+  name   = "${var.env_name}"
+  policy = "${data.aws_iam_policy_document.apigateway.json}"
 }
 
 resource "null_resource" "aws_api_gateway_rest_api_env" {

@@ -11,6 +11,24 @@ resource "aws_api_gateway_stage" "stage" {
   variables {
     alias = "${var.stage_name}"
   }
+
+  count = "${var.stage_name == "rc" ? 1 : 0}"
+}
+
+resource "aws_api_gateway_stage" "live" {
+  stage_name    = "${var.stage_name}"
+  rest_api_id   = "${var.rest_api_id}"
+  deployment_id = "${var.deployment_id}"
+
+  variables {
+    alias = "${var.stage_name}"
+  }
+
+  lifecycle {
+    ignore_changes = ["deployment_id"]
+  }
+
+  count = "${var.stage_name == "live" ? 1 : 0}"
 }
 
 resource "aws_api_gateway_method_settings" "stage" {

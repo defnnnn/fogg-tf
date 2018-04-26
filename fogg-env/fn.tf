@@ -219,18 +219,32 @@ module "resource_hello" {
   resource_id = "${aws_api_gateway_rest_api.env.root_resource_id}"
 }
 
-module "stage_live" {
-  source = "./module/fogg-tf/fogg-api/stage"
-
+resource "aws_api_gateway_deployment" "env" {
   rest_api_id = "${aws_api_gateway_rest_api.env.id}"
-  domain_name = "${aws_api_gateway_domain_name.env.domain_name}"
-  stage_name  = "live"
+
+  description = "${module.resource_helo.resource}/${module.resource_hello.resource}"
+  stage_name  = "rc"
+
+  lifecycle {
+    create_before_destroy = true
+    ignore_changes        = ["stage_name"]
+  }
 }
 
 module "stage_rc" {
   source = "./module/fogg-tf/fogg-api/stage"
 
-  rest_api_id = "${aws_api_gateway_rest_api.env.id}"
-  domain_name = "${aws_api_gateway_domain_name.env_rc.domain_name}"
-  stage_name  = "rc"
+  stage_name    = "rc"
+  rest_api_id   = "${aws_api_gateway_rest_api.env.id}"
+  domain_name   = "${aws_api_gateway_domain_name.env_rc.domain_name}"
+  deployment_id = "${aws_api_gateway_deployment.env.id}"
+}
+
+module "stage_live" {
+  source = "./module/fogg-tf/fogg-api/stage"
+
+  stage_name    = "live"
+  rest_api_id   = "${aws_api_gateway_rest_api.env.id}"
+  domain_name   = "${aws_api_gateway_domain_name.env.domain_name}"
+  deployment_id = "${aws_api_gateway_deployment.env.id}"
 }

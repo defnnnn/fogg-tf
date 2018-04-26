@@ -52,9 +52,9 @@ resource "aws_api_gateway_base_path_mapping" "stage" {
 }
 
 output "invoke_url" {
-  value = "${aws_api_gateway_stage.stage.invoke_url}"
+  value = "${element(coalescelist(aws_api_gateway_stage.stage.*.invoke_url,aws_api_gateway_stage.live.*.invoke_url),0)}"
 }
 
 output "execution_arn" {
-  value = "${aws_api_gateway_stage.stage.execution_arn}"
+  value = "${element(coalescelist(aws_api_gateway_stage.stage.*.execution_arn,aws_api_gateway_stage.live.*.execution_arn),0)}"
 }

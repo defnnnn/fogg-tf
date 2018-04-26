@@ -32,7 +32,7 @@ resource "aws_api_gateway_stage" "live" {
 }
 
 resource "aws_api_gateway_method_settings" "stage" {
-  depends_on  = ["aws_api_gateway_stage.stage"]
+  depends_on  = ["aws_api_gateway_stage.stage", "aws_api_gateway_stage.live"]
   rest_api_id = "${var.rest_api_id}"
   stage_name  = "${var.stage_name}"
   method_path = "*/*"

@@ -6,7 +6,8 @@ variable "function_version" {
 }
 
 variable "unique_prefix" {}
-variable "source_arn" {}
+variable "source_arn_live" {}
+variable "source_arn_rc" {}
 
 variable "fn_rc" {
   default = "$LATEST"
@@ -42,7 +43,7 @@ resource "aws_lambda_permission" "live" {
   action        = "lambda:InvokeFunction"
   principal     = "apigateway.amazonaws.com"
   function_name = "${var.function_name}"
-  source_arn    = "${var.source_arn}/"
+  source_arn    = "${var.source_arn_live}/"
   qualifier     = "live"
 }
 
@@ -52,7 +53,7 @@ resource "aws_lambda_permission" "live_proxy" {
   action        = "lambda:InvokeFunction"
   principal     = "apigateway.amazonaws.com"
   function_name = "${var.function_name}"
-  source_arn    = "${var.source_arn}/{proxy+}"
+  source_arn    = "${var.source_arn_live}/{proxy+}"
   qualifier     = "live"
 }
 
@@ -62,7 +63,7 @@ resource "aws_lambda_permission" "rc" {
   action        = "lambda:InvokeFunction"
   principal     = "apigateway.amazonaws.com"
   function_name = "${var.function_name}"
-  source_arn    = "${var.source_arn}/"
+  source_arn    = "${var.source_arn_rc}/"
   qualifier     = "rc"
 }
 
@@ -72,6 +73,6 @@ resource "aws_lambda_permission" "rc_proxy" {
   action        = "lambda:InvokeFunction"
   principal     = "apigateway.amazonaws.com"
   function_name = "${var.function_name}"
-  source_arn    = "${var.source_arn}/{proxy+}"
+  source_arn    = "${var.source_arn_rc}/{proxy+}"
   qualifier     = "rc"
 }

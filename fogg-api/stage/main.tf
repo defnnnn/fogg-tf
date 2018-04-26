@@ -15,6 +15,10 @@ resource "aws_api_gateway_deployment" "stage" {
   variables {
     alias = "${var.stage_name}"
   }
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_api_gateway_method_settings" "stage" {

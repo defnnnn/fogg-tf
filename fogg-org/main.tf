@@ -778,3 +778,39 @@ resource "aws_iam_role_policy_attachment" "api_gateway" {
   role       = "${aws_iam_role.api_gateway.name}"
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs"
 }
+
+resource "aws_iam_service_linked_role" "autoscaling" {
+  aws_service_name = "autoscaling.amazonaws.com"
+}
+
+resource "aws_iam_service_linked_role" "elasticbeanstalk" {
+  aws_service_name = "elasticbeanstalk.amazonaws.com"
+}
+
+resource "aws_iam_service_linked_role" "apigateway" {
+  aws_service_name = "apigateway.amazonaws.com"
+}
+
+resource "aws_iam_service_linked_role" "spot" {
+  aws_service_name = "spot.amazonaws.com"
+}
+
+resource "aws_iam_service_linked_role" "spotfleet" {
+  aws_service_name = "spotfleet.amazonaws.com"
+}
+
+resource "aws_iam_service_linked_role" "ecs" {
+  aws_service_name = "ecs.amazonaws.com"
+}
+
+resource "aws_iam_service_linked_role" "elasticloadbalancing" {
+  aws_service_name = "elasticloadbalancing.amazonaws.com"
+}
+
+resource "aws_iam_service_linked_role" "organization" {
+  aws_service_name = "organizations.amazonaws.com"
+}
+
+resource "aws_iam_service_linked_role" "rds" {
+  aws_service_name = "rds.amazonaws.com"
+}

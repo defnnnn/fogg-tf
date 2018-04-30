@@ -788,7 +788,7 @@ resource "aws_iam_service_linked_role" "elasticbeanstalk" {
 }
 
 resource "aws_iam_service_linked_role" "apigateway" {
-  aws_service_name = "apigateway.amazonaws.com"
+  aws_service_name = "ops.apigateway.amazonaws.com"
 }
 
 resource "aws_iam_service_linked_role" "spot" {

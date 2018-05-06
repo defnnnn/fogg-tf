@@ -5,6 +5,20 @@ Number-Attachments: 1
 
 --===============88888888888888888888888888==
 MIME-Version: 1.0
+Content-Type: text/cloud-config; charset="us-ascii"
+
+power_state:
+  mode: reboot
+  message: Rebooting after initial cloud-init
+  condition: True
+
+swap:
+  filename: /root/swap0
+  size: 4294967296
+  maxsize: 4294967296
+
+--===============88888888888888888888888888==
+MIME-Version: 1.0
 Content-Type: text/x-shellscript; charset="us-ascii"
 
 #!/bin/bash
@@ -12,21 +26,21 @@ Content-Type: text/x-shellscript; charset="us-ascii"
 exec 1>~/stdout.log
 exec 2>~/stderr.log
 
-set -x
-cd
+date
+uname -a
 
-dd if=/dev/zero of=/root/swap0 bs=1M count=1000
-dd if=/dev/zero of=/root/swap1 bs=1M count=1000
-chmod 0600 /root/swap0
-chmod 0600 /root/swap1
-mkswap /root/swap0
-mkswap /root/swap1
-swapon /root/swap0
-swapon /root/swap1
+echo net.ipv6.conf.default.forwarding=1 >> /etc/sysctl.conf
+echo net.ipv6.conf.all.forwarding=1 >> /etc/sysctl.conf
+echo net.ipv6.conf.eth0.accept_ra=2 >> /etc/sysctl.conf
+echo net.ipv4.conf.default.forwarding=1 >> /etc/sysctl.conf
+echo net.ipv4.conf.all.forwarding=1 >> /etc/sysctl.conf
 
-groupadd -g 497 docker || true
+export DEBIAN_FRONTEND=noninteractive
+apt-get update
+apt-get upgrade -y
+apt-get install -y git make jq apt-transport-https ca-certificates curl software-properties-common aptitude
 
-if ! id ubuntu; then
+if ! id ubuntu 2>/dev/null; then
   groupadd -g 1000 ubuntu
   useradd -m -s /bin/bash -g ubuntu -u 1000 ubuntu
   mkdir ~ubuntu/.ssh
@@ -34,8 +48,6 @@ if ! id ubuntu; then
   chown -R ubuntu:ubuntu ~ubuntu
   echo 'ubuntu ALL=(ALL) NOPASSWD:ALL' | tee -a /etc/sudoers.d/cloud-init
 fi
-
-usermod -G docker ubuntu
 
 cat <<EOF | gpg --import
 -----BEGIN PGP PUBLIC KEY BLOCK-----
@@ -89,12 +101,12 @@ m2KYzvMJZBk5dAtFa0SgLK4fg8X6Ygoo9E0JsXxSrW9I1JVfo6Ia//YOBMtt4XuNAwqahjkq
 EOF
 
 if z=$(curl -s 'https://install.zerotier.com/' | gpg); then 
-	echo "$z" | bash
+	echo "$z" | bash 1>~/zerotier.log 2>&1
 fi
 
 while ! zerotier-cli info | grep ONLINE; do
   date
-  sleep 1
+  sleep 5
 done
 
 zerotier-cli join ${zerotier_network}
@@ -105,26 +117,38 @@ while true; do
     break
   fi
   date
-  sleep 1
+  sleep 5
 done
+
+bash <(curl -Ss https://my-netdata.io/kickstart-static64.sh) --dont-wait --dont-start-it
+
+DOCKER_COMPOSE_VERSION='1.19.0'
+curl "https://github.com/docker/compose/releases/download/$${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)"
+mkdir -p /usr/local/bin
+mv "docker-compose-$(uname -s)-$(uname -m)" /usr/local/bin/docker-compose
+chmod +x /usr/local/bin/docker-compose
 
 mkdir -p /etc/docker
 pth_public='/var/lib/zerotier-one/identity.public'
-echo "{\"storage-driver\": \"overlay2\", \"ipv6\": true, \"fixed-cidr-v6\": \"$(echo "$${ipv6}$(cut -c 1-2 $pth_public):$(cut -c 3-6 $pth_public):$(cut -c 7-10 $pth_public)::/80")\"}" > /etc/docker/daemon.json
+jq -n --arg ipv6 "$(echo "$${ipv6}$(cut -c 1-2 $pth_public):$(cut -c 3-6 $pth_public):$(cut -c 7-10 $pth_public)::/80")" \
+  '{bip: "192.168.250.1/24", ipv6: true, "ip-forward": false, "fixed-cidr-v6": $ipv6}' > /etc/docker/daemon.json
 
-export DEBIAN_FRONTEND=noninteractive
-apt-get update
-apt-get install -y git make jq
-
-apt-get update
-apt-get install -y apt-transport-https ca-certificates curl software-properties-common aptitude
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
 add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
 apt-get update
 apt-get install -y docker-ce
-apt-mark unhold docker-ce 2>/dev/null 1>&2 || true
-apt-get install -y docker-ce="17.12*"
 aptitude hold docker-ce grub-pc-bin
+
+usermod -G docker ubuntu
+
+dd if=/dev/zero of=/root/swap0 bs=1M count=1000
+dd if=/dev/zero of=/root/swap1 bs=1M count=1000
+chmod 0600 /root/swap0
+chmod 0600 /root/swap1
+mkswap /root/swap0
+mkswap /root/swap1
+swapon /root/swap0
+swapon /root/swap1
 
 cat > /etc/rc.local <<EOF
 #!/bin/sh -e

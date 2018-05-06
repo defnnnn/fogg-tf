@@ -1,11 +1,3 @@
-#resource "digitalocean_volume" "service" {
-#  region      = "${element(var.do_regions,count.index)}"
-#  name        = "${var.account_name}-${element(var.do_regions,count.index)}${count.index}"
-#  size        = "${var.do_data_size}"
-#  description = "${var.account_name}-${element(var.do_regions,count.index)}${count.index}"
-#  count       = "${var.want_digitalocean*var.do_instance_count}"
-#}
-
 data "template_file" "user_data_service" {
   template = "${file(var.user_data)}"
 
@@ -36,14 +28,18 @@ resource "digitalocean_tag" "service" {
   count = "${var.want_digitalocean*var.do_instance_count}"
 }
 
+resource "digitalocean_ssh_key" "service" {
+  name       = "default"
+  public_key = "${file("etc/ssh-key-pair.pub")}"
+}
+
 resource "digitalocean_droplet" "service" {
   name     = "${element(var.do_hostnames,count.index)}"
-  ssh_keys = ["${var.do_ssh_key}"]
+  ssh_keys = ["${digitalocean_ssh_key.service.id}"]
   region   = "${element(var.do_regions,count.index)}"
   image    = "ubuntu-16-04-x64"
   size     = "1gb"
 
-  #volume_ids         = ["${element(digitalocean_volume.service.*.id,count.index)}"]
   user_data          = "${data.template_file.user_data_service.rendered}"
   tags               = ["${digitalocean_tag.service.*.id[count.index]}"]
   ipv6               = true
@@ -65,11 +61,6 @@ resource "digitalocean_firewall" "service" {
     {
       protocol         = "udp"
       port_range       = "9993"
-      source_addresses = ["0.0.0.0/0"]
-    },
-    {
-      protocol         = "tcp"
-      port_range       = "22"
       source_addresses = ["0.0.0.0/0"]
     },
   ]

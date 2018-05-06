@@ -98,10 +98,6 @@ variable "do_zones" {
   default = []
 }
 
-variable "do_ssh_key" {
-  default = ""
-}
-
 variable "want_packet" {
   default = "0"
 }

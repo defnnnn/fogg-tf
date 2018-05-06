@@ -67,13 +67,6 @@ resource "digitalocean_firewall" "service" {
 
   outbound_rule = [
     {
-      protocol              = "udp"
-      port_range            = "all"
-      destination_addresses = ["0.0.0.0/0", "::/0"]
-    },
-    {
-      protocol              = "tcp"
-      port_range            = "all"
       destination_addresses = ["0.0.0.0/0", "::/0"]
     },
   ]

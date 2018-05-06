@@ -11,6 +11,6 @@ data "terraform_remote_state" "organization" {
   }
 }
 
-module "org" {
+module "organization" {
   source = ".module/martyn/martyn-organization"
 }

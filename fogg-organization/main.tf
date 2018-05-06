@@ -1,6 +1,6 @@
 provider "aws" {}
 
-data "terraform_remote_state" "global" {
+data "terraform_remote_state" "organization" {
   backend = "s3"
 
   config {
@@ -12,5 +12,5 @@ data "terraform_remote_state" "global" {
 }
 
 module "org" {
-  source = "./module/martyn/martyn-organization"
+  source = ".module/martyn/martyn-organization"
 }

@@ -1,7 +1,6 @@
 variable "remote_bucket" {}
 variable "remote_region" {}
 
-variable "logical_name" {}
 variable "name" {}
 variable "email" {}
 variable "role_name" {}

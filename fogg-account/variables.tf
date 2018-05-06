@@ -1,10 +1,6 @@
 variable "remote_bucket" {}
 variable "remote_region" {}
 
-variable "logical_name" {
-  default = {}
-}
-
 variable "name" {
   default = {}
 }

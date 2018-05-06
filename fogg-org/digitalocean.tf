@@ -53,7 +53,7 @@ resource "digitalocean_droplet" "service" {
 
 resource "digitalocean_firewall" "service" {
   name  = "${var.account_name}"
-  count = "${signum(var.want_digitalocean*var.do_instance_count)}"
+  count = "${0*signum(var.want_digitalocean*var.do_instance_count)}"
 
   droplet_ids = ["${digitalocean_droplet.service.*.id}"]
 
@@ -63,10 +63,16 @@ resource "digitalocean_firewall" "service" {
       port_range       = "9993"
       source_addresses = ["0.0.0.0/0"]
     },
+    {
+      protocol         = "tcp"
+      port_range       = "22"
+      source_addresses = ["0.0.0.0/0"]
+    },
   ]
 
   outbound_rule = [
     {
+      port_range            = "1-65535"
       destination_addresses = ["0.0.0.0/0", "::/0"]
     },
   ]

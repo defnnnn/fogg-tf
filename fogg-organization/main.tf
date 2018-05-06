@@ -11,6 +11,6 @@ data "terraform_remote_state" "organization" {
   }
 }
 
-module "organization" {
-  source = ".module/martyn/martyn-organization"
+resource "aws_organizations_organization" "organization" {
+  feature_set = "ALL"
 }

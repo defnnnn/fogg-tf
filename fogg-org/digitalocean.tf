@@ -3,7 +3,7 @@ data "template_file" "user_data_service" {
 
   vars {
     org              = "${var.account_name}"
-    zerotier_network = "${zerotier_network.org.id}"
+    zerotier_network = "${var.zerotier_network}"
   }
 }
 

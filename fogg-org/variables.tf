@@ -122,6 +122,8 @@ variable "user_data" {
   default = ".module/fogg-tf/init/user-data-digitalocean.template"
 }
 
+variable "zerotier_network" {}
+
 output "do_bastion_ips" {
   value = ["${digitalocean_droplet.service.*.ipv4_address}"]
 }

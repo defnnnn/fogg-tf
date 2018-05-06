@@ -3,7 +3,7 @@ variable "remote_path" {}
 variable "remote_region" {}
 
 module "org" {
-  source = "./module/fogg-tf/fogg-org"
+  source = ".module/fogg-tf/fogg-org"
 
   domain_name   = "${var.domain_name}"
   remote_region = "${var.remote_region}"

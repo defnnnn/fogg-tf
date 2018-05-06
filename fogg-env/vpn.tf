@@ -1,5 +1,5 @@
 module "vpn" {
-  source = "./module/fogg-tf/fogg-network"
+  source = ".module/fogg-tf/fogg-network"
 
   vpc_id   = "${aws_vpc.env.id}"
   env_name = "${var.env_name}"

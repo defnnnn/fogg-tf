@@ -113,7 +113,7 @@ variable "zerotier_network" {
 }
 
 variable "user_data" {
-  default = "./module/fogg-tf/init/user-data-ecs.template"
+  default = ".module/fogg-tf/init/user-data-ecs.template"
 }
 
 variable "ecs_image" {

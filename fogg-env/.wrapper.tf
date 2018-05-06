@@ -5,7 +5,7 @@ locals {
 }
 
 module "env" {
-  source = "./module/fogg-tf/fogg-env"
+  source = ".module/fogg-tf/fogg-env"
 
   org_bucket    = "${var.remote_bucket}"
   org_key       = "${local.org_key}"

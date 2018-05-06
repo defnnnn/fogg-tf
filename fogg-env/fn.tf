@@ -116,11 +116,11 @@ resource "null_resource" "aws_api_gateway_domain_name_env_rc" {
 }
 
 data "external" "apig_domain_name" {
-  program = ["./module/imma-tf/bin/lookup-apig-domain-name", "${var.region}", "${aws_api_gateway_domain_name.env.domain_name}"]
+  program = [".module/imma-tf/bin/lookup-apig-domain-name", "${var.region}", "${aws_api_gateway_domain_name.env.domain_name}"]
 }
 
 data "external" "apig_domain_name_rc" {
-  program = ["./module/imma-tf/bin/lookup-apig-domain-name", "${var.region}", "${aws_api_gateway_domain_name.env_rc.domain_name}"]
+  program = [".module/imma-tf/bin/lookup-apig-domain-name", "${var.region}", "${aws_api_gateway_domain_name.env_rc.domain_name}"]
 }
 
 locals {
@@ -191,7 +191,7 @@ resource "aws_lambda_function" "env" {
 }
 
 module "fn_hello" {
-  source           = "./module/fogg-tf/fogg-api/fn"
+  source           = ".module/fogg-tf/fogg-api/fn"
   function_name    = "${aws_lambda_function.env.function_name}"
   function_arn     = "${aws_lambda_function.env.arn}"
   function_version = "${aws_lambda_function.env.version}"
@@ -201,7 +201,7 @@ module "fn_hello" {
 }
 
 module "resource_helo" {
-  source = "./module/fogg-tf/fogg-api/root"
+  source = ".module/fogg-tf/fogg-api/root"
 
   invoke_arn = "${aws_lambda_function.env.invoke_arn}"
 
@@ -210,7 +210,7 @@ module "resource_helo" {
 }
 
 module "resource_hello" {
-  source = "./module/fogg-tf/fogg-api/resource"
+  source = ".module/fogg-tf/fogg-api/resource"
 
   api_name   = "{proxy+}"
   invoke_arn = "${aws_lambda_function.env.invoke_arn}"
@@ -232,7 +232,7 @@ resource "aws_api_gateway_deployment" "env" {
 }
 
 module "stage_rc" {
-  source = "./module/fogg-tf/fogg-api/stage"
+  source = ".module/fogg-tf/fogg-api/stage"
 
   stage_name    = "rc"
   rest_api_id   = "${aws_api_gateway_rest_api.env.id}"
@@ -241,7 +241,7 @@ module "stage_rc" {
 }
 
 module "stage_live" {
-  source = "./module/fogg-tf/fogg-api/stage"
+  source = ".module/fogg-tf/fogg-api/stage"
 
   stage_name    = "live"
   rest_api_id   = "${aws_api_gateway_rest_api.env.id}"

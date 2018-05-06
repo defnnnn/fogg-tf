@@ -7,7 +7,7 @@ locals {
 }
 
 module "svc" {
-  source = "./module/fogg-tf/fogg-svc"
+  source = ".module/fogg-tf/fogg-svc"
 
   org_bucket    = "${var.remote_bucket}"
   org_key       = "${local.org_key}"

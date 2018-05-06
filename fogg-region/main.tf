@@ -30,7 +30,7 @@ resource "aws_key_pair" "region" {
 }
 
 module "kms" {
-  source = "./module/fogg-tf/fogg-kms"
+  source = ".module/fogg-tf/fogg-kms"
 
   account_name = "${var.account_name}"
   region       = "${var.region}"
@@ -66,7 +66,7 @@ data "aws_ami" "region" {
 }
 
 #module "ami" {
-#  source = "./module/fogg-tf/fogg-ami-copy"
+#  source = ".module/fogg-tf/fogg-ami-copy"
 #
 #  source_ami_region = "us-east-1"
 #  source_ami_id     = "${data.aws_ami.region.image_id}"

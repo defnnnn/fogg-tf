@@ -3,7 +3,7 @@ locals {
 }
 
 module "region" {
-  source = "./module/fogg-tf/fogg-region"
+  source = ".module/fogg-tf/fogg-region"
 
   org_bucket    = "${var.remote_bucket}"
   org_key       = "${local.org_key}"

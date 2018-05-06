@@ -5,7 +5,7 @@ locals {
 }
 
 module "app" {
-  source = "./module/fogg-tf/fogg-app"
+  source = ".module/fogg-tf/fogg-app"
 
   org_bucket    = "${var.remote_bucket}"
   org_key       = "${local.org_key}"

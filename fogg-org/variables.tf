@@ -123,7 +123,7 @@ variable "packet_operating_system" {
 }
 
 variable "user_data" {
-  default = "./module/fogg-tf/init/user-data-digitalocean.template"
+  default = ".module/fogg-tf/init/user-data-digitalocean.template"
 }
 
 output "do_bastion_ips" {

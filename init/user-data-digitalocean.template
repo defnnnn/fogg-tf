@@ -130,9 +130,8 @@ done
 install -d -o ubuntu -g ubuntu /data
 
 DOCKER_COMPOSE_VERSION='1.21.2'
-curl "https://github.com/docker/compose/releases/download/$${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)"
 mkdir -p /usr/local/bin
-mv "docker-compose-$(uname -s)-$(uname -m)" /usr/local/bin/docker-compose
+curl -L -s -o /usr/local/bin/docker-compose "https://github.com/docker/compose/releases/download/$${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)"
 chmod +x /usr/local/bin/docker-compose
 
 mkdir -p /etc/docker

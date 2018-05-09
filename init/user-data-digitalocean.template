@@ -54,6 +54,7 @@ groupadd -g 497 docker
 usermod -G docker ubuntu
 
 bash <(curl -Ss https://my-netdata.io/kickstart-static64.sh) --dont-wait --dont-start-it
+bash <(curl -Ss https://s3.amazonaws.com/download.draios.com/stable/install-sysdig)
 
 cat <<EOF | gpg --import
 -----BEGIN PGP PUBLIC KEY BLOCK-----

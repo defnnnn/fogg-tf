@@ -116,7 +116,7 @@ done
 zerotier-cli join ${zerotier_network}
 
 while true; do
-  ipv6="$(ifconfig zt0 | grep 'inet6' | grep Scope:Global | awk '{print $3}' | cut -b1-12)"
+  ipv6="$(ifconfig -a | grep fca2:d4af:f4 | awk '{print $3}' | cut -b1-12)"
   if [[ "$(echo "$ipv6" | wc -c)" == 13 ]]; then
     break
   fi

@@ -48,6 +48,11 @@ if ! id ubuntu 2>/dev/null; then
   echo 'ubuntu ALL=(ALL) NOPASSWD:ALL' | tee -a /etc/sudoers.d/cloud-init
 fi
 
+usermod -G docker ubuntu
+
+bash <(curl -Ss https://my-netdata.io/kickstart-static64.sh) --dont-wait --dont-start-it
+bash <(curl -Ss https://s3.amazonaws.com/download.draios.com/stable/install-sysdig)
+
 cat <<EOF | gpg --import
 -----BEGIN PGP PUBLIC KEY BLOCK-----
 Version: SKS 1.1.6
@@ -119,27 +124,23 @@ while true; do
   sleep 5
 done
 
-bash <(curl -Ss https://my-netdata.io/kickstart-static64.sh) --dont-wait --dont-start-it
-
-mkdir -p /data
+install -d -o ubuntu -g ubuntu /data
 echo "efs.${env}.immanent.io:/ /data nfs4 nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2 0 0" >> /etc/fstab
 
-if ! type -P docker; then
-  exit 0
-fi
-
-DOCKER_COMPOSE_VERSION='1.19.0'
+DOCKER_COMPOSE_VERSION='1.21.2'
 curl "https://github.com/docker/compose/releases/download/$${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)"
 mkdir -p /usr/local/bin
 mv "docker-compose-$(uname -s)-$(uname -m)" /usr/local/bin/docker-compose
 chmod +x /usr/local/bin/docker-compose
 
-usermod -G docker ubuntu
-
 mkdir -p /etc/docker
 pth_public='/var/lib/zerotier-one/identity.public'
 jq -n --arg ipv6 "$(echo "$${ipv6}$(cut -c 1-2 $pth_public):$(cut -c 3-6 $pth_public):$(cut -c 7-10 $pth_public)::/80")" \
   '{bip: "192.168.250.1/24", ipv6: true, "ip-forward": false, "fixed-cidr-v6": $ipv6}' > /etc/docker/daemon.json
+
+if ! type -P docker; then
+  exit 0
+fi
 
 cat >> /etc/ecs/ecs.config <<EOF
 ECS_CLUSTER=${env}-${app}-${service}

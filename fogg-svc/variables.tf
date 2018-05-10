@@ -41,7 +41,7 @@ variable "want_fargate" {
 }
 
 variable "fargate_image" {
-  default = "imma/ubuntu:minima"
+  default = "imma/ubuntu:shell"
 }
 
 variable "aurora_instances" {
@@ -117,7 +117,7 @@ variable "user_data" {
 }
 
 variable "ecs_image" {
-  default = "imma/ubuntu:minima"
+  default = "imma/ubuntu:shell"
 }
 
 variable "ipv6_service_bits" {

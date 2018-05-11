@@ -7,7 +7,7 @@ variable "remote_bucket" {}
 variable "remote_region" {}
 
 variable "want_macie" {
-  default = 1
+  default = 0
 }
 
 variable "want_config" {

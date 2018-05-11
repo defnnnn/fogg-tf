@@ -108,6 +108,10 @@ variable "want_sd" {
   default = "1"
 }
 
+variable "want_batch" {
+  default = "0"
+}
+
 variable "zerotier_network" {
   default = ""
 }

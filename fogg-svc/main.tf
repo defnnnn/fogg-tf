@@ -1289,7 +1289,8 @@ resource "aws_route53_record" "app" {
 }
 
 resource "aws_iam_role" "batch" {
-  name = "${local.service_name}-batch"
+  name  = "${local.service_name}-batch"
+  count = "${var.want_batch}"
 
   assume_role_policy = <<EOF
 {
@@ -1310,6 +1311,7 @@ EOF
 resource "aws_iam_role_policy_attachment" "AWSBatchServiceRole" {
   role       = "${aws_iam_role.batch.name}"
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSBatchServiceRole"
+  count      = "${var.want_batch}"
 }
 
 resource "aws_batch_compute_environment" "batch" {
@@ -1317,6 +1319,7 @@ resource "aws_batch_compute_environment" "batch" {
   service_role             = "${aws_iam_role.batch.arn}"
   type                     = "UNMANAGED"
   depends_on               = ["aws_iam_role_policy_attachment.AWSBatchServiceRole"]
+  count                    = "${var.want_batch}"
 }
 
 resource "aws_batch_job_queue" "batch" {
@@ -1324,6 +1327,7 @@ resource "aws_batch_job_queue" "batch" {
   state                = "ENABLED"
   priority             = 1
   compute_environments = ["${aws_batch_compute_environment.batch.arn}"]
+  count                = "${var.want_batch}"
 }
 
 resource "aws_ssm_parameter" "fogg_svc" {

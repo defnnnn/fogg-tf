@@ -478,6 +478,7 @@ resource "aws_instance" "service" {
   vpc_security_group_ids      = ["${concat(list(data.terraform_remote_state.env.sg_env,aws_security_group.service.id),list(data.terraform_remote_state.app.app_sg))}"]
   subnet_id                   = "${element(compact(concat(aws_subnet.service.*.id,aws_subnet.service_v6.*.id,formatlist(var.want_subnets ? "%[3]s" : (var.public_network ? "%[1]s" : "%[2]s"),data.terraform_remote_state.env.public_subnets,data.terraform_remote_state.env.private_subnets,data.terraform_remote_state.env.fake_subnets))),count.index)}"
   associate_public_ip_address = "${var.public_network ? "true" : "false"}"
+  source_dest_check           = "${var.source_dest_check}"
 
   credit_specification {
     cpu_credits = "unlimited"

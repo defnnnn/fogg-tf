@@ -116,6 +116,10 @@ variable "zerotier_network" {
   default = ""
 }
 
+variable "source_dest_check" {
+  default = true
+}
+
 variable "user_data" {
   default = ".module/fogg-tf/init/user-data-ecs.template"
 }

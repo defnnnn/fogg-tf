@@ -213,13 +213,6 @@ resource "aws_route" "private_nat_eni" {
   count                  = "${var.az_count*(signum(var.want_nat)-1)*-1}"
 }
 
-resource "aws_route" "private_vpn_eni" {
-  route_table_id         = "${element(aws_route_table.private.*.id,count.index)}"
-  destination_cidr_block = "${var.vpn_cidr}"
-  network_interface_id   = "${element(module.vpn.interfaces,count.index)}"
-  count                  = "${var.az_count}"
-}
-
 resource "aws_route_table_association" "private" {
   subnet_id      = "${element(aws_subnet.private.*.id,count.index)}"
   route_table_id = "${element(aws_route_table.private.*.id,count.index)}"

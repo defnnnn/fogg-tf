@@ -234,32 +234,8 @@ output "nat_interfaces" {
   value = ["${module.nat.interfaces}"]
 }
 
-variable "want_vpn" {
-  default = "1"
-}
-
 variable "want_vgw" {
-  default = "0"
-}
-
-variable "vpn_cidr" {
-  default = ""
-}
-
-variable "vpn_interface_count" {
-  default = 1
-}
-
-output "vpn_sg" {
-  value = ["${module.vpn.network_sg}"]
-}
-
-output "vpn_interfaces" {
-  value = ["${module.vpn.interfaces}"]
-}
-
-output "vpn_cidr" {
-  value = "${var.vpn_cidr}"
+  default = "1"
 }
 
 output "vgw_id" {

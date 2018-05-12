@@ -107,15 +107,15 @@ output "private_zone_name" {
 }
 
 output "private_sd_zone_name" {
-  value = "${aws_service_discovery_private_dns_namespace.env.name}"
+  value = "${element(aws_service_discovery_private_dns_namespace.env.*.name,0)}"
 }
 
 output "private_sd_zone_id" {
-  value = "${aws_service_discovery_private_dns_namespace.env.hosted_zone}"
+  value = "${element(aws_service_discovery_private_dns_namespace.env.*.hosted_zone,0)}"
 }
 
 output "private_sd_id" {
-  value = "${aws_service_discovery_private_dns_namespace.env.id}"
+  value = "${element(aws_service_discovery_private_dns_namespace.env.*.id,0)}"
 }
 
 output "sg_efs" {

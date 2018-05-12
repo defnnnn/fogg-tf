@@ -570,10 +570,12 @@ data "aws_acm_certificate" "env" {
 }
 
 resource "aws_service_discovery_private_dns_namespace" "env" {
-  name = "prv-${local.private_zone_name}"
-  vpc  = "${data.aws_vpc.current.id}"
+  count = "${var.want_sd}"
+  name  = "prv-${local.private_zone_name}"
+  vpc   = "${data.aws_vpc.current.id}"
 }
 
 resource "aws_service_discovery_public_dns_namespace" "env" {
-  name = "pub-${local.private_zone_name}"
+  count = "${var.want_sd}"
+  name  = "pub-${local.private_zone_name}"
 }

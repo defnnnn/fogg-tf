@@ -71,7 +71,7 @@ variable "want_nlb" {
 }
 
 variable "want_sd" {
-  default = "0"
+  default = "1"
 }
 
 variable "want_digitalocean" {

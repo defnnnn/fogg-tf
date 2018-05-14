@@ -21,7 +21,7 @@ swap:
 MIME-Version: 1.0
 Content-Type: text/x-shellscript; charset="us-ascii"
 
-#!/bin/bash
+#!/usr/bin/env bash
 
 exec 1>~/stdout.log
 exec 2>~/stderr.log

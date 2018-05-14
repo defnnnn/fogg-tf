@@ -47,7 +47,8 @@ resource "aws_security_group_rule" "fs_egress" {
   cidr_blocks       = ["0.0.0.0/0"]
   security_group_id = "${aws_security_group.fs.id}"
 
-  count = "${var.want_efs}"
+  description = "efs outbound"
+  count       = "${var.want_efs}"
 }
 
 resource "aws_efs_file_system" "fs" {

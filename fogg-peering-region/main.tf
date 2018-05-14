@@ -47,6 +47,7 @@ resource "aws_security_group_rule" "ping_everything" {
   cidr_blocks       = ["${var.that_vpc_cidrs}"]
   security_group_id = "${var.this_vpc_sg}"
   count             = "${var.allow_access}"
+  description       = "peer can ping us"
 }
 
 resource "aws_security_group_rule" "ssh_into_everything" {
@@ -57,6 +58,7 @@ resource "aws_security_group_rule" "ssh_into_everything" {
   cidr_blocks       = ["${var.that_vpc_cidrs}"]
   security_group_id = "${var.this_vpc_sg}"
   count             = "${var.allow_access}"
+  description       = "peer can ssh to us"
 }
 
 output "peering_connection" {

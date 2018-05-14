@@ -934,6 +934,7 @@ resource "aws_security_group_rule" "allow_service_mount" {
   source_security_group_id = "${aws_security_group.service.id}"
   security_group_id        = "${module.efs.efs_sg}"
   count                    = "${var.want_efs}"
+  description              = "allow service to mount efs"
 }
 
 resource "aws_route53_record" "efs" {
@@ -953,6 +954,7 @@ resource "aws_security_group_rule" "allow_redis" {
   source_security_group_id = "${aws_security_group.service.id}"
   security_group_id        = "${aws_security_group.cache.id}"
   count                    = "${var.want_elasticache}"
+  description              = "allow service to access redis"
 }
 
 resource "aws_route53_record" "cache" {

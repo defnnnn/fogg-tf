@@ -88,15 +88,7 @@ resource "aws_security_group_rule" "allow_zerotier" {
   protocol          = "udp"
   ipv6_cidr_blocks  = ["::/0"]
   security_group_id = "${aws_security_group.env.id}"
-}
-
-resource "aws_security_group_rule" "env_do_ingress" {
-  type              = "ingress"
-  from_port         = 0
-  to_port           = 0
-  protocol          = "-1"
-  cidr_blocks       = ["${data.terraform_remote_state.org.do_bastion_cidrs}", "10.32.32.32/32"]
-  security_group_id = "${aws_security_group.env.id}"
+  description       = "zerotier inbound"
 }
 
 resource "aws_security_group_rule" "env_egress" {
@@ -107,6 +99,7 @@ resource "aws_security_group_rule" "env_egress" {
   cidr_blocks       = ["0.0.0.0/0"]
   ipv6_cidr_blocks  = ["::/0"]
   security_group_id = "${aws_security_group.env.id}"
+  description       = "env outbound"
 }
 
 resource "aws_internet_gateway" "env" {

@@ -18,6 +18,7 @@ resource "aws_security_group_rule" "ping_everything" {
   protocol                 = "icmp"
   source_security_group_id = "${aws_security_group.env.id}"
   security_group_id        = "${module.nat.network_sg}"
+  description              = "natted traffic can ping"
 }
 
 resource "aws_security_group_rule" "forward_allow_ssh" {
@@ -27,6 +28,7 @@ resource "aws_security_group_rule" "forward_allow_ssh" {
   protocol                 = "tcp"
   source_security_group_id = "${aws_security_group.env.id}"
   security_group_id        = "${module.nat.network_sg}"
+  description              = "natted traffic can ssh"
 }
 
 resource "aws_security_group_rule" "forward_allow_http" {
@@ -36,6 +38,7 @@ resource "aws_security_group_rule" "forward_allow_http" {
   protocol                 = "tcp"
   source_security_group_id = "${aws_security_group.env.id}"
   security_group_id        = "${module.nat.network_sg}"
+  description              = "natted traffic can visit http"
 }
 
 resource "aws_security_group_rule" "forward_allow_https" {
@@ -45,4 +48,5 @@ resource "aws_security_group_rule" "forward_allow_https" {
   protocol                 = "tcp"
   source_security_group_id = "${aws_security_group.env.id}"
   security_group_id        = "${module.nat.network_sg}"
+  description              = "natted traffic can visit https"
 }

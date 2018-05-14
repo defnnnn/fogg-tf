@@ -50,3 +50,13 @@ resource "aws_security_group_rule" "forward_allow_https" {
   security_group_id        = "${module.nat.network_sg}"
   description              = "natted traffic can visit https"
 }
+
+resource "aws_security_group_rule" "allow_zerotier" {
+  type              = "ingress"
+  from_port         = 9993
+  to_port           = 9993
+  protocol          = "udp"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = "${module.nat.network_sg}"
+  description       = "allow zerotier in"
+}

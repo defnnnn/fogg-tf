@@ -51,7 +51,7 @@ resource "aws_security_group_rule" "forward_allow_https" {
   description              = "natted traffic can visit https"
 }
 
-resource "aws_security_group_rule" "allow_zerotier" {
+resource "aws_security_group_rule" "allow_zerotier_nat" {
   type              = "ingress"
   from_port         = 9993
   to_port           = 9993

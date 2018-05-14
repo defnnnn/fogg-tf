@@ -41,7 +41,9 @@ resource "aws_security_group" "fs" {
 
 resource "aws_security_group_rule" "fs_egress" {
   type              = "egress"
-  protocol          = "-1"
+  protocol          = "all"
+  from_port         = 0
+  to_port           = 0
   cidr_blocks       = ["0.0.0.0/0"]
   security_group_id = "${aws_security_group.fs.id}"
 

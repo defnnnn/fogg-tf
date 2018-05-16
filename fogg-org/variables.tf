@@ -58,6 +58,10 @@ variable "want_us_west_2" {
   default = 0
 }
 
+variable "want_ca_central_1" {
+  default = 0
+}
+
 variable "want_eu_west_1" {
   default = 0
 }

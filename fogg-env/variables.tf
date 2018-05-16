@@ -74,14 +74,6 @@ variable "want_sd" {
   default = "1"
 }
 
-variable "want_digitalocean" {
-  default = "0"
-}
-
-variable "want_packet" {
-  default = "0"
-}
-
 output "vpc_id" {
   value = "${aws_vpc.env.id}"
 }

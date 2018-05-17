@@ -1,0 +1,67 @@
+#!/usr/bin/env bash
+
+function ubuntu {
+  sudo apt-get update
+  sudo apt-get install -y \
+    openssh-server curl lsb-release sudo make locales python build-essential \
+    aptitude rsync jq netcat software-properties-common \
+    python-software-properties net-tools dnsmasq unzip perl ruby language-pack-en \
+    vim man screen runit nfs-common portmap gettext-base libffi-dev libssl-dev \
+    libreadline-dev zlib1g-dev libxml2-dev libxslt1-dev autoconf automake libtool
+
+  sudp add-apt-repository -y ppa:git-core/ppa
+  sudo apt-get update
+  sudo apt-get install -y git
+
+  sudo locale-gen en_US.UTF-8
+  sudo dpkg-reconfigure --frontend=noninteractive locales
+  sudo update-locale LANG=en_US.UTF-8
+}
+
+function amazon {
+  sudo yum install -y jq wget curl rsync make nc git
+}
+
+function user_data {
+  if type -P apt-get >/dev/null; then
+    ubuntu
+  elif type -P yum >/dev/null; then
+    amazon
+  fi
+
+  sudo groupadd -g 497 docker || true
+  sudo usermod -G docker ubuntu
+
+  sudo install -d -m 0700 -o ubuntu -g ubuntu /data
+}
+
+function main {
+  user_data
+
+  if [[ "$(id -u -n)" != "ubuntu" ]]; then
+    exec ssh -A -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ubuntu@localhost "$BASH_SOURCE" "$@"
+    return $?
+  fi
+
+  if [[ "$(id -u -n)" != "ubuntu" ]]; then
+    echo "ERROR: failure to become ubuntu" 1>&2
+    return 1
+  fi
+
+  ssh -o StrictHostKeyChecking=no github.com true 2>/dev/null || true
+
+  git clone git@github.com:imma/ubuntu
+  mv ubuntu/.git .
+  rm -rf ubuntu
+  git reset --hard
+  git pull
+
+  script/setup
+  make cache
+  source .bash_profile
+  for a in {1..5}; do git clean -ffd || true; done
+} 
+
+main "$@"
+
+

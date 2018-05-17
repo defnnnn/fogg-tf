@@ -1,0 +1,43 @@
+---
+transport:
+  forward_agent: true
+  username: ubuntu
+
+provisioner:
+  name: shell
+  require_chef_omnibus: false
+  script: .module/fogg-tf/bootstrap
+
+verifier:
+  name: inspec
+  inspec_tests:
+    - .module/fogg-tf/test/smoke/default
+
+platforms:
+  - name: ubuntu
+    driver:
+      image_search:
+        owner-id: "099720109477"
+        name: ubuntu/images/*/ubuntu*16.04*
+  - name: amazon
+    driver:
+      image_search:
+        name: amzn-ami-2017*amazon-ecs-optimized
+
+suites:
+ - name: aws
+   driver:
+     name: ec2
+     interface: private
+     skip_cost_warning: true
+     spot_price: <%= ENV['FOGG_SPOT_PRICE'] || '0.004' %>
+     instance_type: <%= ENV['FOGG_INSTANCE_TYPE'] || 't2.micro' %>
+     associate_public_ip: false
+     iam_profile_name: <%= ENV['fogg__service_iam_profile'] %>
+     aws_ssh_key_id: <%= ENV['fogg__key_name'] %>
+     user_data: .module/fogg-tf/user_data.sh
+     subnet_id: <%= (ENV['fogg__service_subnets']||"").split(/\s+/)[0] %>
+     security_group_ids: 
+       - "<%= ENV['fogg__env_sg'] %>"
+       - "<%= ENV['fogg__app_sg'] %>"
+       - "<%= ENV['fogg__service_sg'] %>"

@@ -38,6 +38,10 @@ function user_data {
 function main {
   user_data
 
+  if [[ ! -f /tmp/kitchen/data/ips.txt ]]; then
+    return 0
+  fi
+
   if [[ "$(id -u -n)" != "ubuntu" ]]; then
     exec ssh -A -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ubuntu@localhost "$BASH_SOURCE" "$@"
     return $?

@@ -35,7 +35,7 @@ driver:
   iam_profile_name: <%= ENV['fogg__service_iam_profile'] %>
   user_data: .module/fogg-tf/user_data.sh
   aws_ssh_key_id: <%= ENV['fogg__key_name'] %>
-  subnet_id: <%= (ENV['fogg__service_subnets']||"").split(/\s+/)[0] %>
+  subnet_id: <%= x ||= -1; x += 1; (ENV['fogg__service_subnets']||"").split(/\s+/)[x%(ENV['fogg__service_subnets']||"").split(/\s+/).length]; %>
   security_group_ids: 
     - "<%= ENV['fogg__env_sg'] %>"
     - "<%= ENV['fogg__app_sg'] %>"
@@ -43,5 +43,8 @@ driver:
 
 suites:
  - name: aws1
+   excludes: [ amazon ]
  - name: aws2
+   excludes: [ amazon ]
  - name: aws3
+   excludes: [ amazon ]

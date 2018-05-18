@@ -66,3 +66,7 @@ data "terraform_remote_state" "app" {
     dynamodb_table = "terraform_state_lock"
   }
 }
+
+output "zerotier_network" {
+  value = "${var.zerotier_network}"
+}

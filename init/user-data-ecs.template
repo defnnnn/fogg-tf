@@ -164,4 +164,6 @@ rm -rf /var/lib/ecs/data/* /var/cache/ecs/*
 
 echo "/dev/docker/overlay /var/lib/docker auto defaults 0 0" >> /etc/fstab
 
+touch /tmp/done
+
 --===============88888888888888888888888888==

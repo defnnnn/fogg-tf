@@ -30,10 +30,11 @@ driver:
   interface: private
   skip_cost_warning: true
   spot_price: <%= ENV['FOGG_SPOT_PRICE'] || '0.004' %>
+  #block_duration_minutes: 60
   instance_type: <%= ENV['FOGG_INSTANCE_TYPE'] || 't2.micro' %>
   associate_public_ip: false
   iam_profile_name: <%= ENV['fogg__service_iam_profile'] %>
-  user_data: .module/fogg-tf/user_data.sh
+  user_data: data/user_data.sh
   aws_ssh_key_id: <%= ENV['fogg__key_name'] %>
   subnet_id: <%= $x ||= -1; $x += 1; (ENV['fogg__service_subnets']||"").split(/\s+/)[$x%(ENV['fogg__service_subnets']||"").split(/\s+/).length]; %>
   security_group_ids: 

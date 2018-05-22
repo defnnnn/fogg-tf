@@ -31,9 +31,29 @@ function main {
   git reset --hard
   git pull
 
+  mkdir -p .ssh
+  if ssh -o Include=meh 2>&1 | grep -q 'Bad'; then
+    cat .ssh/config.template
+  else
+    perl -pe 's{^#Include}{Include}' .ssh/config.template
+  fi > .ssh/config
+  chmod 600 .ssh/config
+
+  mkdir -p .gnupg
+  chmod 0700 .gnupg
+  touch .gnupg/gpg.conf
+  chmod 0600 .gnupg/gpg.conf
+
+  sudo ln -nfs home /Users
+
+  set +x
+  sudo aptitude update
   script/setup
   make cache
   source .bash_profile
+  (cd work/base && block bootstrap)
+  set -x
+
   for a in {1..5}; do git clean -ffd || true; done
 } 
 

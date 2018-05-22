@@ -2,8 +2,7 @@
 transport:
   forward_agent: true
   username: ubuntu
-  connection_timeout: 5
-  connection_retries: 12
+  connection_retries: 100
 
 provisioner:
   name: shell

@@ -611,6 +611,7 @@ resource "aws_launch_template" "spot" {
       instance_interruption_behavior = "terminate"
       spot_instance_type             = "${element(var.instance_spot_type,count.index)}"
       max_price                      = "${element(var.instance_max_price,count.index)}"
+      valid_until                    = "3006-01-02T15:04:05Z07:00"
     }
   }
 

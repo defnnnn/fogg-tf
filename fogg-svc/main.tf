@@ -625,7 +625,7 @@ resource "aws_launch_template" "service" {
 
   vpc_security_group_ids = ["${concat(list(data.terraform_remote_state.env.sg_env,aws_security_group.service.id),list(data.terraform_remote_state.app.app_sg))}"]
 
-  user_data = "${data.template_file.user_data_service.rendered}"
+  user_data = "${base64encode(data.template_file.user_data_service.rendered)}"
 
   tag_specifications {
     resource_type = "instance"

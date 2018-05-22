@@ -611,11 +611,10 @@ resource "aws_launch_template" "spot" {
       instance_interruption_behavior = "terminate"
       spot_instance_type             = "${element(var.instance_spot_type,count.index)}"
       max_price                      = "${element(var.instance_max_price,count.index)}"
-      valid_until                    = "2030-12-19T16:39:57-08:00"
     }
   }
 
-  count = "${var.asg_count}"
+  count = 0 #"${var.asg_count}"
 }
 
 resource "aws_launch_template" "service" {

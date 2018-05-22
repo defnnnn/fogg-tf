@@ -534,39 +534,6 @@ resource "aws_instance" "service" {
   }
 }
 
-resource "aws_spot_fleet_request" "service" {
-  iam_fleet_role      = "arn:aws:iam::${data.terraform_remote_state.org.aws_account_id}:role/aws-ec2-spot-fleet-tagging-role"
-  allocation_strategy = "diversified"
-  target_capacity     = "${var.instance_count_sf}"
-  valid_until         = "2999-01-01T00:00:00Z"
-  spot_price          = "${var.spot_price_sf}"
-  count               = "${var.sf_count}"
-
-  launch_specification {
-    instance_type          = "${var.instance_type_sf}"
-    ami                    = "${coalesce(element(var.ami_id,0),local.vendor_ami_id)}"
-    key_name               = "${var.key_name}"
-    user_data              = "${data.template_file.user_data_service.rendered}"
-    vpc_security_group_ids = ["${concat(list(data.terraform_remote_state.env.sg_env,aws_security_group.service.id),list(data.terraform_remote_state.app.app_sg))}"]
-    iam_instance_profile   = "${local.service_name}"
-    subnet_id              = "${element(compact(concat(aws_subnet.service.*.id,aws_subnet.service_v6.*.id,formatlist(var.want_subnets ? "%[3]s" : (var.public_network ? "%[1]s" : "%[2]s"),data.terraform_remote_state.env.public_subnets,data.terraform_remote_state.env.private_subnets,data.terraform_remote_state.env.fake_subnets))),count.index)}"
-    availability_zone      = "${element(data.aws_availability_zones.azs.names,count.index)}"
-
-    root_block_device {
-      volume_type = "gp2"
-      volume_size = "${element(var.root_volume_size,0)}"
-    }
-
-    tags {
-      "Name"      = "${local.service_name}"
-      "Env"       = "${data.terraform_remote_state.env.env_name}"
-      "App"       = "${data.terraform_remote_state.app.app_name}"
-      "Service"   = "${var.service_name}"
-      "ManagedBy" = "spot_fleet ${local.service_name}"
-    }
-  }
-}
-
 resource "aws_launch_template" "service" {
   name_prefix = "${local.service_name}-${element(var.asg_name,count.index)}-"
 

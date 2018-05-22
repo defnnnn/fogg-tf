@@ -613,7 +613,7 @@ resource "aws_launch_template" "service" {
 
   image_id = "${coalesce(element(var.ami_id,count.index),local.vendor_ami_id)}"
 
-  instance_initiated_shutdown_behavior = "terminate"
+  instance_initiated_shutdown_behavior = "stop"
 
   instance_type = "${element(var.instance_type,count.index)}"
 

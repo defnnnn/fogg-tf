@@ -150,6 +150,14 @@ variable "instance_type" {
   default = ["t2.nano"]
 }
 
+variable "instance_spot_type" {
+  default = ["t2.micro"]
+}
+
+variable "instance_max_price" {
+  default = ["0.004"]
+}
+
 variable "ami_id" {
   default = [""]
 }

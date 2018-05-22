@@ -534,6 +534,89 @@ resource "aws_instance" "service" {
   }
 }
 
+resource "aws_launch_template" "spot" {
+  name_prefix = "${local.service_name}-${element(var.asg_name,count.index)}-"
+
+  block_device_mappings {
+    device_name = "/dev/xvdcz"
+
+    ebs {
+      volume_type           = "gp2"
+      volume_size           = "${element(var.ecs_volume_size,count.index)}"
+      delete_on_termination = true
+    }
+  }
+
+  block_device_mappings {
+    device_name  = "/dev/sdb"
+    virtual_name = "ephemeral0"
+  }
+
+  block_device_mappings {
+    device_name  = "/dev/sdc"
+    virtual_name = "ephemeral1"
+  }
+
+  block_device_mappings {
+    device_name  = "/dev/sdd"
+    virtual_name = "ephemeral2"
+  }
+
+  block_device_mappings {
+    device_name  = "/dev/sde"
+    virtual_name = "ephemeral3"
+  }
+
+  credit_specification {
+    cpu_credits = "unlimited"
+  }
+
+  disable_api_termination = false
+
+  ebs_optimized = false
+
+  iam_instance_profile {
+    arn = "${aws_iam_instance_profile.service.arn}"
+  }
+
+  image_id = "${coalesce(element(var.ami_id,count.index),local.vendor_ami_id)}"
+
+  instance_type = "${element(var.instance_spot_type,count.index)}"
+  key_name      = "${var.key_name}"
+
+  monitoring {
+    enabled = false
+  }
+
+  vpc_security_group_ids = ["${concat(list(data.terraform_remote_state.env.sg_env,aws_security_group.service.id),list(data.terraform_remote_state.app.app_sg))}"]
+  user_data              = "${base64encode(data.template_file.user_data_service.rendered)}"
+
+  tag_specifications {
+    resource_type = "instance"
+
+    tags {
+      "Name"      = "${local.service_name} spot"
+      "Env"       = "${data.terraform_remote_state.env.env_name}"
+      "App"       = "${data.terraform_remote_state.app.app_name}"
+      "Service"   = "${var.service_name}"
+      "ManagedBy" = "terraform"
+    }
+  }
+
+  instance_market_options {
+    market_type = "spot"
+
+    spot_options {
+      spot_instance_type             = "one-time"
+      instance_interruption_behavior = "terminate"
+      spot_instance_type             = "${element(var.instance_spot_type,count.index)}"
+      max_price                      = "${element(var.instance_max_price,count.index)}"
+    }
+  }
+
+  count = "${var.asg_count}"
+}
+
 resource "aws_launch_template" "service" {
   name_prefix = "${local.service_name}-${element(var.asg_name,count.index)}-"
 

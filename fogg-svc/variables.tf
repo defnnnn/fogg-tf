@@ -171,7 +171,11 @@ variable "ami_id" {
 }
 
 variable "root_volume_size" {
-  default = ["10"]
+  default = ["8"]
+}
+
+variable "ecs_volume_size" {
+  default = ["22"]
 }
 
 variable "min_size" {

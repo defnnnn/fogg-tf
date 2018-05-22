@@ -571,11 +571,22 @@ resource "aws_launch_template" "service" {
   name = "${local.service_name}-${element(var.asg_name,count.index)}"
 
   block_device_mappings {
-    device_name = "/dev/sda1"
+    device_name = "/dev/xvda"
 
     ebs {
-      volume_type = "gp2"
-      volume_size = "${element(var.root_volume_size,count.index)}"
+      volume_type           = "gp2"
+      volume_size           = "${element(var.root_volume_size,count.index)}"
+      delete_on_termination = true
+    }
+  }
+
+  block_device_mappings {
+    device_name = "/dev/xvdcz"
+
+    ebs {
+      volume_type           = "gp2"
+      volume_size           = "${element(var.ecs_volume_size,count.index)}"
+      delete_on_termination = true
     }
   }
 
@@ -608,25 +619,25 @@ resource "aws_launch_template" "service" {
   ebs_optimized = false
 
   iam_instance_profile {
-    name = "${local.service_name}"
+    arn = "${aws_iam_instance_profile.service.arn}"
   }
 
   image_id = "${coalesce(element(var.ami_id,count.index),local.vendor_ami_id)}"
 
-  instance_initiated_shutdown_behavior = "stop"
+  #instance_initiated_shutdown_behavior = "stop"
 
   instance_type = "${element(var.instance_type,count.index)}"
-
-  key_name = "${var.key_name}"
-
+  key_name      = "${var.key_name}"
   monitoring {
     enabled = false
   }
-
+  network_interfaces {
+    device_index                = 0
+    delete_on_termination       = true
+    associate_public_ip_address = false
+  }
   vpc_security_group_ids = ["${concat(list(data.terraform_remote_state.env.sg_env,aws_security_group.service.id),list(data.terraform_remote_state.app.app_sg))}"]
-
-  user_data = "${base64encode(data.template_file.user_data_service.rendered)}"
-
+  user_data              = "${base64encode(data.template_file.user_data_service.rendered)}"
   tag_specifications {
     resource_type = "instance"
 
@@ -638,7 +649,6 @@ resource "aws_launch_template" "service" {
       "ManagedBy" = "terraform"
     }
   }
-
   count = "${var.asg_count}"
 }
 

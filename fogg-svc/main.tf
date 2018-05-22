@@ -571,17 +571,6 @@ resource "aws_launch_template" "service" {
   name_prefix = "${local.service_name}-${element(var.asg_name,count.index)}-"
 
   block_device_mappings {
-    device_name = "/dev/xvda"
-
-    ebs {
-      volume_type           = "gp2"
-      volume_size           = "${element(var.root_volume_size,count.index)}"
-      delete_on_termination = true
-      encrypted             = false
-    }
-  }
-
-  block_device_mappings {
     device_name = "/dev/xvdcz"
 
     ebs {

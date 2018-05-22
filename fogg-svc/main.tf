@@ -568,7 +568,7 @@ resource "aws_spot_fleet_request" "service" {
 }
 
 resource "aws_launch_template" "service" {
-  name = "${local.service_name}-${element(var.asg_name,count.index)}"
+  name_prefix = "${local.service_name}-${element(var.asg_name,count.index)}-"
 
   block_device_mappings {
     device_name = "/dev/xvda"
@@ -624,20 +624,23 @@ resource "aws_launch_template" "service" {
 
   image_id = "${coalesce(element(var.ami_id,count.index),local.vendor_ami_id)}"
 
-  #instance_initiated_shutdown_behavior = "stop"
-
   instance_type = "${element(var.instance_type,count.index)}"
   key_name      = "${var.key_name}"
+
   monitoring {
     enabled = false
   }
+
   network_interfaces {
     device_index                = 0
     delete_on_termination       = true
     associate_public_ip_address = false
+    security_groups             = ["${concat(list(data.terraform_remote_state.env.sg_env,aws_security_group.service.id),list(data.terraform_remote_state.app.app_sg))}"]
   }
+
   vpc_security_group_ids = ["${concat(list(data.terraform_remote_state.env.sg_env,aws_security_group.service.id),list(data.terraform_remote_state.app.app_sg))}"]
   user_data              = "${base64encode(data.template_file.user_data_service.rendered)}"
+
   tag_specifications {
     resource_type = "instance"
 
@@ -649,6 +652,7 @@ resource "aws_launch_template" "service" {
       "ManagedBy" = "terraform"
     }
   }
+
   count = "${var.asg_count}"
 }
 
@@ -826,17 +830,17 @@ resource "aws_ecs_service" "svc" {
     security_groups = ["${data.terraform_remote_state.env.sg_env}", "${data.terraform_remote_state.app.app_sg}", "${aws_security_group.service.id}"]
   }
 
-  placement_strategy {
+  ordered_placement_strategy {
     type  = "spread"
     field = "attribute:ecs.availability-zone"
   }
 
-  placement_strategy {
+  ordered_placement_strategy {
     type  = "spread"
     field = "instanceId"
   }
 
-  placement_strategy {
+  ordered_placement_strategy {
     type  = "binpack"
     field = "memory"
   }
@@ -896,7 +900,7 @@ resource "aws_autoscaling_group" "service" {
 
   launch_template = {
     id      = "${aws_launch_template.service.id}"
-    version = "$$Latest"
+    version = "${aws_launch_template.service.latest_version}"
   }
 
   vpc_zone_identifier  = ["${compact(concat(aws_subnet.service.*.id,aws_subnet.service_v6.*.id,formatlist(var.want_subnets ? "%[3]s" : (var.public_network ? "%[1]s" : "%[2]s"),data.terraform_remote_state.env.public_subnets,data.terraform_remote_state.env.private_subnets,data.terraform_remote_state.env.fake_subnets)))}"]

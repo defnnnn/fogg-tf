@@ -243,7 +243,7 @@ output "service_iam_profile" {
 }
 
 output "service_ami" {
-  value = "${element(aws_launch_configuration.service.*.image_id,0)}"
+  value = "${element(aws_launch_template.service.*.image_id,0)}"
 }
 
 output "block" {

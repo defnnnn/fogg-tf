@@ -47,10 +47,15 @@ function main {
   sudo ln -nfs home /Users
 
   set +x
-  sudo aptitude update
   script/setup
   make cache
   source .bash_profile
+
+  sudo yum upgrade -y
+	sudo yum install -y gcc-c++ gcc diffutils # pkgsrc
+	sudo yum install -y zlib-devel # netdata
+	sudo yum install -y readline-devel # ruby
+	sudo yum install -y unzip nc # everyone
   (cd work/base && block bootstrap)
   set -x
 

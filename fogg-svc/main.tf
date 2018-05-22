@@ -567,44 +567,79 @@ resource "aws_spot_fleet_request" "service" {
   }
 }
 
-resource "aws_launch_configuration" "service" {
-  name_prefix          = "${local.service_name}-${element(var.asg_name,count.index)}-"
-  instance_type        = "${element(var.instance_type,count.index)}"
-  image_id             = "${coalesce(element(var.ami_id,count.index),local.vendor_ami_id)}"
-  iam_instance_profile = "${local.service_name}"
-  key_name             = "${var.key_name}"
-  user_data            = "${data.template_file.user_data_service.rendered}"
-  security_groups      = ["${concat(list(data.terraform_remote_state.env.sg_env,aws_security_group.service.id),list(data.terraform_remote_state.app.app_sg))}"]
-  count                = "${var.asg_count}"
+resource "aws_launch_template" "service" {
+  name = "${local.service_name}-${element(var.asg_name,count.index)}"
 
-  lifecycle {
-    create_before_destroy = true
+  block_device_mappings {
+    device_name = "/dev/sda1"
+
+    ebs {
+      volume_type = "gp2"
+      volume_size = "${element(var.root_volume_size,count.index)}"
+    }
   }
 
-  root_block_device {
-    volume_type = "gp2"
-    volume_size = "${element(var.root_volume_size,count.index)}"
-  }
-
-  ephemeral_block_device {
+  block_device_mappings {
     device_name  = "/dev/sdb"
     virtual_name = "ephemeral0"
   }
 
-  ephemeral_block_device {
+  block_device_mappings {
     device_name  = "/dev/sdc"
     virtual_name = "ephemeral1"
   }
 
-  ephemeral_block_device {
+  block_device_mappings {
     device_name  = "/dev/sdd"
     virtual_name = "ephemeral2"
   }
 
-  ephemeral_block_device {
+  block_device_mappings {
     device_name  = "/dev/sde"
     virtual_name = "ephemeral3"
   }
+
+  credit_specification {
+    cpu_credits = "unlimited"
+  }
+
+  disable_api_termination = false
+
+  ebs_optimized = false
+
+  iam_instance_profile {
+    name = "${local.service_name}"
+  }
+
+  image_id = "${coalesce(element(var.ami_id,count.index),local.vendor_ami_id)}"
+
+  instance_initiated_shutdown_behavior = "terminate"
+
+  instance_type = "${element(var.instance_type,count.index)}"
+
+  key_name = "${var.key_name}"
+
+  monitoring {
+    enabled = false
+  }
+
+  vpc_security_group_ids = ["${concat(list(data.terraform_remote_state.env.sg_env,aws_security_group.service.id),list(data.terraform_remote_state.app.app_sg))}"]
+
+  user_data = "${data.template_file.user_data_service.rendered}"
+
+  tag_specifications {
+    resource_type = "instance"
+
+    tags {
+      "Name"      = "${local.service_name}"
+      "Env"       = "${data.terraform_remote_state.env.env_name}"
+      "App"       = "${data.terraform_remote_state.app.app_name}"
+      "Service"   = "${var.service_name}"
+      "ManagedBy" = "terraform"
+    }
+  }
+
+  count = "${var.asg_count}"
 }
 
 locals {
@@ -847,8 +882,13 @@ resource "aws_ecs_service" "ex_fargate" {
 }
 
 resource "aws_autoscaling_group" "service" {
-  name                 = "${local.service_name}-${element(var.asg_name,count.index)}"
-  launch_configuration = "${element(aws_launch_configuration.service.*.name,count.index)}"
+  name = "${local.service_name}-${element(var.asg_name,count.index)}"
+
+  launch_template = {
+    id      = "${aws_launch_template.service.id}"
+    version = "$$Latest"
+  }
+
   vpc_zone_identifier  = ["${compact(concat(aws_subnet.service.*.id,aws_subnet.service_v6.*.id,formatlist(var.want_subnets ? "%[3]s" : (var.public_network ? "%[1]s" : "%[2]s"),data.terraform_remote_state.env.public_subnets,data.terraform_remote_state.env.private_subnets,data.terraform_remote_state.env.fake_subnets)))}"]
   min_size             = "${element(var.min_size,count.index)}"
   max_size             = "${element(var.max_size,count.index)}"

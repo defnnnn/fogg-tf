@@ -577,6 +577,7 @@ resource "aws_launch_template" "service" {
       volume_type           = "gp2"
       volume_size           = "${element(var.root_volume_size,count.index)}"
       delete_on_termination = true
+      encrypted             = false
     }
   }
 
@@ -629,13 +630,6 @@ resource "aws_launch_template" "service" {
 
   monitoring {
     enabled = false
-  }
-
-  network_interfaces {
-    device_index                = 0
-    delete_on_termination       = true
-    associate_public_ip_address = false
-    security_groups             = ["${concat(list(data.terraform_remote_state.env.sg_env,aws_security_group.service.id),list(data.terraform_remote_state.app.app_sg))}"]
   }
 
   vpc_security_group_ids = ["${concat(list(data.terraform_remote_state.env.sg_env,aws_security_group.service.id),list(data.terraform_remote_state.app.app_sg))}"]
@@ -900,7 +894,7 @@ resource "aws_autoscaling_group" "service" {
 
   launch_template = {
     id      = "${aws_launch_template.service.id}"
-    version = "${aws_launch_template.service.latest_version}"
+    version = "$$Latest"
   }
 
   vpc_zone_identifier  = ["${compact(concat(aws_subnet.service.*.id,aws_subnet.service_v6.*.id,formatlist(var.want_subnets ? "%[3]s" : (var.public_network ? "%[1]s" : "%[2]s"),data.terraform_remote_state.env.public_subnets,data.terraform_remote_state.env.private_subnets,data.terraform_remote_state.env.fake_subnets)))}"]

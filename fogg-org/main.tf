@@ -1,4 +1,9 @@
 provider "aws" {
+  alias  = "us_west_1"
+  region = "us-west-1"
+}
+
+provider "aws" {
   alias  = "us_west_2"
   region = "us-west-2"
 }
@@ -6,6 +11,16 @@ provider "aws" {
 provider "aws" {
   alias  = "us_east_1"
   region = "us-east-1"
+}
+
+provider "aws" {
+  alias  = "us_east_2"
+  region = "us-east-2"
+}
+
+provider "aws" {
+  alias  = "ca_central_1"
+  region = "ca-central-1"
 }
 
 provider "aws" {
@@ -752,6 +767,7 @@ resource "aws_ssm_parameter" "fogg_org" {
   name  = "org.fogg_org"
   type  = "String"
   value = "${var.account_name}"
+  overwrite = true
 }
 
 resource "aws_iam_role" "api_gateway" {

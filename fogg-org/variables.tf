@@ -14,6 +14,10 @@ variable "want_config" {
   default = 0
 }
 
+variable "want_guard_duty" {
+  default = 0
+}
+
 variable "cdn_secret" {
   default = "not-a-secret"
 }

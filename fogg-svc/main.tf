@@ -802,7 +802,7 @@ resource "aws_ecs_service" "svc" {
 
 resource "aws_ecs_task_definition" "bridge" {
   count        = "${var.want_sd}"
-  family       = "${local.service_name}"
+  family       = "${local.service_name}-sshd"
   network_mode = "bridge"
 
   volume {
@@ -834,7 +834,6 @@ resource "aws_ecs_task_definition" "bridge" {
       }
     ],
     "name": "sshd",
-    "hostname": "sshd",
     "portMappings": [
 			{
         "containerPort": 22
@@ -847,8 +846,8 @@ DEFINITION
 }
 
 resource "aws_ecs_service" "bridge" {
-  count                              = "${var.want_sd*0}"
-  name                               = "${local.service_name}"
+  count                              = "${var.want_sd}"
+  name                               = "${local.service_name}-sshd"
   cluster                            = "${aws_ecs_cluster.service.id}"
   task_definition                    = "${aws_ecs_task_definition.bridge.arn}"
   desired_count                      = "0"
@@ -856,7 +855,9 @@ resource "aws_ecs_service" "bridge" {
   deployment_minimum_healthy_percent = "0"
 
   service_registries {
-    registry_arn = "${aws_service_discovery_service.bridge.arn}"
+    registry_arn   = "${aws_service_discovery_service.bridge.arn}"
+    container_name = "sshd"
+    container_port = "22"
   }
 
   ordered_placement_strategy {

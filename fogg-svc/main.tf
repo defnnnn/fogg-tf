@@ -800,6 +800,85 @@ resource "aws_ecs_service" "svc" {
   }
 }
 
+resource "aws_ecs_task_definition" "bridge" {
+  count        = "${var.want_sd}"
+  family       = "${local.service_name}"
+  network_mode = "bridge"
+
+  volume {
+    name      = "data"
+    host_path = "/data"
+  }
+
+  volume {
+    name      = "docker"
+    host_path = "/var/run/docker.sock"
+  }
+
+  container_definitions = <<DEFINITION
+[
+  {
+    "cpu": 256,
+    "environment": [],
+    "essential": true,
+    "image": "${var.ecs_image}",
+    "memory": 200,
+    "mountPoints": [
+      {
+        "containerPath": "/data",
+        "sourceVolume": "data"
+      },
+      {
+        "containerPath": "/var/run/docker.sock",
+        "sourceVolume": "docker"
+      }
+    ],
+    "name": "sshd",
+    "hostname": "sshd",
+    "portMappings": [
+			{
+        "containerPort": 22
+      }
+		],
+    "volumesFrom": []
+  }
+]
+DEFINITION
+}
+
+resource "aws_ecs_service" "bridge" {
+  count                              = "${var.want_sd*0}"
+  name                               = "${local.service_name}"
+  cluster                            = "${aws_ecs_cluster.service.id}"
+  task_definition                    = "${aws_ecs_task_definition.bridge.arn}"
+  desired_count                      = "0"
+  deployment_maximum_percent         = "100"
+  deployment_minimum_healthy_percent = "0"
+
+  service_registries {
+    registry_arn = "${aws_service_discovery_service.bridge.arn}"
+  }
+
+  ordered_placement_strategy {
+    type  = "spread"
+    field = "attribute:ecs.availability-zone"
+  }
+
+  ordered_placement_strategy {
+    type  = "spread"
+    field = "instanceId"
+  }
+
+  ordered_placement_strategy {
+    type  = "binpack"
+    field = "memory"
+  }
+
+  lifecycle {
+    ignore_changes = ["desired_count"]
+  }
+}
+
 resource "aws_ecs_task_definition" "ex_fargate" {
   count                    = "${var.want_fargate}"
   family                   = "${local.service_name}-ex_fargate"
@@ -1385,6 +1464,12 @@ resource "random_pet" "svc" {
   }
 }
 
+resource "random_pet" "bridge" {
+  keepers = {
+    instances = "${join(",",sort(aws_instance.service.*.id))}"
+  }
+}
+
 resource "aws_service_discovery_service" "svc" {
   name  = "${random_pet.svc.id}"
   count = "${var.want_sd}"
@@ -1399,6 +1484,28 @@ resource "aws_service_discovery_service" "svc" {
     dns_records {
       ttl  = 10
       type = "A"
+    }
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "aws_service_discovery_service" "bridge" {
+  name  = "${random_pet.bridge.id}"
+  count = "${var.want_sd}"
+
+  health_check_custom_config {
+    failure_threshold = "4"
+  }
+
+  dns_config {
+    namespace_id = "${data.terraform_remote_state.env.private_sd_id}"
+
+    dns_records {
+      ttl  = 10
+      type = "SRV"
     }
   }
 

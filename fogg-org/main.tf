@@ -764,9 +764,9 @@ resource "aws_iam_role_policy_attachment" "macie_setup_cloudtrail" {
 }
 
 resource "aws_ssm_parameter" "fogg_org" {
-  name  = "org.fogg_org"
-  type  = "String"
-  value = "${var.account_name}"
+  name      = "org.fogg_org"
+  type      = "String"
+  value     = "${var.account_name}"
   overwrite = true
 }
 

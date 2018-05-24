@@ -24,8 +24,48 @@ provider "aws" {
 }
 
 provider "aws" {
+  alias  = "sa_east_1"
+  region = "sa-east-1"
+}
+
+provider "aws" {
   alias  = "eu_west_1"
   region = "eu-west-1"
+}
+
+provider "aws" {
+  alias  = "eu_west_2"
+  region = "eu-west-2"
+}
+
+provider "aws" {
+  alias  = "eu_west_3"
+  region = "eu-west-3"
+}
+
+provider "aws" {
+  alias  = "ap_northeast_1"
+  region = "ap-northeast-1"
+}
+
+provider "aws" {
+  alias  = "ap_northeast_2"
+  region = "ap-northeast-2"
+}
+
+provider "aws" {
+  alias  = "ap_southeast_1"
+  region = "ap-southeast-1"
+}
+
+provider "aws" {
+  alias  = "ap_southeast_2"
+  region = "ap-southeast-2"
+}
+
+provider "aws" {
+  alias  = "ap_south_1"
+  region = "ap-south-1"
 }
 
 data "aws_caller_identity" "current" {}

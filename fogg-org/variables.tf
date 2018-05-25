@@ -10,6 +10,14 @@ variable "want_lightsail" {
   default = 0
 }
 
+variable "lightsail_name" {
+  default =""
+}
+
+variable "lightsail_region" {
+  default = ""
+}
+
 variable "want_macie" {
   default = 0
 }

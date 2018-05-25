@@ -11,11 +11,15 @@ variable "want_lightsail" {
 }
 
 variable "lightsail_name" {
-  default =""
+  default = ""
 }
 
 variable "lightsail_zone" {
   default = ""
+}
+
+variable "lightsail_user_data" {
+  default = ".module/fogg-tf/init/user-data-lightsail.template"
 }
 
 variable "want_macie" {

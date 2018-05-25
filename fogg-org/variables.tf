@@ -14,7 +14,7 @@ variable "lightsail_name" {
   default =""
 }
 
-variable "lightsail_region" {
+variable "lightsail_zone" {
   default = ""
 }
 

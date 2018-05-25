@@ -6,6 +6,10 @@ variable "global_name" {}
 variable "remote_bucket" {}
 variable "remote_region" {}
 
+variable "want_lightsail" {
+  default = 0
+}
+
 variable "want_macie" {
   default = 0
 }

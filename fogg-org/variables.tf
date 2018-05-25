@@ -18,6 +18,10 @@ variable "lightsail_zone" {
   default = ""
 }
 
+variable "zerotier_network" {
+  default = ""
+}
+
 variable "lightsail_user_data" {
   default = ".module/fogg-tf/init/user-data-lightsail.template"
 }

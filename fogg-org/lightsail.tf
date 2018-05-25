@@ -23,7 +23,7 @@ resource "aws_lightsail_key_pair" "org" {
 
 resource "aws_lightsail_static_ip" "org" {
   count = "${var.want_lightsail}"
-  name  = "${var.lightsail_name}"
+  name  = "${var.lightsail_name}-ip"
 }
 
 resource "aws_lightsail_static_ip_attachment" "org" {

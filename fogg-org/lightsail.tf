@@ -14,6 +14,10 @@ resource "aws_lightsail_instance" "org" {
   bundle_id         = "nano_1_0"
   key_pair_name     = "${aws_lightsail_key_pair.org.name}"
   user_data         = "${data.template_file.lightsail.rendered}"
+
+  lifecycle {
+    ignore_changes = ["user_data"]
+  }
 }
 
 resource "aws_lightsail_key_pair" "org" {

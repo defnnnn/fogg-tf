@@ -34,3 +34,7 @@ output "method" {
 output "integration" {
   value = "${aws_api_gateway_integration.fn.id}"
 }
+
+output "signature" {
+  value = "${var.resource_id}-${aws_api_gateway_method.fn.id}-${aws_api_gateway_integration.fn.id}-${var.rest_api_id}-${var.resource_id}-${var.invoke_arn}-${var.http_method}"
+}

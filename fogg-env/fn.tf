@@ -180,22 +180,30 @@ module "resource_hello" {
 
 resource "aws_api_gateway_deployment" "env" {
   rest_api_id = "${aws_api_gateway_rest_api.env.id}"
-
-  description = "${module.resource_helo.resource}/${module.resource_hello.resource}"
   stage_name  = "rc"
 
   lifecycle {
     create_before_destroy = true
-    ignore_changes        = ["stage_name"]
   }
 
   variables = {
-    helo_resource     = "${module.resource_helo.resource}"
-    helo_method       = "${module.resource_helo.method}"
-    helo_integration  = "${module.resource_helo.integration}"
-    hello_resource    = "${module.resource_hello.resource}"
-    hello_method      = "${module.resource_hello.method}"
-    hello_integration = "${module.resource_hello.integration}"
+    helo_signature  = "${module.resource_helo.signature}"
+    hello_signature = "${module.resource_hello.signature}"
+  }
+}
+
+resource "aws_api_gateway_deployment" "live" {
+  rest_api_id = "${aws_api_gateway_rest_api.env.id}"
+  stage_name  = "live"
+
+  lifecycle {
+    create_before_destroy = true
+    ignore_changes        = ["variables"]
+  }
+
+  variables = {
+    helo_signature  = "${module.resource_helo.signature}"
+    hello_signature = "${module.resource_hello.signature}"
   }
 }
 

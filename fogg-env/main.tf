@@ -650,6 +650,8 @@ resource "aws_ssm_maintenance_window_task" "ps" {
 resource "aws_ssm_association" "GatherSoftwareInventory" {
   name = "AWS-GatherSoftwareInventory"
 
+  schedule_expression = "cron(0 0 */1 * * ? *)"
+
   targets {
     key    = "tag:Env"
     values = ["${var.env_name}"]

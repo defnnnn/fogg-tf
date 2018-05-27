@@ -256,40 +256,39 @@ resource "aws_s3_bucket" "config" {
   }
 }
 
+data "aws_iam_policy_document" "config_s3" {
+  statement {
+    actions = [
+      "s3:GetBucketAcl",
+    ]
+
+    resources = [
+      "${aws_s3_bucket.config.arn}",
+    ]
+  }
+
+  statement {
+    actions = [
+      "s3:PutObject",
+    ]
+
+    resources = [
+      "${aws_s3_bucket.config.arn}/AwsLogs/*",
+    ]
+
+    condition {
+      test     = "StringEquals"
+      variable = "s3:x-amz-acl"
+      values   = ["bucket-owner-full-control"]
+    }
+  }
+}
+
 resource "aws_iam_role_policy" "config_s3" {
   name = "config-s3"
   role = "${aws_iam_role.config.id}"
 
-  policy = <<POLICY
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Action": [
-        "s3:GetBucketAcl"
-      ],
-      "Resource": [
-        "${aws_s3_bucket.config.arn}"
-      ]
-    },
-    {
-      "Effect": "Allow",
-      "Action": [
-        "s3:PutObject"
-      ],
-      "Resource": [
-        "${aws_s3_bucket.config.arn}/AwsLogs/*"
-      ],
-      "Condition": {
-        "StringLike": {
-          "s3:x-amz-acl": "bucket-owner-full-control"
-        }
-      }
-    }
-  ]
-}
-POLICY
+  policy = "${data.aws_iam_policy_document.config_s3.json}"
 }
 
 resource "aws_s3_bucket" "inventory" {
@@ -416,46 +415,42 @@ resource "aws_sns_topic_subscription" "config" {
   protocol  = "sqs"
 }
 
+data "aws_iam_policy_document" "config_sns" {
+  statement {
+    actions = [
+      "sns:Publish",
+    ]
+
+    resources = [
+      "${aws_sns_topic.config.arn}",
+    ]
+  }
+}
+
 resource "aws_iam_role_policy" "config_sns" {
   name = "config-sns"
   role = "${aws_iam_role.config.id}"
 
-  policy = <<POLICY
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Action": [
-        "sns:Publish"
-      ],
-      "Resource": [
-        "${aws_sns_topic.config.arn}"
-      ]
-    }
-  ]
+  policy = "${data.aws_iam_policy_document.config_sns.json}"
 }
-POLICY
+
+data "aws_iam_policy_document" "config" {
+  statement {
+    actions = [
+      "sts:AssumeRole",
+    ]
+
+    principals {
+      type        = "Service"
+      identifiers = ["config.amazonaws.com"]
+    }
+  }
 }
 
 resource "aws_iam_role" "config" {
   name = "config"
 
-  assume_role_policy = <<POLICY
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Action": "sts:AssumeRole",
-      "Principal": {
-        "Service": "config.amazonaws.com"
-      },
-      "Effect": "Allow",
-      "Sid": ""
-    }
-  ]
-}
-POLICY
+  assume_role_policy = "${data.aws_iam_policy_document.config.json}"
 }
 
 resource "aws_iam_role_policy_attachment" "config" {
@@ -679,6 +674,44 @@ resource "aws_iam_account_alias" "org" {
   account_alias = "${var.account_name}"
 }
 
+data "aws_iam_policy_document" "website" {
+  statement {
+    actions = [
+      "s3:GetObject",
+    ]
+
+    resources = [
+      "arn:${data.aws_partition.current.partition}:s3:::b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-cdn/*",
+    ]
+
+    principals {
+      type        = "AWS"
+      identifiers = ["${aws_cloudfront_origin_access_identity.website.iam_arn}"]
+    }
+  }
+
+  statement {
+    actions = [
+      "s3:GetObject",
+    ]
+
+    resources = [
+      "arn:${data.aws_partition.current.partition}:s3:::b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-cdn/*",
+    ]
+
+    principals {
+      type        = "AWS"
+      identifiers = ["*"]
+    }
+
+    condition {
+      test     = "StringEquals"
+      variable = "aws:UserAgent"
+      values   = ["${var.cdn_secret}"]
+    }
+  }
+}
+
 resource "aws_s3_bucket" "website" {
   bucket = "b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-cdn"
   acl    = "public-read"
@@ -689,39 +722,7 @@ resource "aws_s3_bucket" "website" {
     routing_rules  = ""
   }
 
-  policy = <<EOF
-{
-    "Version": "2008-10-17",
-    "Id": "PolicyForCloudFrontPrivateContent",
-    "Statement": [
-        {
-            "Sid": "1",
-            "Effect": "Allow",
-            "Principal": {
-                "AWS": "${aws_cloudfront_origin_access_identity.website.iam_arn}"
-            },
-            "Action": "s3:GetObject",
-            "Resource": "arn:${data.aws_partition.current.partition}:s3:::b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-cdn/*"
-        },
-        {
-          "Sid": "2",
-          "Principal": {
-            "AWS": "*"
-          },
-          "Effect": "Allow",
-          "Action": [
-            "s3:GetObject"
-          ],
-          "Resource": "arn:${data.aws_partition.current.partition}:s3:::b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-cdn/*",
-          "Condition": {
-            "StringEquals": {
-              "aws:UserAgent": "${var.cdn_secret}"
-            }
-          }
-        }
-      ]
-}
-EOF
+  policy = "${data.aws_iam_policy_document.website.json}"
 
   tags {
     "Env"       = "global"
@@ -808,25 +809,24 @@ resource "aws_codecommit_repository" "org" {
   description     = "Repo for ${var.account_name} org"
 }
 
+data "aws_iam_policy_document" "macie_service" {
+  statement {
+    actions = [
+      "sts:AssumeRole",
+    ]
+
+    principals {
+      type        = "Service"
+      identifiers = ["macie.amazonaws.com"]
+    }
+  }
+}
+
 resource "aws_iam_role" "macie_service" {
   name  = "macie-setup"
   count = "${var.want_macie}"
 
-  assume_role_policy = <<POLICY
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Action": "sts:AssumeRole",
-      "Principal": {
-        "Service": "macie.amazonaws.com"
-      },
-      "Effect": "Allow",
-      "Sid": ""
-    }
-  ]
-}
-POLICY
+  assume_role_policy = "${data.aws_iam_policy_document.macie_service.json}"
 }
 
 resource "aws_iam_role_policy_attachment" "macie_service" {
@@ -835,25 +835,24 @@ resource "aws_iam_role_policy_attachment" "macie_service" {
   count      = "${var.want_macie}"
 }
 
+data "aws_iam_policy_document" "macie_setup" {
+  statement {
+    actions = [
+      "sts:AssumeRole",
+    ]
+
+    principals {
+      type        = "Service"
+      identifiers = ["macie.amazonaws.com"]
+    }
+  }
+}
+
 resource "aws_iam_role" "macie_setup" {
   name  = "macie-service"
   count = "${var.want_macie}"
 
-  assume_role_policy = <<POLICY
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Action": "sts:AssumeRole",
-      "Principal": {
-        "Service": "macie.amazonaws.com"
-      },
-      "Effect": "Allow",
-      "Sid": ""
-    }
-  ]
-}
-POLICY
+  assume_role_policy = "${data.aws_iam_policy_document.macie_service.json}"
 }
 
 resource "aws_iam_role_policy_attachment" "macie_setup" {
@@ -875,24 +874,23 @@ resource "aws_ssm_parameter" "fogg_org" {
   overwrite = true
 }
 
+data "aws_iam_policy_document" "api_gateway" {
+  statement {
+    actions = [
+      "sts:AssumeRole",
+    ]
+
+    principals {
+      type        = "Service"
+      identifiers = ["apigateway.amazonaws.com"]
+    }
+  }
+}
+
 resource "aws_iam_role" "api_gateway" {
   name = "api_gateway_cloudwatch"
 
-  assume_role_policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Sid": "",
-      "Effect": "Allow",
-      "Principal": {
-        "Service": "apigateway.amazonaws.com"
-        },
-      "Action": "sts:AssumeRole"
-    }
-  ]
-}
-EOF
+  assume_role_policy = "${data.aws_iam_policy_document.macie_setup.json}"
 }
 
 resource "aws_iam_role_policy_attachment" "api_gateway" {

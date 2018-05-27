@@ -361,6 +361,29 @@ resource "aws_s3_bucket" "s3" {
   }
 }
 
+data "aws_iam_policy_document" "aws_s3_bucket_ses" {
+  statement {
+    actions = [
+      "s3:PutObject",
+    ]
+
+    resources = [
+      "arn:${data.aws_partition.current.partition}:s3:::b-${format("%.8s",sha1(data.terraform_remote_state.org.aws_account_id))}-${var.env_name}-ses/*",
+    ]
+
+    principals {
+      type        = "Service"
+      identifiers = ["ses.amazonaws.com"]
+    }
+
+    condition {
+      test     = "StringEquals"
+      variable = "aws:Referer"
+      values   = ["${data.terraform_remote_state.org.aws_account_id}"]
+    }
+  }
+}
+
 resource "aws_s3_bucket" "ses" {
   bucket = "b-${format("%.8s",sha1(data.terraform_remote_state.org.aws_account_id))}-${var.env_name}-ses"
   acl    = "private"
@@ -376,29 +399,49 @@ resource "aws_s3_bucket" "ses" {
     enabled = true
   }
 
-  policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [{
-    "Sid": "",
-    "Action": "s3:PutObject",
-    "Effect": "Allow",
-    "Resource": "arn:${data.aws_partition.current.partition}:s3:::b-${format("%.8s",sha1(data.terraform_remote_state.org.aws_account_id))}-${var.env_name}-ses/*",
-    "Principal": {
-      "Service": "ses.amazonaws.com"
-    },
-    "Condition": {
-      "StringEquals": {
-        "aws:Referer": "${data.terraform_remote_state.org.aws_account_id}"
-      }
-    }
-  }]
-}
-EOF
+  policy = "${data.aws_iam_policy_document.aws_s3_bucket_ses.json}"
 
   tags {
     "ManagedBy" = "terraform"
     "Env"       = "${var.env_name}"
+  }
+}
+
+data "aws_iam_policy_document" "aws_s3_bucket_ssm" {
+  statement {
+    actions = [
+      "s3:GetBucketAcl",
+    ]
+
+    resources = [
+      "arn:${data.aws_partition.current.partition}:s3:::b-${format("%.8s",sha1(data.terraform_remote_state.org.aws_account_id))}-${var.env_name}-ssm",
+    ]
+
+    principals {
+      type        = "Service"
+      identifiers = ["ssm.amazonaws.com"]
+    }
+  }
+
+  statement {
+    actions = [
+      "s3:PutObject",
+    ]
+
+    resources = [
+      "arn:${data.aws_partition.current.partition}:s3:::b-${format("%.8s",sha1(data.terraform_remote_state.org.aws_account_id))}-${var.env_name}-ssm/*/accountid=${data.terraform_remote_state.org.aws_account_id}/*",
+    ]
+
+    principals {
+      type        = "Service"
+      identifiers = ["ssm.amazonaws.com"]
+    }
+
+    condition {
+      test     = "StringEquals"
+      variable = "s3:x-amz-acl"
+      values   = ["bucket-owner-full-control"]
+    }
   }
 }
 
@@ -417,34 +460,7 @@ resource "aws_s3_bucket" "ssm" {
     enabled = true
   }
 
-  policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [{
-    "Sid": "",
-    "Action": "s3:GetBucketAcl",
-    "Effect": "Allow",
-    "Resource": "arn:${data.aws_partition.current.partition}:s3:::b-${format("%.8s",sha1(data.terraform_remote_state.org.aws_account_id))}-${var.env_name}-ssm",
-    "Principal": {
-      "Service": "ssm.amazonaws.com"
-    }
-  },
-  {
-    "Sid": "",
-    "Action": "s3:PutObject",
-    "Effect": "Allow",
-    "Resource": "arn:${data.aws_partition.current.partition}:s3:::b-${format("%.8s",sha1(data.terraform_remote_state.org.aws_account_id))}-${var.env_name}-ssm/*/accountid=${data.terraform_remote_state.org.aws_account_id}/*",
-    "Principal": {
-      "Service": "ssm.amazonaws.com"
-    },
-    "Condition": {
-      "StringEquals": {
-        "s3:x-amz-acl": "bucket-owner-full-control"
-      }
-    }
-  }]
-}
-EOF
+  policy = "${data.aws_iam_policy_document.aws_s3_bucket_ssm.json}"
 
   tags {
     "ManagedBy" = "terraform"

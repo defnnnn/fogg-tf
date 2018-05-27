@@ -82,7 +82,7 @@ resource "aws_route53_record" "acm_validation" {
   name    = "${aws_acm_certificate.env.domain_validation_options.0.resource_record_name}"
   type    = "${aws_acm_certificate.env.domain_validation_options.0.resource_record_type}"
   zone_id = "${data.terraform_remote_state.org.public_zone_id}"
-  records = ["${aws_acm_certificate.env.domain_validation_options.0.resource_record_value}."]
+  records = ["${aws_acm_certificate.env.domain_validation_options.0.resource_record_value}"]
   ttl     = 60
 }
 

@@ -1528,3 +1528,16 @@ resource "aws_route53_record" "sd" {
     evaluate_target_health = false
   }
 }
+
+data "aws_s3_bucket" "inventory" {
+  bucket = "${data.terraform_remote_state.org.inventory_bucket}"
+}
+
+resource "aws_ssm_resource_data_sync" "svc" {
+  name = "${local.service_name}"
+
+  s3_destination = {
+    bucket_name = "${data.terraform_remote_state.org.inventory_bucket}"
+    region      = "${aws_s3_bucket.inventory.region}"
+  }
+}

@@ -256,7 +256,7 @@ resource "aws_s3_bucket" "config" {
   }
 }
 
-data "aws_iam_policy_document" "config_s3" {
+data "aws_iam_policy_document" "aws_iam_role_policy_config_s3" {
   statement {
     actions = [
       "s3:GetBucketAcl",
@@ -288,7 +288,7 @@ resource "aws_iam_role_policy" "config_s3" {
   name = "config-s3"
   role = "${aws_iam_role.config.id}"
 
-  policy = "${data.aws_iam_policy_document.config_s3.json}"
+  policy = "${data.aws_iam_policy_document.aws_iam_role_policy_config_s3.json}"
 }
 
 resource "aws_s3_bucket" "inventory" {
@@ -351,7 +351,7 @@ data "aws_iam_policy_document" "inventory_s3" {
   }
 }
 
-data "aws_iam_policy_document" "config_sns" {
+data "aws_iam_policy_document" "aws_sns_topic_config" {
   statement {
     actions = [
       "SNS:Publish",
@@ -370,17 +370,7 @@ data "aws_iam_policy_document" "config_sns" {
 
 resource "aws_sns_topic" "config" {
   name   = "config"
-  policy = "${data.aws_iam_policy_document.config_sns.json}"
-}
-
-resource "aws_sqs_queue" "config" {
-  name   = "config"
-  policy = "${data.aws_iam_policy_document.config_sns_sqs.json}"
-
-  tags {
-    "ManagedBy" = "terraform"
-    "Env"       = "global"
-  }
+  policy = "${data.aws_iam_policy_document.aws_sns_topic_config.json}"
 }
 
 data "aws_iam_policy_document" "config_sns_sqs" {
@@ -406,6 +396,16 @@ data "aws_iam_policy_document" "config_sns_sqs" {
         "${aws_sns_topic.config.arn}",
       ]
     }
+  }
+}
+
+resource "aws_sqs_queue" "config" {
+  name   = "config"
+  policy = "${data.aws_iam_policy_document.config_sns_sqs.json}"
+
+  tags {
+    "ManagedBy" = "terraform"
+    "Env"       = "global"
   }
 }
 

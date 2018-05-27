@@ -589,8 +589,16 @@ resource "aws_service_discovery_public_dns_namespace" "env" {
   name  = "pub-${local.private_zone_name}"
 }
 
+resource "aws_ssm_maintenance_window" "every_hour" {
+  name                       = "every-hour"
+  schedule                   = "cron(0 0 */1 * * ? *)"
+  duration                   = 1
+  cutoff                     = 0
+  allow_unassociated_targets = true
+}
+
 resource "aws_ssm_maintenance_window_target" "env" {
-  window_id     = "${data.terraform_remote_state.org.maintenance_window_every_hour}"
+  window_id     = "${aws_ssm_maintenance_window.every_hour.id}"
   resource_type = "INSTANCE"
 
   targets {
@@ -600,7 +608,7 @@ resource "aws_ssm_maintenance_window_target" "env" {
 }
 
 resource "aws_ssm_maintenance_window_task" "patch_scan" {
-  window_id        = "${data.terraform_remote_state.org.maintenance_window_every_hour}"
+  window_id        = "${aws_ssm_maintenance_window.every_hour.id}"
   task_type        = "RUN_COMMAND"
   task_arn         = "AWS-RunPatchBaseline"
   priority         = 1
@@ -620,7 +628,7 @@ resource "aws_ssm_maintenance_window_task" "patch_scan" {
 }
 
 resource "aws_ssm_maintenance_window_task" "ps" {
-  window_id        = "${data.terraform_remote_state.org.maintenance_window_every_hour}"
+  window_id        = "${aws_ssm_maintenance_window.every_hour.id}"
   task_type        = "RUN_COMMAND"
   task_arn         = "AWS-RunShellScript"
   priority         = 1

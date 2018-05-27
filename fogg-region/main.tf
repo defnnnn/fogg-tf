@@ -42,7 +42,7 @@ module "kms" {
 #
 #  filter {
 #    name   = "state"
-#    values = ["available"]
+#    vvar.account_namealues = ["available"]
 #  }
 #
 #  filter {
@@ -93,4 +93,13 @@ resource "aws_acm_certificate_validation" "env" {
 
 resource "aws_api_gateway_account" "region" {
   cloudwatch_role_arn = "${data.terraform_remote_state.org.api_gateway_arn}"
+}
+
+resource "aws_ssm_resource_data_sync" "region" {
+  name = "${var.region}"
+
+  s3_destination = {
+    bucket_name = "${data.terraform_remote_state.org.inventory_bucket}"
+    region      = "${data.terraform_remote_state.org.inventory_region}"
+  }
 }

@@ -625,6 +625,12 @@ resource "aws_ssm_maintenance_window_task" "patch_scan" {
     name   = "Operation"
     values = ["Scan"]
   }
+
+  logging_info {
+    s3_bucket_name = "${aws_s3_bucket.ssm.bucket}"
+    s3_region      = "${aws_s3_bucket.ssm.region}"
+    s3_prefix      = "patch_scan"
+  }
 }
 
 resource "aws_ssm_maintenance_window_task" "ps" {
@@ -645,6 +651,12 @@ resource "aws_ssm_maintenance_window_task" "ps" {
     name   = "commands"
     values = ["ps axuf", "df -klh", "uname -a"]
   }
+
+  logging_info {
+    s3_bucket_name = "${aws_s3_bucket.ssm.bucket}"
+    s3_region      = "${aws_s3_bucket.ssm.region}"
+    s3_prefix      = "ps"
+  }
 }
 
 resource "aws_ssm_association" "GatherSoftwareInventory" {
@@ -656,5 +668,10 @@ resource "aws_ssm_association" "GatherSoftwareInventory" {
   targets {
     key    = "tag:Env"
     values = ["${var.env_name}"]
+  }
+
+  output_locations {
+    s3_bucket_name = "${aws_s3_bucket.ssm.bucket}"
+    s3_key_prefix  = "gather-software-inventory"
   }
 }

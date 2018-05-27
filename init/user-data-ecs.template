@@ -35,11 +35,22 @@ chmod 755 /sbin/ifup-local
 
 yum install -y aws-vpc-nat
 
+if [[ "${app}" == "nat" ]]; then
+  while true; do
+    if ifconfig eth1; then
+      /sbin/ifup-local eth1
+      break
+    fi
+  done
+fi
+
 echo net.ipv6.conf.default.forwarding=1 >> /etc/sysctl.conf
 echo net.ipv6.conf.all.forwarding=1 >> /etc/sysctl.conf
 echo net.ipv6.conf.eth0.accept_ra=2 >> /etc/sysctl.conf
 echo net.ipv4.conf.default.forwarding=1 >> /etc/sysctl.conf
 echo net.ipv4.conf.all.forwarding=1 >> /etc/sysctl.conf
+
+
 
 yum update
 yum upgrade -y

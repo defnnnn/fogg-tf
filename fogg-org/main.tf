@@ -933,3 +933,18 @@ resource "aws_iam_service_linked_role" "organization" {
 resource "aws_iam_service_linked_role" "rds" {
   aws_service_name = "rds.amazonaws.com"
 }
+
+resource "aws_ssm_patch_baseline" "org" {
+  name             = "${var.global_name}"
+  operating_system = "AMAZON_LINUX"
+
+  approval_rule {
+    approve_after_days  = 0
+    enable_non_security = 1
+
+    patch_filter {
+      key    = "PRODUCT"
+      values = ["All"]
+    }
+  }
+}

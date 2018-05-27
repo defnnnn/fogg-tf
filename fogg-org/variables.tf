@@ -109,3 +109,7 @@ output "inventory_arn" {
 output "inventory_bucket" {
   value = "${aws_s3_bucket.inventory.bucket}"
 }
+
+output "inventory_region" {
+  value = "${aws_s3_bucket.inventory.region}"
+}

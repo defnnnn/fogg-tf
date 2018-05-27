@@ -164,6 +164,10 @@ rm -rf /var/lib/ecs/data/* /var/cache/ecs/*
 
 echo "/dev/docker/overlay /var/lib/docker auto defaults 0 0" >> /etc/fstab
 
+nm_region="$(curl --silent http://169.254.169.254/latest/dynamic/instance-identity/document | jq -r .region)"
+
+yum install -y https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/linux_amd64/amazon-ssm-agent.rpm
+
 touch /tmp/done
 
 --===============88888888888888888888888888==

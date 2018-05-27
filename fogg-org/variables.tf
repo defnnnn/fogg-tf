@@ -102,6 +102,10 @@ output "api_gateway_arn" {
   value = "${aws_iam_role.api_gateway.arn}"
 }
 
-output "inventory_bucket" {
+output "inventory_arn" {
   value = "${aws_s3_bucket.inventory.arn}"
+}
+
+output "inventory_bucket" {
+  value = "${aws_s3_bucket.inventory.bucket}"
 }

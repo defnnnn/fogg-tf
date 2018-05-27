@@ -35,10 +35,11 @@ chmod 755 /sbin/ifup-local
 
 yum install -y aws-vpc-nat
 
-if [[ "${app}" == "nat" ]]; then
+if [[ "${service}" == "nat" ]]; then
   while true; do
     if ifconfig eth1; then
-      /sbin/ifup-local eth1
+      ifdown eth1
+      ifup eth1
       break
     fi
   done

@@ -1375,24 +1375,24 @@ resource "aws_route53_record" "app" {
   count = "${var.asg_count*signum(var.want_alb)}"
 }
 
+data "aws_iam_policy_document" "aws_iam_role_batch" {
+  statement {
+    actions = [
+      "sts:AssumeRole",
+    ]
+
+    principals {
+      type        = "Service"
+      identifiers = ["batch.amazonaws.com"]
+    }
+  }
+}
+
 resource "aws_iam_role" "batch" {
   name  = "${local.service_name}-batch"
   count = "${var.want_batch}"
 
-  assume_role_policy = <<EOF
-{
-    "Version": "2012-10-17",
-    "Statement": [
-    {
-        "Action": "sts:AssumeRole",
-        "Effect": "Allow",
-        "Principal": {
-        "Service": "batch.amazonaws.com"
-        }
-    }
-    ]
-}
-EOF
+  assume_role_policy = "${data.aws_iam_policy_document.aws_iam_role_batch.json}"
 }
 
 resource "aws_iam_role_policy_attachment" "AWSBatchServiceRole" {

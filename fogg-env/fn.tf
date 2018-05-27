@@ -187,7 +187,6 @@ resource "aws_api_gateway_deployment" "env" {
   }
 
   variables = {
-    alias     = "rc"
     signature = "${module.resource_helo.signature}-${module.resource_hello.signature}"
   }
 }

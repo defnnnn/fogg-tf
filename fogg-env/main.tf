@@ -646,3 +646,12 @@ resource "aws_ssm_maintenance_window_task" "ps" {
     values = ["ps axuf", "df -klh", "uname -a"]
   }
 }
+
+resource "aws_ssm_association" "GatherSoftwareInventory" {
+  name = "AWS-GatherSoftwareInventory"
+
+  targets {
+    key    = "tag:Env"
+    values = ["${var.env_name}"]
+  }
+}

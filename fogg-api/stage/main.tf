@@ -27,7 +27,7 @@ resource "aws_api_gateway_stage" "live" {
   }
 
   lifecycle {
-    ignore_changes = ["deployment_id"]
+    ignore_changes = ["deployment_id", "variables"]
   }
 
   count = "${var.stage_name == "live" ? 1 : 0}"

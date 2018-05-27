@@ -31,10 +31,3 @@ resource "aws_kms_alias" "ssm_ps" {
 
   count = "${var.mcount}"
 }
-
-resource "aws_kms_alias" "credstash" {
-  name          = "alias/credstash"
-  target_key_id = "${aws_kms_key.region.key_id}"
-
-  count = "${var.mcount}"
-}

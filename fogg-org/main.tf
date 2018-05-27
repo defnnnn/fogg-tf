@@ -890,7 +890,7 @@ data "aws_iam_policy_document" "api_gateway" {
 resource "aws_iam_role" "api_gateway" {
   name = "api_gateway_cloudwatch"
 
-  assume_role_policy = "${data.aws_iam_policy_document.macie_setup.json}"
+  assume_role_policy = "${data.aws_iam_policy_document.api_gateway.json}"
 }
 
 resource "aws_iam_role_policy_attachment" "api_gateway" {

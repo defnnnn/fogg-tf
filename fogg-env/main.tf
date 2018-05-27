@@ -612,4 +612,9 @@ resource "aws_ssm_maintenance_window_task" "patch_scan" {
     key    = "WindowTargetIds"
     values = ["${aws_ssm_maintenance_window_target.env.id}"]
   }
+
+  task_parameters {
+    name   = "Operation"
+    values = ["Scan"]
+  }
 }

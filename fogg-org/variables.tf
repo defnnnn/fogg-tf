@@ -114,6 +114,6 @@ output "inventory_region" {
   value = "${aws_s3_bucket.inventory.region}"
 }
 
-output "patch_baseline" {
-  value = "${aws_ssm_patch_baseline.org.id}"
+output "ssm_role" {
+  value = "${aws_iam_role.ssm.arn}"
 }

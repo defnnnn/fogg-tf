@@ -934,17 +934,26 @@ resource "aws_iam_service_linked_role" "rds" {
   aws_service_name = "rds.amazonaws.com"
 }
 
-resource "aws_ssm_patch_baseline" "org" {
-  name             = "${var.global_name}"
-  operating_system = "AMAZON_LINUX"
+resource "aws_iam_role" "ssm" {
+  name = "ssm"
 
-  approval_rule {
-    approve_after_days  = 0
-    enable_non_security = 1
+  assume_role_policy = "${data.aws_iam_policy_document.ssm.json}"
+}
 
-    patch_filter {
-      key    = "PRODUCT"
-      values = ["AmazonLinux2017.09", "AmazonLinux2018.03"]
+resource "aws_iam_role_policy_attachment" "ssm" {
+  role       = "${aws_iam_role.ssm.name}"
+  policy_arn = "arn:aws:iam::aws:policy/AdministratorAccess"
+}
+
+data "aws_iam_policy_document" "ssm" {
+  statement {
+    actions = [
+      "sts:AssumeRole",
+    ]
+
+    principals {
+      type        = "Service"
+      identifiers = ["ssm.amazonaws.com"]
     }
   }
 }

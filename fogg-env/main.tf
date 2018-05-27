@@ -588,3 +588,28 @@ resource "aws_service_discovery_public_dns_namespace" "env" {
   count = "${var.want_sd}"
   name  = "pub-${local.private_zone_name}"
 }
+
+resource "aws_ssm_maintenance_window_target" "env" {
+  window_id     = "${data.terraform_remote_state.org.maintenance_window_every_hour}"
+  resource_type = "INSTANCE"
+
+  targets {
+    key    = "tag:Env"
+    values = ["${var.env_name}"]
+  }
+}
+
+resource "aws_ssm_maintenance_window_task" "patch_scan" {
+  window_id        = "${data.terraform_remote_state.org.maintenance_window_every_hour}"
+  task_type        = "RUN_COMMAND"
+  task_arn         = "AWS-RunPatchBaseline"
+  priority         = 1
+  service_role_arn = "${data.terraform_remote_state.org.ssm_role}"
+  max_concurrency  = "2"
+  max_errors       = "1"
+
+  targets {
+    key    = "WindowTargetIds"
+    values = ["${aws_ssm_maintenance_window_target.env.id}"]
+  }
+}

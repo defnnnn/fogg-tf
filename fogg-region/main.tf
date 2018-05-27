@@ -103,3 +103,26 @@ resource "aws_ssm_resource_data_sync" "region" {
     region      = "${data.terraform_remote_state.org.inventory_region}"
   }
 }
+
+resource "aws_ssm_patch_baseline" "region" {
+  name             = "${var.region}"
+  operating_system = "AMAZON_LINUX"
+
+  approval_rule {
+    approve_after_days  = 0
+    enable_non_security = 1
+
+    patch_filter {
+      key    = "PRODUCT"
+      values = ["AmazonLinux2017.09", "AmazonLinux2018.03"]
+    }
+  }
+}
+
+resource "aws_ssm_maintenance_window" "every_hour" {
+  name                       = "every-hour"
+  schedule                   = "cron(0 0 */1 * * ? *)"
+  duration                   = 1
+  cutoff                     = 0
+  allow_unassociated_targets = true
+}

@@ -261,35 +261,35 @@ resource "aws_iam_role_policy" "config_s3" {
   role = "${aws_iam_role.config.id}"
 
   policy = <<POLICY
-  {
-    "Version": "2012-10-17",
-    "Statement": [
-      {
-        "Effect": "Allow",
-        "Action": [
-          "s3:GetBucketAcl"
-        ],
-        "Resource": [
-          "${aws_s3_bucket.config.arn}"
-        ]
-      },
-      {
-        "Effect": "Allow",
-        "Action": [
-          "s3:PutObject"
-        ],
-        "Resource": [
-          "${aws_s3_bucket.config.arn}/AwsLogs/*"
-        ],
-        "Condition": { 
-          "StringLike": { 
-            "s3:x-amz-acl": "bucket-owner-full-control" 
-          }
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:GetBucketAcl"
+      ],
+      "Resource": [
+        "${aws_s3_bucket.config.arn}"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:PutObject"
+      ],
+      "Resource": [
+        "${aws_s3_bucket.config.arn}/AwsLogs/*"
+      ],
+      "Condition": {
+        "StringLike": {
+          "s3:x-amz-acl": "bucket-owner-full-control"
         }
       }
-    ]
-  }
-  POLICY
+    }
+  ]
+}
+POLICY
 }
 
 resource "aws_s3_bucket" "inventory" {
@@ -421,41 +421,41 @@ resource "aws_iam_role_policy" "config_sns" {
   role = "${aws_iam_role.config.id}"
 
   policy = <<POLICY
-  {
-    "Version": "2012-10-17",
-    "Statement": [
-      {
-        "Effect": "Allow",
-        "Action": [
-          "sns:Publish"
-        ],
-        "Resource": [
-          "${aws_sns_topic.config.arn}"
-        ]
-      }
-    ]
-  }
-  POLICY
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "sns:Publish"
+      ],
+      "Resource": [
+        "${aws_sns_topic.config.arn}"
+      ]
+    }
+  ]
+}
+POLICY
 }
 
 resource "aws_iam_role" "config" {
   name = "config"
 
   assume_role_policy = <<POLICY
-  {
-    "Version": "2012-10-17",
-    "Statement": [
-      {
-        "Action": "sts:AssumeRole",
-        "Principal": {
-          "Service": "config.amazonaws.com"
-        },
-        "Effect": "Allow",
-        "Sid": ""
-      }
-    ]
-  }
-  POLICY
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": "sts:AssumeRole",
+      "Principal": {
+        "Service": "config.amazonaws.com"
+      },
+      "Effect": "Allow",
+      "Sid": ""
+    }
+  ]
+}
+POLICY
 }
 
 resource "aws_iam_role_policy_attachment" "config" {

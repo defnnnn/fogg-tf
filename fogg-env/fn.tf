@@ -191,20 +191,6 @@ resource "aws_api_gateway_deployment" "env" {
   }
 }
 
-resource "aws_api_gateway_deployment" "live" {
-  rest_api_id = "${aws_api_gateway_rest_api.env.id}"
-  stage_name  = "live"
-
-  lifecycle {
-    create_before_destroy = true
-    ignore_changes        = ["variables"]
-  }
-
-  variables = {
-    signature = "${module.resource_helo.signature}-${module.resource_hello.signature}"
-  }
-}
-
 module "stage_rc" {
   source = ".module/fogg-tf/fogg-api/stage"
 

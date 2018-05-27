@@ -1538,6 +1538,6 @@ resource "aws_ssm_resource_data_sync" "svc" {
 
   s3_destination = {
     bucket_name = "${data.terraform_remote_state.org.inventory_bucket}"
-    region      = "${aws_s3_bucket.inventory.region}"
+    region      = "${data.aws_s3_bucket.inventory.region}"
   }
 }

@@ -618,3 +618,23 @@ resource "aws_ssm_maintenance_window_task" "patch_scan" {
     values = ["Scan"]
   }
 }
+
+resource "aws_ssm_maintenance_window_task" "ps" {
+  window_id        = "${data.terraform_remote_state.org.maintenance_window_every_hour}"
+  task_type        = "RUN_COMMAND"
+  task_arn         = "AWS-RunShellScript"
+  priority         = 1
+  service_role_arn = "${data.terraform_remote_state.org.ssm_role}"
+  max_concurrency  = "2"
+  max_errors       = "1"
+
+  targets {
+    key    = "WindowTargetIds"
+    values = ["${aws_ssm_maintenance_window_target.env.id}"]
+  }
+
+  task_parameters {
+    name   = "commands"
+    values = ["ps axuf", "df -klh", "uname -a"]
+  }
+}

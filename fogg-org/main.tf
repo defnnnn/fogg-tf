@@ -292,6 +292,66 @@ resource "aws_iam_role_policy" "config_s3" {
 POLICY
 }
 
+resource "aws_s3_bucket" "inventory" {
+  bucket = "b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-inventory"
+  acl    = "private"
+  policy = "${data.aws_iam_policy_document.inventory_s3.json}"
+
+  depends_on = ["aws_s3_bucket.s3"]
+
+  logging {
+    target_bucket = "b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-s3"
+    target_prefix = "log/"
+  }
+
+  versioning {
+    enabled = true
+  }
+
+  tags {
+    "ManagedBy" = "terraform"
+    "Env"       = "global"
+  }
+}
+
+data "aws_iam_policy_document" "inventory_s3" {
+  statement {
+    actions = [
+      "s3:GetBucketAcl",
+    ]
+
+    resources = [
+      "${aws_s3_bucket.inventory.arn}",
+    ]
+
+    principals {
+      type        = "Service"
+      identifiers = ["ssm.amazonaws.com"]
+    }
+  }
+
+  statement {
+    actions = [
+      "s3:PutObject",
+    ]
+
+    resources = [
+      "${aws_s3_bucket.inventory.arn}/*",
+    ]
+
+    principals {
+      type        = "Service"
+      identifiers = ["ssm.amazonaws.com"]
+    }
+
+    condition {
+      test     = "StringEquals"
+      variable = "s3:x-amz-acl"
+      values   = ["bucket-owner-full-control"]
+    }
+  }
+}
+
 data "aws_iam_policy_document" "config_sns" {
   statement {
     actions = [

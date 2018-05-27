@@ -188,6 +188,15 @@ resource "aws_api_gateway_deployment" "env" {
     create_before_destroy = true
     ignore_changes        = ["stage_name"]
   }
+
+  variables = {
+    helo_resource     = "${module.resource_helo.resource}"
+    helo_method       = "${module.resource_helo.method}"
+    helo_integration  = "${module.resource_helo.integration}"
+    hello_resource    = "${module.resource_hello.resource}"
+    hello_method      = "${module.resource_hello.method}"
+    hello_integration = "${module.resource_hello.integration}"
+  }
 }
 
 module "stage_rc" {

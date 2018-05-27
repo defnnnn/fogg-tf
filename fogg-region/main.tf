@@ -37,41 +37,6 @@ module "kms" {
   mcount       = 1
 }
 
-#data "aws_ami" "block" {
-#  most_recent = true
-#
-#  filter {
-#    name   = "state"
-#    vvar.account_namealues = ["available"]
-#  }
-#
-#  filter {
-#    name   = "tag:Block"
-#    values = ["block-ubuntu-*"]
-#  }
-#
-#  owners = ["self"]
-#}
-
-data "aws_ami" "region" {
-  provider    = "aws.us_east_1"
-  most_recent = true
-
-  filter {
-    name   = "name"
-    values = ["amzn-ami-2017.09.*-amazon-ecs-optimized"]
-  }
-
-  owners = ["amazon"]
-}
-
-#module "ami" {
-#  source = ".module/fogg-tf/fogg-ami-copy"
-#
-#  source_ami_region = "us-east-1"
-#  source_ami_id     = "${data.aws_ami.region.image_id}"
-#}
-
 resource "aws_acm_certificate" "env" {
   domain_name               = "*.${data.terraform_remote_state.org.domain_name}"
   subject_alternative_names = ["${data.terraform_remote_state.org.domain_name}"]

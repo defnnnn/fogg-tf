@@ -88,7 +88,7 @@ resource "aws_route53_record" "acm_validation" {
 
 resource "aws_acm_certificate_validation" "env" {
   certificate_arn         = "${aws_acm_certificate.env.arn}"
-  validation_record_fqdns = ["${aws_route53_record.acm_validation.fqdn}"]
+  validation_record_fqdns = ["${aws_route53_record.acm_validation.fqdn}."]
 }
 
 resource "aws_api_gateway_account" "region" {

@@ -590,7 +590,7 @@ resource "aws_service_discovery_public_dns_namespace" "env" {
 }
 
 resource "aws_ssm_maintenance_window" "every_hour" {
-  name                       = "every-hour"
+  name                       = "${var.env_name}-every-hour"
   schedule                   = "cron(0 0 */1 * * ? *)"
   duration                   = 1
   cutoff                     = 0

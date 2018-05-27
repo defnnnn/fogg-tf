@@ -648,7 +648,8 @@ resource "aws_ssm_maintenance_window_task" "ps" {
 }
 
 resource "aws_ssm_association" "GatherSoftwareInventory" {
-  name = "AWS-GatherSoftwareInventory"
+  name             = "AWS-GatherSoftwareInventory"
+  association_name = "${var.env_name}-gather-software-inventory"
 
   schedule_expression = "cron(0 0 */1 * * ? *)"
 

@@ -2,6 +2,7 @@ variable "rest_api_id" {}
 variable "stage_name" {}
 variable "domain_name" {}
 variable "deployment_id" {}
+variable "signature" {}
 
 resource "aws_api_gateway_stage" "stage" {
   stage_name    = "${var.stage_name}"
@@ -9,7 +10,8 @@ resource "aws_api_gateway_stage" "stage" {
   deployment_id = "${var.deployment_id}"
 
   variables {
-    alias = "${var.stage_name}"
+    alias     = "${var.stage_name}"
+    signature = "${var.signature}"
   }
 
   count = "${var.stage_name == "rc" ? 1 : 0}"

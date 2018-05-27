@@ -187,8 +187,8 @@ resource "aws_api_gateway_deployment" "env" {
   }
 
   variables = {
-    helo_signature  = "${module.resource_helo.signature}"
-    hello_signature = "${module.resource_hello.signature}"
+    alias     = "rc"
+    signature = "${module.resource_helo.signature}-${module.resource_hello.signature}"
   }
 }
 
@@ -202,8 +202,7 @@ resource "aws_api_gateway_deployment" "live" {
   }
 
   variables = {
-    helo_signature  = "${module.resource_helo.signature}"
-    hello_signature = "${module.resource_hello.signature}"
+    signature = "${module.resource_helo.signature}-${module.resource_hello.signature}"
   }
 }
 
@@ -214,6 +213,7 @@ module "stage_rc" {
   rest_api_id   = "${aws_api_gateway_rest_api.env.id}"
   domain_name   = "${aws_api_gateway_domain_name.env_rc.domain_name}"
   deployment_id = "${aws_api_gateway_deployment.env.id}"
+  signature     = "${module.resource_helo.signature}-${module.resource_hello.signature}"
 }
 
 module "stage_live" {
@@ -223,4 +223,5 @@ module "stage_live" {
   rest_api_id   = "${aws_api_gateway_rest_api.env.id}"
   domain_name   = "${aws_api_gateway_domain_name.env.domain_name}"
   deployment_id = "${aws_api_gateway_deployment.env.id}"
+  signature     = "${module.resource_helo.signature}-${module.resource_hello.signature}"
 }

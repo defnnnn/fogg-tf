@@ -1528,3 +1528,8 @@ resource "aws_route53_record" "sd" {
     evaluate_target_health = false
   }
 }
+
+resource "aws_ssm_patch_group" "svc" {
+  baseline_id = "${data.terraform_remote_state.org.patch_baseline}"
+  patch_group = "${local.service_name}"
+}

@@ -944,7 +944,7 @@ resource "aws_ssm_patch_baseline" "org" {
 
     patch_filter {
       key    = "PRODUCT"
-      values = ["All"]
+      values = ["AmazonLinux2017.09", "AmazonLinux2018.03"]
     }
   }
 }

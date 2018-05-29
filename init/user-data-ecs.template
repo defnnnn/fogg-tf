@@ -158,6 +158,7 @@ echo "efs.${env}.immanent.io:/ /data nfs4 nfsvers=4.1,rsize=1048576,wsize=104857
 
 cat >> /etc/ecs/ecs.config <<EOF
 ECS_CLUSTER=${env}-${app}-${service}
+ECS_IMAGE_PULL_BEHAVIOR=prefer-cached
 EOF
 
 yum install -y awslogs

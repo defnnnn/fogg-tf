@@ -767,7 +767,7 @@ resource "aws_ecs_service" "svc" {
   name                               = "${local.service_name}"
   cluster                            = "${aws_ecs_cluster.service.id}"
   task_definition                    = "${aws_ecs_task_definition.svc.arn}"
-  desired_count                      = "0"
+  desired_count                      = "${var.ecs_eni_count}"
   deployment_maximum_percent         = "100"
   deployment_minimum_healthy_percent = "0"
 
@@ -850,7 +850,7 @@ resource "aws_ecs_service" "bridge" {
   name                               = "${local.service_name}-sshd"
   cluster                            = "${aws_ecs_cluster.service.id}"
   task_definition                    = "${aws_ecs_task_definition.bridge.arn}"
-  desired_count                      = "0"
+  desired_count                      = "var.ecs_dyn_count"
   deployment_maximum_percent         = "100"
   deployment_minimum_healthy_percent = "0"
 

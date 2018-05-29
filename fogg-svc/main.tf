@@ -757,6 +757,26 @@ resource "aws_ecs_task_definition" "svc" {
    "name": "sshd",
     "portMappings": [],
     "volumesFrom": []
+  },
+  {
+    "cpu": 10,
+    "environment": [],
+    "essential": true,
+    "image": "nginx",
+    "memory": 10,
+    "mountPoints": [
+      {
+        "containerPath": "/data",
+        "sourceVolume": "data"
+      },
+      {
+        "containerPath": "/var/run/docker.sock",
+        "sourceVolume": "docker"
+      }
+    ],
+   "name": "nginx",
+    "portMappings": [],
+    "volumesFrom": []
   }
 ]
 DEFINITION

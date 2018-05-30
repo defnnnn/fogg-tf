@@ -133,7 +133,7 @@ variable "ecs_eni_count" {
 }
 
 variable "ecs_dyn_count" {
-  default = "1"
+  default = "0"
 }
 
 variable "ipv6_service_bits" {

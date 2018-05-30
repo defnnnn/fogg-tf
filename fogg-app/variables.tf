@@ -9,3 +9,7 @@ output "app_name" {
 output "app_sg" {
   value = "${aws_security_group.app.id}"
 }
+
+output "sg_app" {
+  value = "${aws_security_group.app.id}"
+}

@@ -21,6 +21,7 @@ resource "aws_lightsail_instance" "org" {
 }
 
 resource "aws_lightsail_key_pair" "org" {
+  count = "${var.want_lightsail}"
   name       = "importing"
   public_key = "${file("etc/ssh-key-pair.pub")}"
 }

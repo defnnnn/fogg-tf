@@ -934,6 +934,14 @@ resource "aws_iam_service_linked_role" "rds" {
   aws_service_name = "rds.amazonaws.com"
 }
 
+resource "aws_iam_service_linked_role" "sso" {
+  aws_service_name = "sso.amazonaws.com"
+}
+
+resource "aws_iam_service_linked_role" "guardduty" {
+  aws_service_name = "guardduty.amazonaws.com"
+}
+
 resource "aws_iam_role" "ssm" {
   name = "ssm"
 

@@ -15,7 +15,7 @@ resource "aws_cognito_user_pool_client" "org" {
 
 resource "aws_cognito_identity_pool" "org" {
   identity_pool_name               = "${var.account_name}"
-  allow_unauthenticated_identities = false
+  allow_unauthenticated_identities = true
 
   cognito_identity_providers {
     client_id               = "${aws_cognito_user_pool_client.org.id}"
@@ -24,11 +24,19 @@ resource "aws_cognito_identity_pool" "org" {
   }
 }
 
-resource "aws_cognito_identity_pool_roles_attachment" "org" {
+resource "aws_cognito_identity_pool_roles_attachment" "org_authenticated" {
   identity_pool_id = "${aws_cognito_identity_pool.org.id}"
 
   roles {
     "authenticated" = "${aws_iam_role.org_idp_authenticated.arn}"
+  }
+}
+
+resource "aws_cognito_identity_pool_roles_attachment" "org_unauthenticated" {
+  identity_pool_id = "${aws_cognito_identity_pool.org.id}"
+
+  roles {
+    "unauthenticated" = "${aws_iam_role.org_idp_unauthenticated.arn}"
   }
 }
 
@@ -189,6 +197,55 @@ EOF
 resource "aws_iam_role_policy" "org_idp_authenticated" {
   name = "${var.account_name}-idp-authenticated"
   role = "${aws_iam_role.org_idp_authenticated.id}"
+
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "ec2:Describe*"
+      ],
+      "Resource": [
+        "*"
+      ]
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role" "org_idp_unauthenticated" {
+  name = "${var.account_name}-idp-unauthenticated"
+
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Federated": "cognito-identity.amazonaws.com"
+      },
+      "Action": "sts:AssumeRoleWithWebIdentity",
+      "Condition": {
+        "StringEquals": {
+          "cognito-identity.amazonaws.com:aud": "${aws_cognito_identity_pool.org.id}"
+        },
+        "ForAnyValue:StringLike": {
+          "cognito-identity.amazonaws.com:amr": "unauthenticated"
+        }
+      }
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role_policy" "org_idp_unauthenticated" {
+  name = "${var.account_name}-idp-unauthenticated"
+  role = "${aws_iam_role.org_idp_unauthenticated.id}"
 
   policy = <<EOF
 {

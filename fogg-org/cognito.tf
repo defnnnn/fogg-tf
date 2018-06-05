@@ -33,6 +33,7 @@ resource "aws_cognito_identity_pool_roles_attachment" "org_authenticated" {
 }
 
 resource "aws_cognito_identity_pool_roles_attachment" "org_unauthenticated" {
+  depends_on       = ["aws_cognito_identity_pool_roles_attachment.org_authenticated"]
   identity_pool_id = "${aws_cognito_identity_pool.org.id}"
 
   roles {

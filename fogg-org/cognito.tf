@@ -24,6 +24,14 @@ resource "aws_cognito_identity_pool" "org" {
   }
 }
 
+resource "aws_cognito_identity_pool_roles_attachment" "org" {
+  identity_pool_id = "${aws_cognito_identity_pool.org.id}"
+
+  roles {
+    "authenticated" = "${aws_iam_role.org_idp_authenticated.arn}"
+  }
+}
+
 resource "aws_cognito_user_pool" "org" {
   name = "${var.account_name}"
 
@@ -145,6 +153,52 @@ resource "aws_iam_role" "org_idp_group" {
           "cognito-identity.amazonaws.com:amr": "authenticated"
         }
       }
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role" "org_idp_authenticated" {
+  name = "${var.account_name}-idp-authenticated"
+
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Federated": "cognito-identity.amazonaws.com"
+      },
+      "Action": "sts:AssumeRoleWithWebIdentity",
+      "Condition": {
+        "StringEquals": {
+          "cognito-identity.amazonaws.com:aud": "${aws_cognito_identity_pool.org.id}"
+        },
+        "ForAnyValue:StringLike": {
+          "cognito-identity.amazonaws.com:amr": "authenticated"
+        }
+      }
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role_policy" "org_idp_authenticated" {
+  name = "${var.account_name}-idp-authenticated"
+  role = "${aws_iam_role.org_idp_authenticated.id}"
+
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "ec2:DescribeRegions"
+      ]
     }
   ]
 }

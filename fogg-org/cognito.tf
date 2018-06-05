@@ -28,15 +28,7 @@ resource "aws_cognito_identity_pool_roles_attachment" "org_authenticated" {
   identity_pool_id = "${aws_cognito_identity_pool.org.id}"
 
   roles {
-    "authenticated" = "${aws_iam_role.org_idp_authenticated.arn}"
-  }
-}
-
-resource "aws_cognito_identity_pool_roles_attachment" "org_unauthenticated" {
-  depends_on       = ["aws_cognito_identity_pool_roles_attachment.org_authenticated"]
-  identity_pool_id = "${aws_cognito_identity_pool.org.id}"
-
-  roles {
+    "authenticated"   = "${aws_iam_role.org_idp_authenticated.arn}"
     "unauthenticated" = "${aws_iam_role.org_idp_unauthenticated.arn}"
   }
 }

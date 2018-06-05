@@ -7,11 +7,20 @@ resource "aws_cognito_user_group" "org" {
 }
 
 resource "aws_cognito_user_pool_client" "org" {
-  name                         = "${var.account_name}"
-  user_pool_id                 = "${aws_cognito_user_pool.org.id}"
+  name         = "${var.account_name}"
+  user_pool_id = "${aws_cognito_user_pool.org.id}"
+
+  write_attributes = ["email"]
+
   explicit_auth_flows          = ["USER_PASSWORD_AUTH"]
-  write_attributes             = ["email"]
   supported_identity_providers = ["COGNITO"]
+
+  allowed_oauth_flows                  = ["code", "implicit"]
+  allowed_oauth_flows_user_pool_client = true
+  allowed_oauth_scopes                 = ["openid", "phone", "aws.cognito.signin.user.admin", "profile", "email"]
+
+  callback_urls = ["https://${var.domain_name}/callback"]
+  logout_urls   = ["https://${var.domain_name}/logout"]
 }
 
 resource "aws_cognito_identity_pool" "org" {

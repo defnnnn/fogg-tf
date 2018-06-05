@@ -7,10 +7,11 @@ resource "aws_cognito_user_group" "org" {
 }
 
 resource "aws_cognito_user_pool_client" "org" {
-  name                = "${var.account_name}"
-  user_pool_id        = "${aws_cognito_user_pool.org.id}"
-  explicit_auth_flows = ["USER_PASSWORD_AUTH"]
-  write_attributes    = ["email"]
+  name                         = "${var.account_name}"
+  user_pool_id                 = "${aws_cognito_user_pool.org.id}"
+  explicit_auth_flows          = ["USER_PASSWORD_AUTH"]
+  write_attributes             = ["email"]
+  supported_identity_providers = ["COGNITO"]
 }
 
 resource "aws_cognito_identity_pool" "org" {

@@ -75,6 +75,32 @@ resource "aws_cognito_user_pool" "org" {
     }
   }
 
+  schema {
+    attribute_data_type      = "Number"
+    developer_only_attribute = false
+    mutable                  = true
+    name                     = "ssn"
+    required                 = false
+
+    number_attribute_constraints {
+      min_value = 0
+      max_value = 1000
+    }
+  }
+
+  schema {
+    attribute_data_type      = "String"
+    developer_only_attribute = false
+    mutable                  = true
+    name                     = "dumbass"
+    required                 = false
+
+    string_attribute_constraints {
+      min_length = 1
+      max_length = 256
+    }
+  }
+
   mfa_configuration = "ON"
 
   sms_configuration {

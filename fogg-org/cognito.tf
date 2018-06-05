@@ -198,6 +198,9 @@ resource "aws_iam_role_policy" "org_idp_authenticated" {
       "Effect": "Allow",
       "Action": [
         "ec2:DescribeRegions"
+      ],
+      "Resources": [
+        "*"
       ]
     }
   ]

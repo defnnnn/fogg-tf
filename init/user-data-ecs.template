@@ -34,7 +34,9 @@ if [[ "${service}" == "nat" ]]; then
     | base64 -d > /sbin/ifup-local
   chmod 755 /sbin/ifup-local
 
-  yum install -y aws-vpc-nat
+yum update
+yum upgrade -y
+yum install -y ruby wget curl nc jq git vim nfs-utils amazon-efs-utils bind-utils aws-vpc-nat
 
   while true; do
     if ifconfig eth1; then
@@ -50,10 +52,6 @@ echo net.ipv6.conf.all.forwarding=1 >> /etc/sysctl.conf
 echo net.ipv6.conf.eth0.accept_ra=2 >> /etc/sysctl.conf
 echo net.ipv4.conf.default.forwarding=1 >> /etc/sysctl.conf
 echo net.ipv4.conf.all.forwarding=1 >> /etc/sysctl.conf
-
-yum update
-yum upgrade -y
-yum install -y ruby wget curl nc jq git vim nfs-utils amazon-efs-utils
 
 if ! id ubuntu 2>/dev/null; then
   groupadd -g 1000 ubuntu

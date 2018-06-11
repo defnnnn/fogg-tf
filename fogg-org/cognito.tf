@@ -10,13 +10,12 @@ resource "aws_cognito_user_pool_client" "org" {
   name         = "${var.account_name}"
   user_pool_id = "${aws_cognito_user_pool.org.id}"
 
-  write_attributes = ["email"]
+  write_attributes = ["email", "phone_number"]
 
-  explicit_auth_flows          = ["USER_PASSWORD_AUTH"]
   supported_identity_providers = ["COGNITO"]
 
-  allowed_oauth_flows                  = ["code", "implicit"]
   allowed_oauth_flows_user_pool_client = true
+  allowed_oauth_flows                  = ["code", "implicit"]
   allowed_oauth_scopes                 = ["openid", "phone", "aws.cognito.signin.user.admin", "profile", "email"]
 
   callback_urls = ["https://${var.domain_name}/callback"]
@@ -47,10 +46,13 @@ resource "aws_cognito_user_pool" "org" {
   name = "${var.account_name}"
 
   email_verification_subject = "Device Verification Code"
-  email_verification_message = "Please use the following code {####}"
-  sms_verification_message   = "{####} Baz"
+  email_verification_message = "{####}"
+  sms_verification_message   = "{####}"
   alias_attributes           = ["email", "preferred_username"]
-  auto_verified_attributes   = ["email", "phone_number"]
+
+  admin_create_user_config {
+    allow_admin_create_user_only = true
+  }
 
   device_configuration {
     challenge_required_on_new_device = true

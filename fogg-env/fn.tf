@@ -73,7 +73,7 @@ resource "aws_api_gateway_rest_api" "env" {
   policy = "${data.aws_iam_policy_document.apigateway.json}"
 
   endpoint_configuration {
-    types = ["REGIONAL"]
+    types = ["${var.want_private_api ? "PRIVATE" : "REGIONAL"}"]
   }
 }
 
@@ -84,6 +84,8 @@ resource "aws_api_gateway_domain_name" "env" {
   endpoint_configuration {
     types = ["REGIONAL"]
   }
+
+  count = "${(var.want_private_api - 1)*-1}"
 }
 
 resource "aws_api_gateway_domain_name" "env_rc" {
@@ -93,6 +95,8 @@ resource "aws_api_gateway_domain_name" "env_rc" {
   endpoint_configuration {
     types = ["REGIONAL"]
   }
+
+  count = "${(var.want_private_api - 1)*-1}"
 }
 
 resource "aws_route53_record" "env_api_gateway" {

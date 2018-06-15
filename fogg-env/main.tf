@@ -525,6 +525,25 @@ resource "aws_vpc_endpoint" "dynamodb" {
   service_name = "${data.aws_vpc_endpoint_service.dynamodb.service_name}"
 }
 
+data "aws_vpc_endpoint_service" "apigateway" {
+  service = "execute-api"
+}
+
+resource "aws_vpc_endpoint" "apigateway" {
+  vpc_id              = "${aws_vpc.env.id}"
+  service_name        = "${data.aws_vpc_endpoint_service.apigateway.service_name}"
+  vpc_endpoint_type   = "Interface"
+  private_dns_enabled = true
+
+  security_group_ids = [
+    "${aws_security_group.env.id}",
+  ]
+
+  subnet_ids = ["${element(aws_subnet.private.*.id,0)}"]
+
+  count = "${var.want_private_api}"
+}
+
 resource "aws_default_vpc_dhcp_options" "default" {
   tags {
     Name = "default"

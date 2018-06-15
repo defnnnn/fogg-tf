@@ -233,3 +233,8 @@ variable "want_vgw" {
 output "vgw_id" {
   value = "${element(concat(aws_vpn_gateway.env.*.id,list("0")),0)}"
 }
+
+variable "want_private_api" {
+  default = 0
+}
+

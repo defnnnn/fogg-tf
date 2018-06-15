@@ -237,4 +237,3 @@ output "vgw_id" {
 variable "want_private_api" {
   default = 0
 }
-

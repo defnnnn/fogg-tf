@@ -754,7 +754,7 @@ resource "aws_ecs_task_definition" "svc" {
         "sourceVolume": "docker"
       }
     ],
-   "name": "sshd",
+    "name": "sshd",
     "portMappings": [],
     "volumesFrom": []
   },
@@ -803,7 +803,7 @@ resource "aws_ecs_service" "svc" {
 
 resource "aws_ecs_task_definition" "host" {
   count        = "${var.want_sd}"
-  family       = "${local.service_name}-sshd"
+  family       = "${local.service_name}-agent"
   network_mode = "bridge"
 
   volume {
@@ -848,7 +848,7 @@ DEFINITION
 
 resource "aws_ecs_service" "host" {
   count                              = "${var.want_sd}"
-  name                               = "${local.service_name}-sshd"
+  name                               = "${local.service_name}-agent"
   cluster                            = "${aws_ecs_cluster.service.id}"
   task_definition                    = "${aws_ecs_task_definition.host.arn}"
   deployment_maximum_percent         = "100"

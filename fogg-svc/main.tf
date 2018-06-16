@@ -783,7 +783,7 @@ DEFINITION
 }
 
 resource "aws_ecs_service" "svc" {
-  count                              = "${var.want_sd}"
+  count                              = "${var.want_sd*var.want_ecs_svc}"
   name                               = "${local.service_name}"
   cluster                            = "${aws_ecs_cluster.service.id}"
   task_definition                    = "${aws_ecs_task_definition.svc.arn}"

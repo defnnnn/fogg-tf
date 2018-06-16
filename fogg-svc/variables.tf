@@ -104,6 +104,10 @@ variable "want_kms" {
   default = "0"
 }
 
+variable "want_ecs_svc" {
+  default = "1"
+}
+
 variable "want_sd" {
   default = "1"
 }

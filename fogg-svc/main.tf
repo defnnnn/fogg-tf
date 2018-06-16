@@ -787,9 +787,9 @@ resource "aws_ecs_service" "svc" {
   name                               = "${local.service_name}"
   cluster                            = "${aws_ecs_cluster.service.id}"
   task_definition                    = "${aws_ecs_task_definition.svc.arn}"
-  desired_count                      = "${var.ecs_eni_count}"
   deployment_maximum_percent         = "100"
   deployment_minimum_healthy_percent = "0"
+  scheduling_strategy                = "DAEMON"
 
   service_registries {
     registry_arn = "${aws_service_discovery_service.svc.arn}"
@@ -799,28 +799,9 @@ resource "aws_ecs_service" "svc" {
     subnets         = ["${compact(concat(aws_subnet.service.*.id,aws_subnet.service_v6.*.id,formatlist(var.want_subnets ? "%[3]s" : (var.public_network ? "%[1]s" : "%[2]s"),data.terraform_remote_state.env.public_subnets,data.terraform_remote_state.env.private_subnets,data.terraform_remote_state.env.fake_subnets)))}"]
     security_groups = ["${data.terraform_remote_state.env.sg_env}", "${data.terraform_remote_state.app.app_sg}", "${aws_security_group.service.id}"]
   }
-
-  ordered_placement_strategy {
-    type  = "spread"
-    field = "attribute:ecs.availability-zone"
-  }
-
-  ordered_placement_strategy {
-    type  = "spread"
-    field = "instanceId"
-  }
-
-  ordered_placement_strategy {
-    type  = "binpack"
-    field = "memory"
-  }
-
-  lifecycle {
-    ignore_changes = ["desired_count"]
-  }
 }
 
-resource "aws_ecs_task_definition" "bridge" {
+resource "aws_ecs_task_definition" "host" {
   count        = "${var.want_sd}"
   family       = "${local.service_name}-sshd"
   network_mode = "bridge"
@@ -865,39 +846,14 @@ resource "aws_ecs_task_definition" "bridge" {
 DEFINITION
 }
 
-resource "aws_ecs_service" "bridge" {
+resource "aws_ecs_service" "host" {
   count                              = "${var.want_sd}"
   name                               = "${local.service_name}-sshd"
   cluster                            = "${aws_ecs_cluster.service.id}"
-  task_definition                    = "${aws_ecs_task_definition.bridge.arn}"
-  desired_count                      = "${var.ecs_dyn_count}"
+  task_definition                    = "${aws_ecs_task_definition.host.arn}"
   deployment_maximum_percent         = "100"
   deployment_minimum_healthy_percent = "0"
-
-  service_registries {
-    registry_arn   = "${aws_service_discovery_service.bridge.arn}"
-    container_name = "sshd"
-    container_port = "22"
-  }
-
-  ordered_placement_strategy {
-    type  = "spread"
-    field = "attribute:ecs.availability-zone"
-  }
-
-  ordered_placement_strategy {
-    type  = "spread"
-    field = "instanceId"
-  }
-
-  ordered_placement_strategy {
-    type  = "binpack"
-    field = "memory"
-  }
-
-  lifecycle {
-    ignore_changes = ["desired_count"]
-  }
+  scheduling_strategy                = "DAEMON"
 }
 
 resource "aws_ecs_task_definition" "ex_fargate" {

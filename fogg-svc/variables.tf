@@ -128,14 +128,6 @@ variable "ecs_image" {
   default = "imma/ubuntu:base"
 }
 
-variable "ecs_eni_count" {
-  default = "1"
-}
-
-variable "ecs_dyn_count" {
-  default = "0"
-}
-
 variable "ipv6_service_bits" {
   default = 8
 }

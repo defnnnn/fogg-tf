@@ -237,3 +237,11 @@ output "vgw_id" {
 variable "want_private_api" {
   default = 0
 }
+
+output "rc_invoke_url" {
+  value = "${module.stage_rc.invoke_url}"
+}
+
+output "live_invoke_url" {
+  value = "${module.stage_live.invoke_url}"
+}

@@ -64,7 +64,7 @@ resource "aws_api_gateway_base_path_mapping" "stage" {
 }
 
 output "invoke_url" {
-  value = "${element(coalescelist(aws_api_gateway_stage.stage.*.invoke_url,aws_api_gateway_stage.live.*.invoke_url),0)}"
+  value = "${replace(element(coalescelist(aws_api_gateway_base_path_mapping.stage.*.domain_name,aws_api_gateway_stage.stage.*.invoke_url,aws_api_gateway_stage.live.*.invoke_url),0),"/^(https:[/][/])?/","https://")}"
 }
 
 output "execution_arn" {

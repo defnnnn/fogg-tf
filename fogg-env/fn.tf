@@ -190,7 +190,7 @@ module "resource_hello" {
 
 resource "aws_api_gateway_deployment" "env" {
   rest_api_id = "${aws_api_gateway_rest_api.env.id}"
-  stage_name  = "rc"
+  stage_name  = ""
 
   lifecycle {
     create_before_destroy = true

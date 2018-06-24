@@ -109,6 +109,8 @@ resource "aws_route53_record" "env_api_gateway" {
     name                   = "${aws_api_gateway_domain_name.env.regional_domain_name}"
     evaluate_target_health = "true"
   }
+
+  count = "${(var.want_private_api - 1)*-1}"
 }
 
 resource "aws_route53_record" "env_api_gateway_rc" {
@@ -121,6 +123,8 @@ resource "aws_route53_record" "env_api_gateway_rc" {
     name                   = "${aws_api_gateway_domain_name.env_rc.regional_domain_name}"
     evaluate_target_health = "true"
   }
+
+  count = "${(var.want_private_api - 1)*-1}"
 }
 
 resource "aws_route53_record" "env_api_gateway_private" {
@@ -133,6 +137,8 @@ resource "aws_route53_record" "env_api_gateway_private" {
     name                   = "${aws_api_gateway_domain_name.env.regional_domain_name}"
     evaluate_target_health = "true"
   }
+
+  count = "${(var.want_private_api - 1)*-1}"
 }
 
 locals {
@@ -198,9 +204,11 @@ resource "aws_api_gateway_deployment" "env" {
 module "stage_rc" {
   source = ".module/fogg-tf/fogg-api/stage"
 
-  stage_name    = "rc"
-  rest_api_id   = "${aws_api_gateway_rest_api.env.id}"
-  domain_name   = "${aws_api_gateway_domain_name.env_rc.domain_name}"
+  stage_name       = "rc"
+  rest_api_id      = "${aws_api_gateway_rest_api.env.id}"
+  domain_name      = "${element(concat(aws_api_gateway_domain_name.env_rc.*.domain_name,list("")),0)}"
+  want_private_api = "${var.want_private_api}"
+
   deployment_id = "${aws_api_gateway_deployment.env.id}"
   signature     = "${module.resource_helo.signature}-${module.resource_hello.signature}"
 }
@@ -208,9 +216,10 @@ module "stage_rc" {
 module "stage_live" {
   source = ".module/fogg-tf/fogg-api/stage"
 
-  stage_name    = "live"
-  rest_api_id   = "${aws_api_gateway_rest_api.env.id}"
-  domain_name   = "${aws_api_gateway_domain_name.env.domain_name}"
-  deployment_id = "${aws_api_gateway_deployment.env.id}"
-  signature     = "${module.resource_helo.signature}-${module.resource_hello.signature}"
+  stage_name       = "live"
+  rest_api_id      = "${aws_api_gateway_rest_api.env.id}"
+  domain_name      = "${element(concat(aws_api_gateway_domain_name.env.*.domain_name,list("")),0)}"
+  want_private_api = "${var.want_private_api}"
+  deployment_id    = "${aws_api_gateway_deployment.env.id}"
+  signature        = "${module.resource_helo.signature}-${module.resource_hello.signature}"
 }

@@ -736,6 +736,8 @@ resource "aws_ecs_task_definition" "svc" {
     host_path = "/var/run/docker.sock"
   }
 
+  depends_on = ["aws_cloudwatch_log_group.svc"]
+
   container_definitions = <<DEFINITION
 [
   {
@@ -832,6 +834,8 @@ resource "aws_ecs_task_definition" "host" {
     host_path = "/var/run/docker.sock"
   }
 
+  depends_on = ["aws_cloudwatch_log_group.svc"]
+
   container_definitions = <<DEFINITION
 [
   {
@@ -888,6 +892,8 @@ resource "aws_ecs_task_definition" "ex_fargate" {
   cpu                      = "256"
   memory                   = "512"
   execution_role_arn       = "${aws_iam_role.fargate.arn}"
+
+  depends_on = ["aws_cloudwatch_log_group.svc"]
 
   container_definitions = <<DEFINITION
 [

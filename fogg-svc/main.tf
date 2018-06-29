@@ -762,7 +762,7 @@ resource "aws_ecs_task_definition" "svc" {
       "options": {
           "awslogs-group": "${local.service_name}",
           "awslogs-region": "${var.region}",
-          "awslogs-stream-prefix": "ecs""
+          "awslogs-stream-prefix": "ecs"
       }
     }
   },
@@ -790,7 +790,7 @@ resource "aws_ecs_task_definition" "svc" {
       "options": {
           "awslogs-group": "${local.service_name}",
           "awslogs-region": "${var.region}",
-          "awslogs-stream-prefix": "ecs""
+          "awslogs-stream-prefix": "ecs"
       }
     }
   }
@@ -862,7 +862,7 @@ resource "aws_ecs_task_definition" "host" {
       "options": {
           "awslogs-group": "${local.service_name}",
           "awslogs-region": "${var.region}",
-          "awslogs-stream-prefix": "ecs""
+          "awslogs-stream-prefix": "ecs"
       }
     }
   }
@@ -906,7 +906,7 @@ resource "aws_ecs_task_definition" "ex_fargate" {
       "options": {
           "awslogs-group": "${local.service_name}",
           "awslogs-region": "${var.region}",
-          "awslogs-stream-prefix": "ecs""
+          "awslogs-stream-prefix": "ecs"
       }
     }
   }

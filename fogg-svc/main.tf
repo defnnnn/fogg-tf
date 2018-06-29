@@ -756,7 +756,15 @@ resource "aws_ecs_task_definition" "svc" {
     ],
     "name": "sshd",
     "portMappings": [],
-    "volumesFrom": []
+    "volumesFrom": [],
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+          "awslogs-group": "${local.service_name}",
+          "awslogs-region": "${var.region}",
+          "awslogs-stream-prefix": "ecs""
+      }
+    }
   },
   {
     "cpu": 10,
@@ -776,7 +784,15 @@ resource "aws_ecs_task_definition" "svc" {
     ],
    "name": "nginx",
     "portMappings": [],
-    "volumesFrom": []
+    "volumesFrom": [],
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+          "awslogs-group": "${local.service_name}",
+          "awslogs-region": "${var.region}",
+          "awslogs-stream-prefix": "ecs""
+      }
+    }
   }
 ]
 DEFINITION
@@ -840,7 +856,15 @@ resource "aws_ecs_task_definition" "host" {
         "containerPort": 22
       }
 		],
-    "volumesFrom": []
+    "volumesFrom": [],
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+          "awslogs-group": "${local.service_name}",
+          "awslogs-region": "${var.region}",
+          "awslogs-stream-prefix": "ecs""
+      }
+    }
   }
 ]
 DEFINITION
@@ -876,7 +900,15 @@ resource "aws_ecs_task_definition" "ex_fargate" {
     "mountPoints": [],
     "name": "sshd",
     "portMappings": [],
-    "volumesFrom": []
+    "volumesFrom": [],
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+          "awslogs-group": "${local.service_name}",
+          "awslogs-region": "${var.region}",
+          "awslogs-stream-prefix": "ecs""
+      }
+    }
   }
 ]
 DEFINITION
@@ -1508,4 +1540,16 @@ resource "aws_route53_record" "sd" {
 resource "aws_ssm_patch_group" "svc" {
   baseline_id = "${data.terraform_remote_state.reg.patch_baseline}"
   patch_group = "${local.service_name}"
+}
+
+resource "aws_cloudwatch_log_group" "svc" {
+  name = "${local.service_name}"
+
+  tags {
+    "Name"      = "${local.service_name}"
+    "Env"       = "${data.terraform_remote_state.env.env_name}"
+    "App"       = "${data.terraform_remote_state.app.app_name}"
+    "Service"   = "${var.service_name}"
+    "ManagedBy" = "terraform"
+  }
 }

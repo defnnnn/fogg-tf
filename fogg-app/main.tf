@@ -85,3 +85,13 @@ resource "aws_ecr_lifecycle_policy" "app" {
 }
 EOF
 }
+
+resource "aws_cloudwatch_log_group" "app" {
+  name = "${data.terraform_remote_state.env.env_name}-${var.app_name}"
+
+  tags {
+    "Name"      = "${data.terraform_remote_state.env.env_name}-${var.app_name}"
+    "Env"       = "${data.terraform_remote_state.env.env_name}"
+    "ManagedBy" = "terraform"
+  }
+}

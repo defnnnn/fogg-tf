@@ -445,7 +445,7 @@ data "aws_ami" "ecs" {
 
   filter {
     name   = "name"
-    values = ["amzn-ami-2017.09.*-amazon-ecs-optimized"]
+    values = ["amzn-ami-2018.03.*-amazon-ecs-optimized"]
   }
 
   owners = ["amazon"]

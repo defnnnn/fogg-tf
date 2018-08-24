@@ -32,7 +32,7 @@ driver:
   skip_cost_warning: true
   spot_price: <%= ENV['FOGG_SPOT_PRICE'] || '0.004' %>
   #block_duration_minutes: 60
-  instance_type: <%= ENV['FOGG_INSTANCE_TYPE'] || 't2.micro' %>
+  instance_type: <%= ENV['FOGG_INSTANCE_TYPE'] || 't3.micro' %>
   associate_public_ip: false
   iam_profile_name: <%= ENV['fogg__service_iam_profile'] %>
   user_data: data/user_data.sh

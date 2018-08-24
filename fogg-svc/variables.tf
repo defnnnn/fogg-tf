@@ -151,11 +151,11 @@ variable "asg_name" {
 }
 
 variable "instance_type" {
-  default = ["t2.nano"]
+  default = ["t3.nano"]
 }
 
 variable "instance_spot_type" {
-  default = ["t2.micro"]
+  default = ["t3.micro"]
 }
 
 variable "instance_max_price" {
